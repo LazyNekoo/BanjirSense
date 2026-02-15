@@ -4,12 +4,23 @@ const cors = require("cors");
 const { getPrepGuidanceBM, getStrandedGuidanceBM } = require("./src/gemini");
 const { predictFloodRisk } = require("./src/vertex");
 const { addStrandedReport, listStrandedReports } = require("./src/firestore");
+const { listModels } = require("./src/listModels");
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 
-app.get("/", (req, res) => res.json({ ok: true, service: "BanjirSense+ Backend" }));
+app.get("/", (req, res) => res.json({ ok: true, service: "BanjirSense Backend" }));
+
+
+app.get("/gemini-models", async (req, res) => {
+  try {
+    const data = await listModels();
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // POST /predict-flood
 app.post("/predict-flood", async (req, res) => {

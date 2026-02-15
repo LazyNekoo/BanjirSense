@@ -1,13 +1,21 @@
 const admin = require("firebase-admin");
-const { FIREBASE_PROJECT_ID } = require("./config");
+const path = require("path");
+
+// Always load local service account JSON
+const serviceAccount = require(
+  path.join(__dirname, "../keys/serviceAccount.json")
+);
 
 if (!admin.apps.length) {
-  // Works on GCP automatically. Locally requires:
-  // gcloud auth application-default login
-  admin.initializeApp({ projectId: FIREBASE_PROJECT_ID });
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    projectId: serviceAccount.project_id, 
+  });
 }
 
 const db = admin.firestore();
+
+// ------ Stranded reports ------
 
 async function addStrandedReport({ lat, lng, peopleCount, specialNeeds, note }) {
   const doc = await db.collection("stranded_reports").add({
