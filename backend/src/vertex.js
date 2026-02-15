@@ -1,10 +1,12 @@
 const { PredictionServiceClient } = require("@google-cloud/aiplatform");
 const { PROJECT_ID, REGION, VERTEX_ENDPOINT_ID } = require("./config");
 
+// --- Flood risk prediction ---
 function fallbackHeuristic({ weather }) {
   const rainfall = Number(weather?.rainfallMm ?? 0);
   const river = Number(weather?.riverLevelM ?? 0);
 
+  // Simple heuristic untuk predict risk banjir
   let score = 0.2;
   if (rainfall > 30) score += 0.3;
   if (rainfall > 60) score += 0.3;
