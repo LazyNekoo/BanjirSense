@@ -5,14 +5,20 @@ const { getPrepGuidanceBM, getStrandedGuidanceBM } = require("./src/gemini");
 const { predictFloodRisk } = require("./src/vertex");
 const { addStrandedReport, listStrandedReports } = require("./src/firestore");
 const { listModels } = require("./src/listModels");
+const authRoutes = require("./src/auth/routes");
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 
-app.get("/", (req, res) => res.json({ ok: true, service: "BanjirSense Backend" }));
+app.get("/", (req, res) =>
+  res.json({ ok: true, service: "BanjirSense Backend" })
+);
 
+// MOUNT AUTH ROUTES
+app.use("/auth", authRoutes);
 
+// Tgk gemini apa yang available
 app.get("/gemini-models", async (req, res) => {
   try {
     const data = await listModels();
@@ -53,7 +59,14 @@ app.post("/predict-flood", async (req, res) => {
 // POST /report-stranded
 app.post("/report-stranded", async (req, res) => {
   try {
-    const { lat, lng, peopleCount = 1, specialNeeds = [], note = "" } = req.body || {};
+    const {
+      lat,
+      lng,
+      peopleCount = 1,
+      specialNeeds = [],
+      note = "",
+    } = req.body || {};
+
     if (typeof lat !== "number" || typeof lng !== "number") {
       return res.status(400).json({ error: "lat and lng must be numbers" });
     }
@@ -91,8 +104,8 @@ app.get("/stranded", async (req, res) => {
   }
 });
 
-// ✅ Local runs use module.exports
+// Local runs use module.exports
 module.exports = app;
 
-// ✅ Cloud Functions Gen2 uses named export
+//Cloud Functions Gen2 named export
 exports.banjirsenseApi = app;
