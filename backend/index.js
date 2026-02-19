@@ -6,6 +6,8 @@ const { predictFloodRisk } = require("./src/vertex");
 const { addStrandedReport, listStrandedReports } = require("./src/firestore");
 const { listModels } = require("./src/listModels");
 const authRoutes = require("./src/auth/routes");
+const mapRoutes = require("./src/map/routes");
+
 
 const app = express();
 app.use(cors());
@@ -17,6 +19,10 @@ app.get("/", (req, res) =>
 
 // MOUNT AUTH ROUTES
 app.use("/auth", authRoutes);
+
+// MOUNT MAP ROUTES
+app.use("/map", mapRoutes);
+
 
 // Tgk gemini apa yang available
 app.get("/gemini-models", async (req, res) => {
