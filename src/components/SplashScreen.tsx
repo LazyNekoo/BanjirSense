@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, Code, Droplets } from "lucide-react";
+import { Check, Code, Shield } from "lucide-react";
 
 type PoweredByBadgeProps = {
   label?: string;
@@ -49,7 +49,7 @@ const SplashScreen: React.FC = () => {
         <div className="flex-1 flex flex-col items-center justify-center px-6 md:px-8 text-center">
           <div className="mb-6 md:mb-8">
             <div className="w-20 h-20 md:w-24 md:h-24 rounded-[2rem] bg-white border border-slate-100 flex items-center justify-center text-primary shadow-2xl shadow-blue-900/10">
-              <Droplets className="h-12 w-12 md:h-14 md:w-14" aria-hidden="true" />
+              <Shield className="h-12 w-12 md:h-14 md:w-14" aria-hidden="true" />
             </div>
           </div>
           <div className="space-y-2 md:space-y-3">
