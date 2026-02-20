@@ -44,24 +44,24 @@ const SecurityFooter: React.FC<SecurityFooterProps> = ({
 
 const SplashScreen: React.FC = () => {
   return (
-    <div className="bg-slate-200 min-h-screen flex items-center justify-center p-0 md:p-6 font-display text-dark-navy">
-      <div className="w-full max-w-[480px] bg-off-white h-screen md:h-[850px] md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-slate-300">
-        <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-          <div className="mb-8">
-            <div className="w-24 h-24 rounded-[2rem] bg-white border border-slate-100 flex items-center justify-center text-primary shadow-2xl shadow-blue-900/10">
-              <Droplets className="h-14 w-14" aria-hidden="true" />
+    <div className="bg-slate-200 min-h-screen flex items-center justify-center p-0 font-display text-dark-navy">
+      <div className="w-full max-w-[390px] bg-off-white h-screen md:h-[844px] rounded-none md:rounded-[3rem] shadow-none md:shadow-2xl overflow-hidden flex flex-col relative border-0 md:border border-slate-300">
+        <div className="flex-1 flex flex-col items-center justify-center px-6 md:px-8 text-center">
+          <div className="mb-6 md:mb-8">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-[2rem] bg-white border border-slate-100 flex items-center justify-center text-primary shadow-2xl shadow-blue-900/10">
+              <Droplets className="h-12 w-12 md:h-14 md:w-14" aria-hidden="true" />
             </div>
           </div>
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight text-dark-navy">
+          <div className="space-y-2 md:space-y-3">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-dark-navy">
               BanjirSense+
             </h1>
-            <p className="text-[10px] font-bold text-primary uppercase tracking-ultra-wide">
+            <p className="text-[9px] md:text-[10px] font-bold text-primary uppercase tracking-ultra-wide">
               National Flood Intelligence
             </p>
           </div>
         </div>
-        <div className="flex-none pb-16 px-8 flex flex-col items-center gap-6">
+        <div className="flex-none pb-12 md:pb-16 px-6 md:px-8 flex flex-col items-center gap-4 md:gap-6">
           <PoweredByBadge />
           <SecurityFooter />
         </div>
