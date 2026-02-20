@@ -1,38 +1,43 @@
-function prepPromptBM({ riskLevel, hoursAhead, locationHint }) {
+function prepPromptEN({ riskLevel, hoursAhead, locationHint }) {
   return `
-Anda ialah pembantu kesiapsiagaan banjir untuk Malaysia.
-Tulis dalam Bahasa Melayu ringkas, jelas, dan boleh dibuat segera.
+You are a flood preparedness assistant for Malaysia.
 
-Maklumat:
-- Lokasi (anggaran): ${locationHint}
-- Risiko banjir: ${riskLevel}
-- Anggaran masa: ${hoursAhead} jam
+Write in clear, concise English.
+Provide practical and immediately actionable advice.
 
-Beri (5-8 bullet):
-1) Apa perlu sediakan (dokumen, ubat, power bank, makanan, air)
-2) Apa perlu buat pada rumah/kenderaan
-3) Bila perlu berpindah (kalau risiko tinggi)
+Information:
+- Estimated location: ${locationHint}
+- Flood risk level: ${riskLevel}
+- Time window: ${hoursAhead} hours
+
+Provide 5–8 bullet points covering:
+1) What to prepare (important documents, medication, power banks, food, water)
+2) What actions to take for house/vehicle protection
+3) When evacuation should be considered (especially if risk is HIGH)
 `.trim();
 }
 
-function strandedPromptBM({ peopleCount, specialNeeds, locationHint }) {
-  const needs = Array.isArray(specialNeeds) ? specialNeeds.join(", ") : "";
+function strandedPromptEN({ peopleCount, specialNeeds, locationHint }) {
+  const needs = Array.isArray(specialNeeds) ? specialNeeds.join(", ") : "none";
+
   return `
-Anda ialah pembantu kecemasan banjir (mode terkandas) untuk Malaysia.
-Tulis dalam Bahasa Melayu, sangat ringkas, fokus keselamatan.
+You are an emergency flood response assistant (stranded mode) for Malaysia.
 
-Maklumat:
-- Lokasi (anggaran): ${locationHint}
-- Bilangan orang: ${peopleCount}
-- Keperluan khas: ${needs || "tiada"}
+Write in clear, concise English.
+Focus strictly on safety instructions.
 
-Beri arahan keselamatan segera (6-10 bullet):
-- kekal di tempat tinggi
-- elak arus deras
-- jimat bateri
-- sediakan info untuk pasukan penyelamat
-- bila perlu hubungi 999
+Information:
+- Estimated location: ${locationHint}
+- Number of people: ${peopleCount}
+- Special needs: ${needs}
+
+Provide 6–10 immediate safety instructions covering:
+- Move to higher ground
+- Avoid strong currents
+- Conserve phone battery
+- Prepare information for rescue teams
+- When to call emergency services (999)
 `.trim();
 }
 
-module.exports = { prepPromptBM, strandedPromptBM };
+module.exports = { prepPromptEN, strandedPromptEN };
