@@ -9,6 +9,7 @@ const userRoutes = require("./src/users/routes");
 const dependentRoutes = require("./src/dependents/routes");
 const reportRoutes = require("./src/reports/routes");
 const sosRoutes = require("./src/sos/routes");
+const jpsRoutes = require("./src/gov/jps/routes");
 
 const app = express();
 app.use(cors());
@@ -25,6 +26,7 @@ app.use(dependentRoutes);
 app.use(mapRoutes);
 app.use(reportRoutes);
 app.use(sosRoutes);
+app.use(jpsRoutes);
 
 // Gemini models (debug)
 app.get("/gemini-models", async (req, res) => {
