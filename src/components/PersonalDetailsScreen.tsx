@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, ChevronDown, ArrowLeft } from 'lucide-react';
+import { Mail, Phone, MapPin, ChevronDown, ArrowLeft, Lock, Eye, EyeOff, CheckCircle, Circle } from 'lucide-react';
 
 interface PersonalDetailsScreenProps {
   onBack: () => void;
@@ -280,6 +280,10 @@ export const PersonalDetailsScreen: React.FC<PersonalDetailsScreenProps> = ({
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const validateEmail = (emailValue: string): boolean => {
@@ -290,6 +294,13 @@ export const PersonalDetailsScreen: React.FC<PersonalDetailsScreenProps> = ({
     return phone.length >= 10 && /^\d+[-\s]?\d+/.test(phone);
   };
 
+  // Password strength validation
+  const hasMinimumLength = password.length >= 8;
+  const hasNumber = /\d/.test(password);
+  const hasSpecial = /[@#$]/.test(password);
+  const isPasswordValid = hasMinimumLength && hasNumber && hasSpecial;
+  const isConfirmValid = confirmPassword.length > 0 && password === confirmPassword;
+
   const isEmailValid = validateEmail(email);
   const isPhoneValid = validatePhoneNumber(phoneNumber);
   const isFormValid = 
@@ -299,22 +310,26 @@ export const PersonalDetailsScreen: React.FC<PersonalDetailsScreenProps> = ({
     address.trim() &&
     isEmailValid &&
     isPhoneValid &&
+    isPasswordValid &&
+    isConfirmValid &&
     (identityType === 'local' 
       ? icNumber.trim() && icNumber.length === 12
       : passportNumber.trim() && countryOfOrigin);
 
   const handleNextClick = () => {
     if (isFormValid) {
-      const formData: PersonalDetailsData = {
+      const formData: PersonalDetailsData & { password: string; confirmPassword: string } = {
         identityType,
         fullName,
         email,
         phoneNumber,
         address,
+        password,
+        confirmPassword,
         ...(identityType === 'local' && { icNumber }),
         ...(identityType === 'international' && { passportNumber, countryOfOrigin }),
       };
-      onNext(formData);
+      onNext(formData as any);
     }
   };
 
@@ -373,168 +388,293 @@ export const PersonalDetailsScreen: React.FC<PersonalDetailsScreenProps> = ({
         </div>
 
         {/* Form Fields */}
-        <form className="space-y-5">
-          {/* Local Citizen Fields */}
-          {identityType === 'local' && (
-            <div className="space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
-                  IC Number (12 Digits)
-                </label>
-                <input
-                  type="text"
-                  value={icNumber}
-                  onChange={(e) => setIcNumber(e.target.value.toUpperCase())}
-                  onBlur={() => setTouched({ ...touched, icNumber: true })}
-                  placeholder="E.g. 900101015522"
-                  className={`w-full rounded-xl py-3.5 px-4 text-sm font-medium transition-all border ${
-                    touched.icNumber && icNumber && icNumber.length < 12
-                      ? 'border-red-400 bg-red-50 focus:ring-2 focus:ring-red-300'
-                      : 'border-slate-200 bg-slate-50 focus:ring-2 focus:ring-primary focus:border-primary'
-                  } outline-none`}
-                />
-              </div>
+        <form className="space-y-6">
+          {/* IDENTITY DETAILS SECTION */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">badge</span>
+              <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Identity Details</h3>
             </div>
-          )}
-
-          {/* International Fields */}
-          {identityType === 'international' && (
-            <div className="space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
-                  Passport Number
-                </label>
-                <input
-                  type="text"
-                  value={passportNumber}
-                  onChange={(e) => setPassportNumber(e.target.value.toUpperCase())}
-                  onBlur={() => setTouched({ ...touched, passportNumber: true })}
-                  placeholder="Enter passport number"
-                  className="w-full rounded-xl border-slate-200 bg-slate-50 py-3.5 px-4 text-sm font-medium focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
-                  Country of Origin
-                </label>
-                <div className="relative">
+            
+            {/* Local Citizen Fields */}
+            {identityType === 'local' && (
+              <div className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
+                    IC Number (12 Digits)
+                  </label>
                   <input
                     type="text"
-                    value={countryOfOrigin}
-                    onChange={(e) => setCountryOfOrigin(e.target.value)}
-                    onBlur={() => setTouched({ ...touched, country: true })}
-                    list="country-options"
-                    placeholder="Select or type your country"
-                    className="w-full rounded-xl border-slate-200 bg-slate-50 py-3.5 px-4 text-sm font-medium focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none pr-10"
+                    value={icNumber}
+                    onChange={(e) => setIcNumber(e.target.value.toUpperCase())}
+                    onBlur={() => setTouched({ ...touched, icNumber: true })}
+                    placeholder="E.g. 900101015522"
+                    className={`w-full rounded-3xl py-3.5 px-4 text-sm font-medium transition-all border ${
+                      touched.icNumber && icNumber && icNumber.length < 12
+                        ? 'border-red-400 bg-red-50 focus:ring-2 focus:ring-red-300'
+                        : 'border-slate-200 bg-slate-50 focus:ring-2 focus:ring-primary focus:border-primary'
+                    } outline-none`}
                   />
-                  <ChevronDown
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-                    size={20}
-                  />
-                  <datalist id="country-options">
-                    {COUNTRIES.map((country) => (
-                      <option key={country.code} value={country.name} />
-                    ))}
-                  </datalist>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Full Name Field (Common) */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
-              Full Name (As per {identityType === 'local' ? 'MyKad' : 'Passport'})
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              onBlur={() => setTouched({ ...touched, fullName: true })}
-              placeholder={identityType === 'local' ? 'Enter your full name as shown on MyKad' : 'Enter full name'}
-              className="w-full rounded-xl border-slate-200 bg-slate-50 py-3.5 px-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none border"
-            />
-          </div>
+            {/* International Fields */}
+            {identityType === 'international' && (
+              <div className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
+                    Passport Number
+                  </label>
+                  <input
+                    type="text"
+                    value={passportNumber}
+                    onChange={(e) => setPassportNumber(e.target.value.toUpperCase())}
+                    onBlur={() => setTouched({ ...touched, passportNumber: true })}
+                    placeholder="Enter passport number"
+                    className="w-full rounded-3xl border-slate-200 bg-slate-50 py-3.5 px-4 text-sm font-medium focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none border"
+                  />
+                </div>
 
-          {/* Email Field (Common) */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
-              Email Address
-            </label>
-            <div className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all ${
-              touched.email && email && !isEmailValid
-                ? 'border-red-400 bg-red-50'
-                : 'border-slate-200 bg-slate-50'
-            } focus-within:ring-2 ${
-              touched.email && email && !isEmailValid
-                ? 'focus-within:ring-red-300'
-                : 'focus-within:ring-primary'
-            }`}>
-              <Mail className="text-slate-400 flex-shrink-0" size={20} />
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
+                    Country of Origin
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={countryOfOrigin}
+                      onChange={(e) => setCountryOfOrigin(e.target.value)}
+                      onBlur={() => setTouched({ ...touched, country: true })}
+                      list="country-options"
+                      placeholder="Select or type your country"
+                      className="w-full rounded-3xl border-slate-200 bg-slate-50 py-3.5 px-4 text-sm font-medium focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none pr-10 border"
+                    />
+                    <ChevronDown
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                      size={20}
+                    />
+                    <datalist id="country-options">
+                      {COUNTRIES.map((country) => (
+                        <option key={country.code} value={country.name} />
+                      ))}
+                    </datalist>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Full Name Field (Common) */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
+                Full Name (As per {identityType === 'local' ? 'MyKad' : 'Passport'})
+              </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={() => setTouched({ ...touched, email: true })}
-                placeholder="name@example.com"
-                className="flex-1 bg-transparent text-sm outline-none"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                onBlur={() => setTouched({ ...touched, fullName: true })}
+                placeholder={identityType === 'local' ? 'Enter your full name as shown on MyKad' : 'Enter full name'}
+                className="w-full rounded-3xl border-slate-200 bg-slate-50 py-3.5 px-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none border"
               />
             </div>
-            {touched.email && email && !isEmailValid && (
-              <p className="text-xs text-red-600">Invalid email format</p>
-            )}
           </div>
 
-          {/* Phone Number Field (Common) */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
-              Active Phone Number
-            </label>
-            <div className="flex gap-2">
-              <div className="w-20 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-sm font-medium text-slate-600">
-                +60
-              </div>
-              <div className="flex-1 relative">
+          {/* Contact Information Section */}
+          <div className="space-y-4 pt-4 border-t border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">contact_mail</span>
+              <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Contact Information</h3>
+            </div>
+
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
+                Email Address
+              </label>
+              <div className={`flex items-center gap-3 px-4 py-3.5 rounded-3xl border transition-all ${
+                touched.email && email && !isEmailValid
+                  ? 'border-red-400 bg-red-50'
+                  : 'border-slate-200 bg-slate-50'
+              } focus-within:ring-2 ${
+                touched.email && email && !isEmailValid
+                  ? 'focus-within:ring-red-300'
+                  : 'focus-within:ring-primary'
+              }`}>
+                <Mail className="text-slate-400 flex-shrink-0" size={20} />
                 <input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  onBlur={() => setTouched({ ...touched, phone: true })}
-                  placeholder="12-345 6789"
-                  className={`w-full rounded-xl py-3.5 px-4 pl-10 text-sm transition-all border outline-none focus:ring-2 ${
-                    touched.phone && phoneNumber && !isPhoneValid
-                      ? 'border-red-400 bg-red-50 focus:ring-red-300'
-                      : 'border-slate-200 bg-slate-50 focus:ring-primary focus:border-primary'
-                  }`}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onBlur={() => setTouched({ ...touched, email: true })}
+                  placeholder="name@example.com"
+                  className="flex-1 bg-transparent text-sm outline-none"
                 />
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
               </div>
+              {touched.email && email && !isEmailValid && (
+                <p className="text-xs text-red-600">Invalid email format</p>
+              )}
             </div>
-            {touched.phone && phoneNumber && !isPhoneValid && (
-              <p className="text-xs text-red-600">Invalid phone number format</p>
-            )}
+
+            {/* Phone Number Field */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
+                Active Phone Number
+              </label>
+              <div className="flex gap-2">
+                <div className="w-20 bg-slate-50 border border-slate-200 rounded-3xl flex items-center justify-center text-sm font-medium text-slate-600">
+                  +60
+                </div>
+                <div className="flex-1 relative">
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onBlur={() => setTouched({ ...touched, phone: true })}
+                    placeholder="12-345 6789"
+                    className={`w-full rounded-3xl py-3.5 px-4 pl-10 text-sm transition-all border outline-none focus:ring-2 ${
+                      touched.phone && phoneNumber && !isPhoneValid
+                        ? 'border-red-400 bg-red-50 focus:ring-red-300'
+                        : 'border-slate-200 bg-slate-50 focus:ring-primary focus:border-primary'
+                    }`}
+                  />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                </div>
+              </div>
+              {touched.phone && phoneNumber && !isPhoneValid && (
+                <p className="text-xs text-red-600">Invalid phone number format</p>
+              )}
+            </div>
           </div>
 
-          {/* Residential Address (Common) */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
-              Residential Address
-            </label>
-            <div className="relative">
-              <textarea
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                onBlur={() => setTouched({ ...touched, address: true })}
-                placeholder="Unit, Street, Area in Malaysia"
-                className="w-full rounded-xl border-slate-200 bg-slate-50 py-3.5 pl-4 pr-12 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none border resize-none min-h-[100px]"
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-4 text-primary hover:bg-blue-50 p-1.5 rounded-lg transition-colors"
-              >
-                <MapPin size={20} />
-              </button>
+          {/* Residential Address Section */}
+          <div className="space-y-4 pt-4 border-t border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">home_pin</span>
+              <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Residential Address</h3>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="relative">
+                <textarea
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  onBlur={() => setTouched({ ...touched, address: true })}
+                  placeholder="Unit, Street, Area in Malaysia"
+                  className="w-full rounded-3xl border-slate-200 bg-slate-50 py-3.5 pl-4 pr-12 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none border resize-none min-h-[100px]"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-4 text-primary hover:bg-blue-50 p-1.5 rounded-lg transition-colors"
+                >
+                  <MapPin size={20} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Account Security Section */}
+          <div className="space-y-4 pt-4 border-t border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">lock</span>
+              <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Account Security</h3>
+            </div>
+
+            {/* Create Password Field */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
+                Create Password
+              </label>
+              <div className={`flex items-center gap-3 px-4 py-3.5 rounded-3xl border transition-all ${
+                'border-slate-200 bg-slate-50'
+              } focus-within:ring-2 focus-within:ring-primary`}>
+                <Lock className="text-slate-400 flex-shrink-0" size={20} />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => setTouched({ ...touched, password: true })}
+                  placeholder="Enter your password"
+                  className="flex-1 bg-transparent text-sm outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm Password Field */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
+                Confirm Password
+              </label>
+              <div className={`flex items-center gap-3 px-4 py-3.5 rounded-3xl border transition-all ${
+                'border-slate-200 bg-slate-50'
+              } focus-within:ring-2 focus-within:ring-primary`}>
+                <Lock className="text-slate-400 flex-shrink-0" size={20} />
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onBlur={() => setTouched({ ...touched, confirmPassword: true })}
+                  placeholder="Confirm your password"
+                  className="flex-1 bg-transparent text-sm outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              {touched.confirmPassword && confirmPassword && !isConfirmValid && (
+                <p className="text-xs text-red-600">Passwords do not match</p>
+              )}
+            </div>
+
+            {/* Password Strength Checklist */}
+            <div className="bg-blue-50 rounded-2xl p-4 space-y-3 border border-blue-100 mt-4">
+              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">Password Strength</p>
+              
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2.5">
+                  {hasMinimumLength ? (
+                    <CheckCircle className="text-trust-green flex-shrink-0" size={18} />
+                  ) : (
+                    <Circle className="text-slate-400 flex-shrink-0" size={18} />
+                  )}
+                  <span className={`text-xs ${hasMinimumLength ? 'text-trust-green font-semibold' : 'text-slate-500'}`}>
+                    Minimum 8 characters
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  {hasNumber ? (
+                    <CheckCircle className="text-trust-green flex-shrink-0" size={18} />
+                  ) : (
+                    <Circle className="text-slate-400 flex-shrink-0" size={18} />
+                  )}
+                  <span className={`text-xs ${hasNumber ? 'text-trust-green font-semibold' : 'text-slate-500'}`}>
+                    Include at least one number
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  {hasSpecial ? (
+                    <CheckCircle className="text-trust-green flex-shrink-0" size={18} />
+                  ) : (
+                    <Circle className="text-slate-400 flex-shrink-0" size={18} />
+                  )}
+                  <span className={`text-xs ${hasSpecial ? 'text-trust-green font-semibold' : 'text-slate-500'}`}>
+                    Include a special character (@, #, $)
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </form>

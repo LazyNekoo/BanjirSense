@@ -46,8 +46,8 @@ function App() {
   const handleLoginSubmit = async (email: string, password: string) => {
     console.log("Login attempt:", { email, password });
     // Firebase email/password authentication integration point
-    // After successful authentication, navigate to registration
-    setCurrentScreen("personalDetails");
+    // TODO: After successful authentication, navigate to homescreen
+    // For now, just log the attempt - homescreen not yet created
   };
 
   const handleRegisterClick = () => {
