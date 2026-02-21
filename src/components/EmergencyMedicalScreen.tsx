@@ -221,7 +221,7 @@ export const EmergencyMedicalScreen: React.FC<EmergencyMedicalScreenProps> = ({
           </svg>
         </button>
         <p className="text-center mt-4 text-[10px] text-slate-400">
-          By registering, you consent to emergency data sharing for life-saving purposes.
+          By registering, you consent to emergeFncy data sharing for life-saving purposes.
         </p>
       </footer>
       </div>
