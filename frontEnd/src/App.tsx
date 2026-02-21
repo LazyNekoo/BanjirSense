@@ -6,8 +6,24 @@ import { EmergencyMedicalScreen } from "./components/EmergencyMedicalScreen";
 import { ResetPasswordScreen } from "./components/ResetPasswordScreen";
 import { VerifyPasswordScreen } from "./components/VerifyPasswordScreen";
 import { PasswordResetSuccessScreen } from "./components/PasswordResetSuccessScreen";
+import { HomeScreen } from "./components/HomeScreen";
+import { RiskAnalysisScreen } from "./components/RiskAnalysisScreen";
+import { RoutinePreparednessScreen } from "./components/RoutinePreparednessScreen";
+import { PreparednessCompleteScreen } from "./components/PreparednessCompleteScreen";
 
-type AppScreen = "splash" | "login" | "personalDetails" | "emergencyMedical" | "registrationComplete" | "resetPassword" | "verifyPassword" | "passwordResetSuccess";
+type AppScreen =
+  | "splash"
+  | "login"
+  | "personalDetails"
+  | "emergencyMedical"
+  | "registrationComplete"
+  | "resetPassword"
+  | "verifyPassword"
+  | "passwordResetSuccess"
+  | "home"
+  | "riskAnalysis"
+  | "routinePreparedness"
+  | "preparednessComplete";
 
 interface PersonalDetailsData {
   identityType: 'local' | 'international';
@@ -52,7 +68,7 @@ function App() {
     console.log("Login attempt:", { email, password });
     // Firebase email/password authentication integration point
     // TODO: After successful authentication, navigate to homescreen
-    // For now, just log the attempt - homescreen not yet created
+    setCurrentScreen("home");
   };
 
   const handleRegisterClick = () => {
@@ -135,6 +151,30 @@ function App() {
     setCurrentScreen("registrationComplete");
   };
 
+  const handleViewDetailedAnalysis = () => {
+    setCurrentScreen("riskAnalysis");
+  };
+
+  const handleCloseRiskAnalysis = () => {
+    setCurrentScreen("home");
+  };
+
+  const handleOpenRoutinePreparedness = () => {
+    setCurrentScreen("routinePreparedness");
+  };
+
+  const handleRoutinePreparednessBack = () => {
+    setCurrentScreen("home");
+  };
+
+  const handleRoutinePreparednessSubmit = () => {
+    setCurrentScreen("preparednessComplete");
+  };
+
+  const handlePreparednessCompleteBack = () => {
+    setCurrentScreen("home");
+  };
+
   return (
     <>
       {currentScreen === "splash" && <SplashScreen />}
@@ -198,6 +238,24 @@ function App() {
             </div>
           </div>
         </div>
+      )}
+      {currentScreen === "home" && (
+        <HomeScreen
+          onViewDetailedAnalysis={handleViewDetailedAnalysis}
+          onViewRoutineChecklist={handleOpenRoutinePreparedness}
+        />
+      )}
+      {currentScreen === "riskAnalysis" && (
+        <RiskAnalysisScreen onClose={handleCloseRiskAnalysis} />
+      )}
+      {currentScreen === "routinePreparedness" && (
+        <RoutinePreparednessScreen
+          onBack={handleRoutinePreparednessBack}
+          onSubmit={handleRoutinePreparednessSubmit}
+        />
+      )}
+      {currentScreen === "preparednessComplete" && (
+        <PreparednessCompleteScreen onBackToHome={handlePreparednessCompleteBack} />
       )}
     </>
   );
