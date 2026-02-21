@@ -249,13 +249,17 @@ const FALLBACK_COUNTRIES = [
 
 const getCountryOptions = () => {
   if (typeof Intl !== 'undefined' && 'supportedValuesOf' in Intl) {
-    const regions = (Intl as unknown as { supportedValuesOf: (key: string) => string[] }).supportedValuesOf('region');
-    const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+    try {
+      const regions = (Intl as unknown as { supportedValuesOf: (key: string) => string[] }).supportedValuesOf('region');
+      const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
-    return regions
-      .map((code) => ({ code, name: displayNames.of(code) ?? code }))
-      .filter((country) => country.name && country.name !== country.code)
-      .sort((a, b) => a.name.localeCompare(b.name));
+      return regions
+        .map((code) => ({ code, name: displayNames.of(code) ?? code }))
+        .filter((country) => country.name && country.name !== country.code)
+        .sort((a, b) => a.name.localeCompare(b.name));
+    } catch {
+      return FALLBACK_COUNTRIES;
+    }
   }
 
   return FALLBACK_COUNTRIES;
