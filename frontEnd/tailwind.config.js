@@ -6,6 +6,7 @@ export default {
       colors: {
         primary: "#1e40af",
         "off-white": "#f8fafc",
+        "soft-blue": "#eff6ff",
         "trust-green": "#10b981",
         "dark-navy": "#0f172a",
       },

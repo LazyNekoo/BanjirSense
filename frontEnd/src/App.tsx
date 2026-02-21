@@ -3,8 +3,11 @@ import SplashScreen from "./components/SplashScreen";
 import LoginScreen from "./components/LoginScreen";
 import { PersonalDetailsScreen } from "./components/PersonalDetailsScreen";
 import { EmergencyMedicalScreen } from "./components/EmergencyMedicalScreen";
+import { ResetPasswordScreen } from "./components/ResetPasswordScreen";
+import { VerifyPasswordScreen } from "./components/VerifyPasswordScreen";
+import { PasswordResetSuccessScreen } from "./components/PasswordResetSuccessScreen";
 
-type AppScreen = "splash" | "login" | "personalDetails" | "emergencyMedical" | "registrationComplete";
+type AppScreen = "splash" | "login" | "personalDetails" | "emergencyMedical" | "registrationComplete" | "resetPassword" | "verifyPassword" | "passwordResetSuccess";
 
 interface PersonalDetailsData {
   identityType: 'local' | 'international';
@@ -28,6 +31,8 @@ interface EmergencyMedicalData {
 function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>("splash");
   const [personalDetailsData, setPersonalDetailsData] = useState<PersonalDetailsData | null>(null);
+  const [resetPasswordEmail, setResetPasswordEmail] = useState("");
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   useEffect(() => {
     // Auto-transition to login screen after 2.5 seconds
@@ -46,8 +51,8 @@ function App() {
   const handleLoginSubmit = async (email: string, password: string) => {
     console.log("Login attempt:", { email, password });
     // Firebase email/password authentication integration point
-    // After successful authentication, navigate to registration
-    setCurrentScreen("personalDetails");
+    // TODO: After successful authentication, navigate to homescreen
+    // For now, just log the attempt - homescreen not yet created
   };
 
   const handleRegisterClick = () => {
@@ -57,8 +62,49 @@ function App() {
   };
 
   const handleForgotPassword = () => {
-    console.log("Forgot password clicked");
-    // Navigation to password reset screen
+    console.log("Forgot password clicked - navigating to password reset");
+    setCurrentScreen("resetPassword");
+  };
+
+  const handleResetPasswordBack = () => {
+    console.log("Going back from reset password screen");
+    setCurrentScreen("login");
+  };
+
+  const handleResetPasswordSendCode = async (email: string) => {
+    console.log("Sending verification code to:", email);
+    setResetPasswordEmail(email);
+    setIsResettingPassword(true);
+    
+    // TODO: Firebase integration - sendPasswordResetEmail(email)
+    // Simulate API call
+    setTimeout(() => {
+      setIsResettingPassword(false);
+      setCurrentScreen("verifyPassword");
+    }, 1500);
+  };
+
+  const handleVerifyPasswordBack = () => {
+    console.log("Going back from verify password screen");
+    setCurrentScreen("resetPassword");
+  };
+
+  const handlePasswordReset = async (_newPassword: string) => {
+    console.log("Resetting password");
+    setIsResettingPassword(true);
+    
+    // TODO: Firebase integration - confirmPasswordReset(resetToken, newPassword)
+    // Simulate API call
+    setTimeout(() => {
+      setIsResettingPassword(false);
+      setCurrentScreen("passwordResetSuccess");
+    }, 1500);
+  };
+
+  const handlePasswordResetSuccess = () => {
+    console.log("Password reset success - returning to login");
+    setResetPasswordEmail("");
+    setCurrentScreen("login");
   };
 
   const handlePersonalDetailsBack = () => {
@@ -99,6 +145,24 @@ function App() {
           onRegisterClick={handleRegisterClick}
           onForgotPassword={handleForgotPassword}
         />
+      )}
+      {currentScreen === "resetPassword" && (
+        <ResetPasswordScreen
+          onBack={handleResetPasswordBack}
+          onSendCode={handleResetPasswordSendCode}
+          isLoading={isResettingPassword}
+        />
+      )}
+      {currentScreen === "verifyPassword" && (
+        <VerifyPasswordScreen
+          onBack={handleVerifyPasswordBack}
+          onSuccess={handlePasswordReset}
+          email={resetPasswordEmail}
+          isLoading={isResettingPassword}
+        />
+      )}
+      {currentScreen === "passwordResetSuccess" && (
+        <PasswordResetSuccessScreen onContinue={handlePasswordResetSuccess} />
       )}
       {currentScreen === "personalDetails" && (
         <PersonalDetailsScreen
