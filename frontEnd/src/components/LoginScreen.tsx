@@ -72,7 +72,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
             </div>
             <div>
               <h1 className="font-bold text-3xl tracking-tight text-dark-navy">
-                BanjirSense+
+                BanjirSense
               </h1>
               <p className="text-[11px] font-bold text-primary uppercase tracking-[0.3em] mt-1">
                 National Flood Intelligence
@@ -219,7 +219,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
             {/* Registration Link */}
             <div className="text-center pt-2">
               <p className="text-sm text-slate-500">
-                New to BanjirSense+?{" "}
+                New to BanjirSense?{" "}
                 <button
                   type="button"
                   onClick={onRegisterClick}
@@ -243,7 +243,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
         {/* Footer */}
         <footer className="flex-none px-8 py-6 bg-white border-t border-slate-50">
           <p className="text-center text-[10px] text-slate-400 leading-relaxed max-w-[320px] mx-auto">
-            BanjirSense+ is a trusted platform for flood disaster management.
+            BanjirSense is a trusted platform for flood disaster management.
             By logging in, you agree to our{" "}
             <a href="#" className="underline">
               Terms of Use
