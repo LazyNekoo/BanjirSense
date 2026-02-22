@@ -6,6 +6,16 @@ import { EmergencyMedicalScreen } from "./components/EmergencyMedicalScreen";
 import { ResetPasswordScreen } from "./components/ResetPasswordScreen";
 import { VerifyPasswordScreen } from "./components/VerifyPasswordScreen";
 import { PasswordResetSuccessScreen } from "./components/PasswordResetSuccessScreen";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+
+import { auth } from "./lib/firebase";
+import { apiFetch } from "./lib/api";
 
 type AppScreen = "splash" | "login" | "personalDetails" | "emergencyMedical" | "registrationComplete" | "resetPassword" | "verifyPassword" | "passwordResetSuccess";
 
@@ -44,15 +54,32 @@ function App() {
   }, []);
 
   const handleGoogleLogin = async () => {
-    console.log("Google login initiated");
-    // Firebase GoogleAuthProvider integration point
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+
+    // prove backend can read token
+    const verify = await apiFetch<{
+      ok: boolean;
+      uid: string;
+      email: string | null;
+      profileExists: boolean;
+      profile: any;
+    }>("/auth/verify", { method: "POST" });
+
+    console.log("✅ Backend verify:", verify);
+
+    // later: navigate to home/map screen
+    // setCurrentScreen("home");
   };
 
+
   const handleLoginSubmit = async (email: string, password: string) => {
-    console.log("Login attempt:", { email, password });
-    // Firebase email/password authentication integration point
-    // TODO: After successful authentication, navigate to homescreen
-    // For now, just log the attempt - homescreen not yet created
+    await signInWithEmailAndPassword(auth, email, password);
+
+    const verify = await apiFetch("/auth/verify", { method: "POST" });
+    console.log("✅ Backend verify:", verify);
+
+    // later: setCurrentScreen("home");
   };
 
   const handleRegisterClick = () => {
@@ -72,16 +99,15 @@ function App() {
   };
 
   const handleResetPasswordSendCode = async (email: string) => {
-    console.log("Sending verification code to:", email);
-    setResetPasswordEmail(email);
     setIsResettingPassword(true);
-    
-    // TODO: Firebase integration - sendPasswordResetEmail(email)
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await sendPasswordResetEmail(auth, email);
       setIsResettingPassword(false);
-      setCurrentScreen("verifyPassword");
-    }, 1500);
+      setCurrentScreen("passwordResetSuccess"); // skip verify screen
+    } catch (e: any) {
+      setIsResettingPassword(false);
+      throw e;
+    }
   };
 
   const handleVerifyPasswordBack = () => {
@@ -112,10 +138,33 @@ function App() {
     setCurrentScreen("login");
   };
 
-  const handlePersonalDetailsNext = (data: PersonalDetailsData) => {
-    console.log("Personal details completed:", data);
-    // Firebase integration point - save personal details
-    setPersonalDetailsData(data);
+  const handlePersonalDetailsNext = async (data: any) => {
+    // data includes password + confirmPassword from UI
+    const { password, confirmPassword, ...profile } = data;
+
+    if (!password || password !== confirmPassword) {
+      throw new Error("Passwords do not match");
+    }
+
+    // 1) Create Firebase user
+    await createUserWithEmailAndPassword(auth, profile.email, password);
+
+    // 2) Save profile to backend (secure, uid comes from token)
+    await apiFetch("/me", {
+      method: "PUT",
+      body: JSON.stringify({
+        identityType: profile.identityType,
+        icNumber: profile.icNumber || null,
+        passportNumber: profile.passportNumber || null,
+        countryOfOrigin: profile.countryOfOrigin || null,
+        fullName: profile.fullName,
+        email: profile.email,
+        phoneNumber: profile.phoneNumber,
+        address: profile.address,
+      }),
+    });
+
+    setPersonalDetailsData(profile);
     setCurrentScreen("emergencyMedical");
   };
 
@@ -124,14 +173,21 @@ function App() {
     setCurrentScreen("personalDetails");
   };
 
-  const handleEmergencyMedicalComplete = (data: EmergencyMedicalData) => {
-    console.log("Emergency & medical completed:", data);
-    console.log("Full registration data:", {
-      personalDetails: personalDetailsData,
-      emergencyMedical: data,
+  const handleEmergencyMedicalComplete = async (data: EmergencyMedicalData) => {
+    // store as part of user profile (simplest)
+    await apiFetch("/me", {
+      method: "PUT",
+      body: JSON.stringify({
+        emergencyMedical: {
+          hasDisability: data.hasDisability,
+          hasYoungChildren: data.hasYoungChildren,
+          bloodType: data.bloodType,
+          allergies: data.allergies,
+          medicalHistory: data.medicalHistory,
+        },
+      }),
     });
-    // Firebase integration point - complete user registration
-    // Save combined data to database
+
     setCurrentScreen("registrationComplete");
   };
 
