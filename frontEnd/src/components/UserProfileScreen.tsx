@@ -151,8 +151,8 @@ export function UserProfileScreen({
             <div className="space-y-4">
               {/* Phone */}
               <div className="flex items-center justify-between group">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
                     <Phone size={16} />
                   </div>
                   <div>
@@ -174,8 +174,8 @@ export function UserProfileScreen({
 
               {/* Email */}
               <div className="flex items-center justify-between group">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
                     <Mail size={16} />
                   </div>
                   <div>
@@ -197,8 +197,8 @@ export function UserProfileScreen({
 
               {/* Address */}
               <div className="flex items-center justify-between group">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
                     <Home size={16} />
                   </div>
                   <div>
