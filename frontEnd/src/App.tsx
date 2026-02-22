@@ -6,16 +6,9 @@ import { EmergencyMedicalScreen } from "./components/EmergencyMedicalScreen";
 import { ResetPasswordScreen } from "./components/ResetPasswordScreen";
 import { VerifyPasswordScreen } from "./components/VerifyPasswordScreen";
 import { PasswordResetSuccessScreen } from "./components/PasswordResetSuccessScreen";
-import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
-} from "firebase/auth";
+import {GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, } from "firebase/auth";
 import { auth } from "./lib/firebase";
 import { apiFetch } from "./lib/api";
-
 import { HomeScreen } from "./components/HomeScreen";
 import { RiskAnalysisScreen } from "./components/RiskAnalysisScreen";
 import { RoutinePreparednessScreen } from "./components/RoutinePreparednessScreen";
@@ -58,6 +51,33 @@ interface EmergencyMedicalData {
 }
 
 function App() {
+    type AiRisk = {
+    riskLevel: "LOW" | "MEDIUM" | "HIGH";
+    hoursAhead?: number;
+    riskScore?: number;
+    summary?: string; // optional if your backend sends it
+  };
+
+  type JpsNearbyStation = {
+    id?: string;
+    name?: string;
+    stationName?: string;
+    state?: string;
+    district?: string;
+    lat?: number;
+    lng?: number;
+    waterLevel?: number | string;
+    rainfall?: number | string;
+    status?: string; // Normal/Alert/Warning/Danger
+    updatedAt?: string;
+    distanceKm?: number;
+  };
+
+  const [homeAi, setHomeAi] = useState<AiRisk | null>(null);
+  const [homeJps, setHomeJps] = useState<JpsNearbyStation | null>(null);
+  const [homeLoading, setHomeLoading] = useState(false);
+  const [homeError, setHomeError] = useState<string | null>(null);
+  
   const [currentScreen, setCurrentScreen] = useState<AppScreen>("splash");
   const [personalDetailsData, setPersonalDetailsData] = useState<PersonalDetailsData | null>(null);
   const [resetPasswordEmail, setResetPasswordEmail] = useState("");
@@ -89,17 +109,19 @@ function App() {
 
     // later: navigate to home/map screen
     setCurrentScreen("home");
+    setTimeout(loadHomeData, 0);
+
   };
 
 
   const handleLoginSubmit = async (email: string, password: string) => {
-
     await signInWithEmailAndPassword(auth, email, password);
-
     const verify = await apiFetch("/auth/verify", { method: "POST" });
     console.log("✅ Backend verify:", verify);
 
     setCurrentScreen("home");
+    setTimeout(loadHomeData, 0);
+
 
   };
 
@@ -212,6 +234,98 @@ function App() {
     setCurrentScreen("registrationComplete");
   };
 
+  //Get user's location with browser geolocation API
+  const getBrowserLocation = () =>
+  new Promise<{ lat: number; lng: number }>((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error("Geolocation not supported"));
+    navigator.geolocation.getCurrentPosition(
+      (pos) =>
+        resolve({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        }),
+      (err) => reject(err),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+
+  // Load home screen data (AI risk + JPS stations) when entering home screen
+  const loadHomeData = async () => {
+    setHomeLoading(true);
+    setHomeError(null);
+
+    try {
+      // ✅ fallback coords so app still works without permission
+      let lat = 3.1390;
+      let lng = 101.6869;
+
+      try {
+        const loc = await getBrowserLocation();
+        lat = loc.lat;
+        lng = loc.lng;
+      } catch {
+        // keep fallback
+      }
+
+      const [ai, jps] = await Promise.allSettled([
+        apiFetch<any>("/predict-flood", {
+          method: "POST",
+          body: JSON.stringify({ lat, lng }),
+        }),
+        apiFetch<any>(`/gov/jps/nearby?lat=${lat}&lng=${lng}&radiusKm=30`),
+      ]);
+
+      // AI
+      if (ai.status === "fulfilled") {
+        setHomeAi({
+          riskLevel: ai.value.riskLevel || ai.value.risk || "LOW",
+          hoursAhead: ai.value.hoursAhead,
+          riskScore: ai.value.riskScore,
+          summary: ai.value.summary,
+        });
+      } else {
+        setHomeAi(null);
+      }
+
+      // JPS
+      if (jps.status === "fulfilled") {
+        const station =
+          jps.value?.station ||
+          jps.value?.stations?.[0] ||
+          jps.value?.[0] ||
+          null;
+
+        setHomeJps(
+          station
+            ? {
+                id: station.id,
+                name: station.name,
+                state: station.state,
+                district: station.district,
+                lat: station.lat,
+                lng: station.lng,
+                status: station.status,
+                updatedAt: station.updatedAt,
+                distanceKm: station.distanceKm,
+                waterLevel: station.waterLevelM ?? null,
+                rainfall:
+                  station.rainfall?.todayMm ??
+                  station.rainfall?.last1hMm ??
+                  station.rainfall?.last3hMm ??
+                  null,
+              }
+            : null
+        );
+      } else {
+        setHomeJps(null);
+      }
+    } catch (e: any) {
+      setHomeError(e?.message || "Failed to load home data");
+    } finally {
+      setHomeLoading(false);
+    }
+  };
+
   const handleViewDetailedAnalysis = () => {
     setCurrentScreen("riskAnalysis");
   };
@@ -313,6 +427,11 @@ function App() {
           onViewDetailedAnalysis={handleViewDetailedAnalysis}
           onViewRoutineChecklist={handleOpenRoutinePreparedness}
           onOpenNotifications={handleOpenNotifications}
+          ai={homeAi}
+          jps={homeJps}
+          isLoading={homeLoading}
+          error={homeError}
+          onRefresh={loadHomeData}
         />
       )}
       {currentScreen === "notifications" && (

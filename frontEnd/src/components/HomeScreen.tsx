@@ -12,16 +12,44 @@ import {
   User,
 } from "lucide-react";
 
+type AiRisk = {
+  riskLevel: "LOW" | "MEDIUM" | "HIGH";
+  hoursAhead?: number;
+  riskScore?: number;
+  summary?: string;
+};
+
+type JpsNearbyStation = {
+  name?: string;
+  stationName?: string;
+  status?: string;
+  waterLevel?: number | string;
+  rainfall?: number | string;
+  updatedAt?: string;
+  distanceKm?: number;
+};
+
 interface HomeScreenProps {
   onViewDetailedAnalysis: () => void;
   onViewRoutineChecklist: () => void;
   onOpenNotifications: () => void;
+
+  ai?: AiRisk | null;
+  jps?: JpsNearbyStation | null;
+  isLoading?: boolean;
+  error?: string | null;
+  onRefresh?: () => void;
 }
 
 export function HomeScreen({
   onViewDetailedAnalysis,
   onViewRoutineChecklist,
   onOpenNotifications,
+  ai,
+  jps,
+  isLoading,
+  error,
+  onRefresh,
 }: HomeScreenProps) {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
@@ -54,7 +82,11 @@ export function HomeScreen({
               <div className="bg-white/95 backdrop-blur px-4 py-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3">
                 <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
                 <span className="text-xs font-black text-primary uppercase tracking-widest">
-                  Safe Zone • Low Risk
+                  {isLoading
+                    ? "Loading live risk..."
+                    : ai
+                      ? `AI Risk • ${ai.riskLevel}`
+                      : "AI Risk • Unavailable"}
                 </span>
               </div>
             </div>
@@ -70,6 +102,62 @@ export function HomeScreen({
                   <p className="text-sm text-slate-500 mt-1 font-medium">
                     No immediate threat. Conditions are currently stable and safe.
                   </p>
+                  <section className="px-5 mt-4">
+                    <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+                          Official JPS Station Nearby
+                        </p>
+                        {onRefresh && (
+                          <button
+                            onClick={onRefresh}
+                            className="text-[11px] font-bold text-primary hover:underline"
+                          >
+                            Refresh
+                          </button>
+                        )}
+                      </div>
+
+                      {error && (
+                        <p className="text-xs text-red-600 font-semibold">
+                          {error}
+                        </p>
+                      )}
+
+                      {!jps ? (
+                        <p className="text-sm text-slate-500">
+                          {isLoading ? "Finding nearest station..." : "No station data available."}
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-sm font-bold text-slate-900">
+                            {jps.stationName || jps.name || "Unnamed Station"}
+                          </p>
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
+                              Status: {jps.status ?? "N/A"}
+                            </span>
+                            <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
+                              Water: {jps.waterLevel ?? "N/A"}
+                            </span>
+                            <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
+                              Rain: {jps.rainfall ?? "N/A"}
+                            </span>
+                            {typeof jps.distanceKm === "number" && (
+                              <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
+                                {jps.distanceKm.toFixed(1)} km
+                              </span>
+                            )}
+                          </div>
+                          {jps.updatedAt && (
+                            <p className="text-[11px] text-slate-400">
+                              Updated: {jps.updatedAt}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </section>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-4">
