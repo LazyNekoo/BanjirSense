@@ -31,6 +31,7 @@ interface Dependent {
 
 interface UserProfileScreenProps {
   onEditProfile?: () => void;
+  onEditPhoneNumber?: () => void;
   onAddDependent?: () => void;
   onEditDependent?: (dependentId: string) => void;
   onSettings?: () => void;
@@ -41,6 +42,7 @@ interface UserProfileScreenProps {
 
 export function UserProfileScreen({
   onEditProfile,
+  onEditPhoneNumber,
   onAddDependent,
   onEditDependent,
   onSettings,
@@ -165,7 +167,7 @@ export function UserProfileScreen({
                   </div>
                 </div>
                 <button
-                  onClick={onEditProfile}
+                  onClick={onEditPhoneNumber}
                   className="text-slate-300 hover:text-primary transition-colors"
                 >
                   <Edit2 size={18} />

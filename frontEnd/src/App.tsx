@@ -12,6 +12,9 @@ import { RoutinePreparednessScreen } from "./components/RoutinePreparednessScree
 import { PreparednessCompleteScreen } from "./components/PreparednessCompleteScreen";
 import { NotificationCenterScreen } from "./components/NotificationCenterScreen";
 import { UserProfileScreen } from "./components/UserProfileScreen";
+import { EditPhoneNumberScreen } from "./components/EditPhoneNumberScreen";
+import { VerifyPhoneNumberScreen } from "./components/VerifyPhoneNumberScreen";
+import { PhoneUpdateSuccessScreen } from "./components/PhoneUpdateSuccessScreen";
 
 type AppScreen =
   | "splash"
@@ -27,7 +30,10 @@ type AppScreen =
   | "notifications"
   | "riskAnalysis"
   | "routinePreparedness"
-  | "preparednessComplete";
+  | "preparednessComplete"
+  | "editPhoneNumber"
+  | "verifyPhoneNumber"
+  | "phoneUpdateSuccess";
 
 interface PersonalDetailsData {
   identityType: 'local' | 'international';
@@ -53,6 +59,7 @@ function App() {
   const [personalDetailsData, setPersonalDetailsData] = useState<PersonalDetailsData | null>(null);
   const [resetPasswordEmail, setResetPasswordEmail] = useState("");
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState("");
 
   useEffect(() => {
     // Auto-transition to login screen after 2.5 seconds
@@ -213,7 +220,7 @@ function App() {
 
   const handleProfileEditClick = () => {
     console.log("Edit profile clicked");
-    // TODO: Open edit profile modal/screen
+    setCurrentScreen("editPhoneNumber");
   };
 
   const handleAddDependent = () => {
@@ -239,6 +246,41 @@ function App() {
   const handleProfileLogout = () => {
     console.log("Logout clicked");
     setCurrentScreen("login");
+  };
+
+  const handleEditPhoneClick = () => {
+    console.log("Edit phone number clicked");
+    setCurrentScreen("editPhoneNumber");
+  };
+
+  const handleEditPhoneNumberBack = () => {
+    setCurrentScreen("profile");
+  };
+
+  const handleEditPhoneNumberVerify = (phoneNumber: string) => {
+    console.log("Verifying phone number:", phoneNumber);
+    setUpdatedPhoneNumber(phoneNumber);
+    // TODO: Firebase integration - send OTP to phone number
+    setCurrentScreen("verifyPhoneNumber");
+  };
+
+  const handleVerifyPhoneNumberBack = () => {
+    setCurrentScreen("editPhoneNumber");
+  };
+
+  const handleVerifyPhoneNumberConfirm = (code: string) => {
+    console.log("OTP verification code:", code);
+    // TODO: Firebase integration - verify OTP and update phone number
+    setCurrentScreen("phoneUpdateSuccess");
+  };
+
+  const handlePhoneUpdateSuccessRedirect = () => {
+    console.log("Redirecting to profile after phone update");
+    setCurrentScreen("profile");
+  };
+
+  const handlePhoneUpdateNavigate = (screen: string) => {
+    handleProfileNavigate(screen);
   };
 
   return (
@@ -316,6 +358,7 @@ function App() {
       {currentScreen === "profile" && (
         <UserProfileScreen
           onEditProfile={handleProfileEditClick}
+          onEditPhoneNumber={handleEditPhoneClick}
           onAddDependent={handleAddDependent}
           onEditDependent={handleEditDependent}
           onSettings={handleProfileSettings}
@@ -338,6 +381,27 @@ function App() {
       )}
       {currentScreen === "preparednessComplete" && (
         <PreparednessCompleteScreen onBackToHome={handlePreparednessCompleteBack} />
+      )}
+      {currentScreen === "editPhoneNumber" && (
+        <EditPhoneNumberScreen
+          onBack={handleEditPhoneNumberBack}
+          onVerify={handleEditPhoneNumberVerify}
+          onNavigate={handlePhoneUpdateNavigate}
+        />
+      )}
+      {currentScreen === "verifyPhoneNumber" && (
+        <VerifyPhoneNumberScreen
+          onBack={handleVerifyPhoneNumberBack}
+          onConfirm={handleVerifyPhoneNumberConfirm}
+          onNavigate={handlePhoneUpdateNavigate}
+          phoneNumber={updatedPhoneNumber}
+        />
+      )}
+      {currentScreen === "phoneUpdateSuccess" && (
+        <PhoneUpdateSuccessScreen
+          onNavigate={handlePhoneUpdateNavigate}
+          onRedirectComplete={handlePhoneUpdateSuccessRedirect}
+        />
       )}
     </>
   );
