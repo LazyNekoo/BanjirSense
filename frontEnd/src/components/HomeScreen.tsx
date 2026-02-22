@@ -31,7 +31,7 @@ export function HomeScreen({
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-blue-200">
               <Droplets size={20} />
             </div>
-            <h1 className="font-black text-lg tracking-tight text-slate-900">BanjirSense+</h1>
+            <h1 className="font-black text-lg tracking-tight text-slate-900">BanjirSense</h1>
           </div>
           <button
             type="button"
@@ -164,7 +164,7 @@ export function HomeScreen({
                   <Droplets size={16} />
                 </div>
                 <span className="font-black text-sm tracking-tight text-dark-navy">
-                  BanjirSense+
+                  BanjirSense
                 </span>
               </div>
             </div>

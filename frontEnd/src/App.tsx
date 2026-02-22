@@ -88,7 +88,7 @@ function App() {
     console.log("✅ Backend verify:", verify);
 
     // later: navigate to home/map screen
-    // setCurrentScreen("home");
+    setCurrentScreen("home");
   };
 
 
@@ -99,7 +99,7 @@ function App() {
     const verify = await apiFetch("/auth/verify", { method: "POST" });
     console.log("✅ Backend verify:", verify);
 
-    // later: setCurrentScreen("home");
+    setCurrentScreen("home");
 
   };
 
