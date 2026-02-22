@@ -54,7 +54,7 @@ const SplashScreen: React.FC = () => {
           </div>
           <div className="space-y-2 md:space-y-3">
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-dark-navy">
-              BanjirSense+
+              BanjirSense
             </h1>
             <p className="text-[9px] md:text-[10px] font-bold text-primary uppercase tracking-ultra-wide">
               National Flood Intelligence
