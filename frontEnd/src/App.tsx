@@ -255,7 +255,6 @@ function App() {
     setHomeError(null);
 
     try {
-      // ✅ fallback coords so app still works without permission
       let lat = 3.1390;
       let lng = 101.6869;
 
@@ -263,8 +262,8 @@ function App() {
         const loc = await getBrowserLocation();
         lat = loc.lat;
         lng = loc.lng;
-      } catch {
-        // keep fallback
+      } catch (err) {
+        console.warn("Geolocation failed, using fallback KL", err);
       }
 
       const [ai, jps] = await Promise.allSettled([

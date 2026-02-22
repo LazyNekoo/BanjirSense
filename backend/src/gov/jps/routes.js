@@ -11,6 +11,7 @@ const router = express.Router();
 router.get("/gov/jps/stations", async (req, res) => {
   try {
     const { fromCache, fetchedAt, stations, warning } = await getStationsCached();
+    console.log("✅ JPS routes loaded");
 
     res.json({
       ok: true,
