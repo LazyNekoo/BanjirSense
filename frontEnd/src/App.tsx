@@ -30,6 +30,8 @@ import { EncryptionLoadingModal } from "./components/EncryptionLoadingModal";
 import { DependentProfileScreen } from "./components/DependentProfileScreen";
 import { EditDependentHub } from "./components/EditDependentHub";
 import { EditDependentSuccessScreen } from "./components/EditDependentSuccessScreen";
+import { AppSettingsScreen } from "./components/AppSettingsScreen";
+import { HelpSupportScreen } from "./components/HelpSupportScreen";
 
 type AppScreen =
   | "splash"
@@ -62,7 +64,9 @@ type AppScreen =
   | "addDependentSuccess"
   | "dependentProfile"
   | "editDependent"
-  | "editDependentSuccess";
+  | "editDependentSuccess"
+  | "appSettings"
+  | "helpSupport";
 
 interface PersonalDetailsData {
   identityType: 'local' | 'international';
@@ -428,12 +432,20 @@ function App() {
 
   const handleProfileSettings = () => {
     console.log("Profile settings clicked");
-    // TODO: Open settings screen
+    setCurrentScreen("appSettings");
   };
 
   const handleProfileHelp = () => {
     console.log("Help clicked");
-    // TODO: Open help screen
+    setCurrentScreen("helpSupport");
+  };
+
+  const handleAppSettingsBack = () => {
+    setCurrentScreen("profile");
+  };
+
+  const handleHelpSupportBack = () => {
+    setCurrentScreen("profile");
   };
 
   const handleProfileLogout = () => {
@@ -830,6 +842,18 @@ function App() {
           />
         ) : null;
       })()}
+      {currentScreen === "appSettings" && (
+        <AppSettingsScreen
+          onBack={handleAppSettingsBack}
+          onNavigate={handleProfileNavigate}
+        />
+      )}
+      {currentScreen === "helpSupport" && (
+        <HelpSupportScreen
+          onBack={handleHelpSupportBack}
+          onNavigate={handleProfileNavigate}
+        />
+      )}
     </>
   );
 }
