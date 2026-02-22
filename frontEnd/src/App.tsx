@@ -10,6 +10,7 @@ import { HomeScreen } from "./components/HomeScreen";
 import { RiskAnalysisScreen } from "./components/RiskAnalysisScreen";
 import { RoutinePreparednessScreen } from "./components/RoutinePreparednessScreen";
 import { PreparednessCompleteScreen } from "./components/PreparednessCompleteScreen";
+import { NotificationCenterScreen } from "./components/NotificationCenterScreen";
 
 type AppScreen =
   | "splash"
@@ -21,6 +22,7 @@ type AppScreen =
   | "verifyPassword"
   | "passwordResetSuccess"
   | "home"
+  | "notifications"
   | "riskAnalysis"
   | "routinePreparedness"
   | "preparednessComplete";
@@ -155,6 +157,14 @@ function App() {
     setCurrentScreen("riskAnalysis");
   };
 
+  const handleOpenNotifications = () => {
+    setCurrentScreen("notifications");
+  };
+
+  const handleCloseNotifications = () => {
+    setCurrentScreen("home");
+  };
+
   const handleCloseRiskAnalysis = () => {
     setCurrentScreen("home");
   };
@@ -243,7 +253,11 @@ function App() {
         <HomeScreen
           onViewDetailedAnalysis={handleViewDetailedAnalysis}
           onViewRoutineChecklist={handleOpenRoutinePreparedness}
+          onOpenNotifications={handleOpenNotifications}
         />
+      )}
+      {currentScreen === "notifications" && (
+        <NotificationCenterScreen onBack={handleCloseNotifications} />
       )}
       {currentScreen === "riskAnalysis" && (
         <RiskAnalysisScreen onClose={handleCloseRiskAnalysis} />

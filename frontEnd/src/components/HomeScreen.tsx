@@ -15,9 +15,14 @@ import {
 interface HomeScreenProps {
   onViewDetailedAnalysis: () => void;
   onViewRoutineChecklist: () => void;
+  onOpenNotifications: () => void;
 }
 
-export function HomeScreen({ onViewDetailedAnalysis, onViewRoutineChecklist }: HomeScreenProps) {
+export function HomeScreen({
+  onViewDetailedAnalysis,
+  onViewRoutineChecklist,
+  onOpenNotifications,
+}: HomeScreenProps) {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
       <div className="w-[400px] max-w-[400px] h-[824px] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200">
@@ -28,7 +33,11 @@ export function HomeScreen({ onViewDetailedAnalysis, onViewRoutineChecklist }: H
             </div>
             <h1 className="font-black text-lg tracking-tight text-slate-900">BanjirSense+</h1>
           </div>
-          <button className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-primary border border-slate-100">
+          <button
+            type="button"
+            onClick={onOpenNotifications}
+            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-primary border border-slate-100"
+          >
             <Bell size={18} />
           </button>
         </header>
