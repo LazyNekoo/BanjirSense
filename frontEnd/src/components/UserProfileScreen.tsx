@@ -30,6 +30,7 @@ interface Dependent {
 }
 
 interface UserProfileScreenProps {
+  dependents?: { id: string; fullName: string; relationship: string; triageTag: string }[];
   onEditEmailAddress?: () => void;
   onEditPhoneNumber?: () => void;
   onEditHomeAddress?: () => void;
@@ -43,6 +44,7 @@ interface UserProfileScreenProps {
 }
 
 export function UserProfileScreen({
+  dependents: passedDependents,
   onEditEmailAddress,
   onEditPhoneNumber,
   onEditHomeAddress,
@@ -54,7 +56,27 @@ export function UserProfileScreen({
   onLogout,
   onNavigate,
 }: UserProfileScreenProps) {
-  const [dependents] = useState<Dependent[]>([
+  const getTriageColor = (triageTag: string): string => {
+    const colors: { [key: string]: string } = {
+      elderly: 'orange',
+      child: 'green',
+      'oku-physical': 'purple',
+      'oku-neuro': 'purple',
+    };
+    return colors[triageTag] || 'blue';
+  };
+
+  const getTriageIcon = (triageTag: string): string => {
+    const icons: { [key: string]: string } = {
+      elderly: 'elderly',
+      child: 'child',
+      'oku-physical': 'wheelchair',
+      'oku-neuro': 'psychology',
+    };
+    return icons[triageTag] || 'info';
+  };
+
+  const defaultDependents: Dependent[] = [
     {
       id: '1',
       name: 'Salmah binti Hamid',
@@ -79,7 +101,18 @@ export function UserProfileScreen({
       icon: 'wheelchair',
       color: 'purple',
     },
-  ]);
+  ];
+
+  const dependents: Dependent[] = passedDependents 
+    ? passedDependents.map(d => ({
+        id: d.id,
+        name: d.fullName,
+        relationship: d.relationship,
+        badges: [],
+        icon: getTriageIcon(d.triageTag),
+        color: getTriageColor(d.triageTag),
+      }))
+    : defaultDependents;
 
   const [medicalDataIncomplete] = useState(true);
 

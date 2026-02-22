@@ -22,6 +22,14 @@ import { EditHomeAddressScreen } from "./components/EditHomeAddressScreen";
 import { HomeAddressUpdateSuccessScreen } from "./components/HomeAddressUpdateSuccessScreen";
 import { MedicalSpecialNeedsScreen } from "./components/MedicalSpecialNeedsScreen";
 import { MedicalProfileSuccessScreen } from "./components/MedicalProfileSuccessScreen";
+import { AddDependentIdentityScreen } from "./components/AddDependentIdentityScreen";
+import { AddDependentTriageScreen } from "./components/AddDependentTriageScreen";
+import { AddDependentMedicalScreen } from "./components/AddDependentMedicalScreen";
+import { AddDependentSuccessScreen } from "./components/AddDependentSuccessScreen";
+import { EncryptionLoadingModal } from "./components/EncryptionLoadingModal";
+import { DependentProfileScreen } from "./components/DependentProfileScreen";
+import { EditDependentHub } from "./components/EditDependentHub";
+import { EditDependentSuccessScreen } from "./components/EditDependentSuccessScreen";
 
 type AppScreen =
   | "splash"
@@ -47,7 +55,14 @@ type AppScreen =
   | "editHomeAddress"
   | "homeAddressUpdateSuccess"
   | "editMedicalProfile"
-  | "medicalProfileSuccess";
+  | "medicalProfileSuccess"
+  | "addDependentStep1"
+  | "addDependentStep2"
+  | "addDependentStep3"
+  | "addDependentSuccess"
+  | "dependentProfile"
+  | "editDependent"
+  | "editDependentSuccess";
 
 interface PersonalDetailsData {
   identityType: 'local' | 'international';
@@ -68,6 +83,17 @@ interface EmergencyMedicalData {
   medicalHistory: string;
 }
 
+interface CurrentDependentData {
+  fullName: string;
+  relationship: string;
+  nricNumber: string;
+  triageTag: string;
+  allergies: string;
+  medicalHistory: string;
+  criticalMedications: string;
+  bloodType: string;
+}
+
 function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>("splash");
   const [personalDetailsData, setPersonalDetailsData] = useState<PersonalDetailsData | null>(null);
@@ -81,6 +107,22 @@ function App() {
     medicalHistory: "",
     bloodType: "",
   });
+  const [currentDependentData, setCurrentDependentData] = useState<Partial<CurrentDependentData>>({});
+  const [isEncryptionLoading, setIsEncryptionLoading] = useState(false);
+  const [selectedDependentId, setSelectedDependentId] = useState<string | null>(null);
+  const [dependents, setDependents] = useState([
+    {
+      id: '1',
+      fullName: 'Salmah binti Hamid',
+      relationship: 'Mother',
+      triageTag: 'elderly',
+      nricNumber: '540212105882',
+      allergies: 'Penicillin, Shellfish',
+      medicalHistory: 'Hypertension, Requires Wheelchair for long distance',
+      bloodType: 'A+',
+      criticalMedications: 'Amlodipine (5mg Daily)',
+    },
+  ]);
 
   useEffect(() => {
     // Auto-transition to login screen after 2.5 seconds
@@ -241,12 +283,147 @@ function App() {
 
   const handleAddDependent = () => {
     console.log("Add dependent clicked");
-    // TODO: Open add dependent modal/screen
+    setCurrentDependentData({});
+    setCurrentScreen("addDependentStep1");
+  };
+
+  const handleAddDependentStep1Back = () => {
+    setCurrentScreen("profile");
+  };
+
+  const handleAddDependentStep1Next = (data: {
+    fullName: string;
+    relationship: string;
+    nricNumber: string;
+  }) => {
+    console.log("Step 1 completed:", data);
+    setCurrentDependentData((prev) => ({ ...prev, ...data }));
+    setCurrentScreen("addDependentStep2");
+  };
+
+  const handleAddDependentStep2Back = () => {
+    setCurrentScreen("addDependentStep1");
+  };
+
+  const handleAddDependentStep2Next = (data: { triageTag: string }) => {
+    console.log("Step 2 completed:", data);
+    setCurrentDependentData((prev) => ({ ...prev, ...data }));
+    setCurrentScreen("addDependentStep3");
+  };
+
+  const handleAddDependentStep3Back = () => {
+    setCurrentScreen("addDependentStep2");
+  };
+
+  const handleAddDependentStep3Next = (data: {
+    allergies: string;
+    criticalMedications: string;
+    medicalHistory: string;
+    bloodType: string;
+  }) => {
+    console.log("Step 3 completed:", data);
+    const updatedData = { ...currentDependentData, ...data };
+    setCurrentDependentData(updatedData);
+    
+    // Show encryption loading modal
+    setIsEncryptionLoading(true);
+    
+    // Simulate encryption and sync (4 second auto-complete)
+    setTimeout(() => {
+      setIsEncryptionLoading(false);
+      setCurrentScreen("addDependentSuccess");
+    }, 4000);
+    
+    // TODO: Firebase integration here - save dependent to Firestore with SHA-256 encryption
+    console.log("Dependent payload ready for sync:", updatedData);
+  };
+
+  const handleAddDependentSuccessReturn = () => {
+    setCurrentDependentData({});
+    setCurrentScreen("profile");
+  };
+
+  const handleAddDependentSuccessAddAnother = () => {
+    setCurrentDependentData({});
+    setCurrentScreen("addDependentStep1");
+  };
+
+  const handleAddDependentNavigate = (screen: string) => {
+    handleProfileNavigate(screen);
   };
 
   const handleEditDependent = (dependentId: string) => {
-    console.log("Edit dependent:", dependentId);
-    // TODO: Open edit dependent modal/screen
+    console.log("View dependent profile:", dependentId);
+    const dependent = dependents.find(d => d.id === dependentId);
+    if (dependent) {
+      setSelectedDependentId(dependentId);
+      setCurrentScreen("dependentProfile");
+    }
+  };
+
+  const handleDependentProfileEdit = () => {
+    if (selectedDependentId) {
+      setCurrentScreen("editDependent");
+    }
+  };
+
+  const handleDependentProfileBack = () => {
+    setCurrentScreen("profile");
+    setSelectedDependentId(null);
+  };
+
+  const handleEditDependentBack = () => {
+    setCurrentScreen("dependentProfile");
+  };
+
+  const handleEditDependentSave = (data: {
+    dependentName: string;
+    relationship: string;
+    nricNumber: string;
+    triageTag: string;
+    allergies: string;
+    medicalHistory: string;
+    bloodType: string;
+    criticalMedications: string;
+  }) => {
+    if (selectedDependentId) {
+      // Update dependent in list
+      setDependents(prev => 
+        prev.map(d => d.id === selectedDependentId 
+          ? {
+              ...d,
+              fullName: data.dependentName,
+              relationship: data.relationship,
+              nricNumber: data.nricNumber,
+              triageTag: data.triageTag,
+              allergies: data.allergies,
+              medicalHistory: data.medicalHistory,
+              bloodType: data.bloodType,
+              criticalMedications: data.criticalMedications,
+            }
+          : d
+        )
+      );
+      
+      // Show encryption loading modal
+      setIsEncryptionLoading(true);
+      
+      setTimeout(() => {
+        setIsEncryptionLoading(false);
+        setCurrentScreen("editDependentSuccess");
+      }, 4000);
+      
+      console.log("Dependent updated:", data);
+    }
+  };
+
+  const handleEditDependentSuccessBack = () => {
+    setSelectedDependentId(null);
+    setCurrentScreen("profile");
+  };
+
+  const handleDependentNavigate = (screen: string) => {
+    handleProfileNavigate(screen);
   };
 
   const handleProfileSettings = () => {
@@ -462,6 +639,12 @@ function App() {
       )}
       {currentScreen === "profile" && (
         <UserProfileScreen
+          dependents={dependents.map(d => ({
+            id: d.id,
+            fullName: d.fullName,
+            relationship: d.relationship,
+            triageTag: d.triageTag,
+          }))}
           onEditEmailAddress={handleEditEmailClick}
           onEditPhoneNumber={handleEditPhoneClick}
           onEditHomeAddress={handleEditHomeAddressClick}
@@ -561,6 +744,92 @@ function App() {
           onRedirectComplete={handleMedicalProfileSuccessRedirect}
         />
       )}
+      {currentScreen === "addDependentStep1" && (
+        <AddDependentIdentityScreen
+          onBack={handleAddDependentStep1Back}
+          onNext={handleAddDependentStep1Next}
+          onNavigate={handleAddDependentNavigate}
+        />
+      )}
+      {currentScreen === "addDependentStep2" && (
+        <AddDependentTriageScreen
+          onBack={handleAddDependentStep2Back}
+          onNext={handleAddDependentStep2Next}
+          onNavigate={handleAddDependentNavigate}
+        />
+      )}
+      {currentScreen === "addDependentStep3" && (
+        <>
+          <EncryptionLoadingModal
+            isOpen={isEncryptionLoading}
+            onComplete={() => setIsEncryptionLoading(false)}
+          />
+          <AddDependentMedicalScreen
+            onBack={handleAddDependentStep3Back}
+            onNext={handleAddDependentStep3Next}
+            onNavigate={handleAddDependentNavigate}
+          />
+        </>
+      )}
+      {currentScreen === "addDependentSuccess" && (
+        <AddDependentSuccessScreen
+          dependentName={currentDependentData.fullName || "Your Dependent"}
+          onReturn={handleAddDependentSuccessReturn}
+          onAddAnother={handleAddDependentSuccessAddAnother}
+          onNavigate={handleAddDependentNavigate}
+        />
+      )}
+      {currentScreen === "dependentProfile" && selectedDependentId && (() => {
+        const dependent = dependents.find(d => d.id === selectedDependentId);
+        return dependent ? (
+          <DependentProfileScreen
+            dependentName={dependent.fullName}
+            relationship={dependent.relationship}
+            triageTag={dependent.triageTag}
+            nricNumber={dependent.nricNumber}
+            allergies={dependent.allergies}
+            medicalHistory={dependent.medicalHistory}
+            bloodType={dependent.bloodType}
+            criticalMedications={dependent.criticalMedications}
+            onBack={handleDependentProfileBack}
+            onEdit={() => handleDependentProfileEdit()}
+            onNavigate={handleDependentNavigate}
+          />
+        ) : null;
+      })()}
+      {currentScreen === "editDependent" && selectedDependentId && (() => {
+        const dependent = dependents.find(d => d.id === selectedDependentId);
+        return dependent ? (
+          <>
+            <EncryptionLoadingModal
+              isOpen={isEncryptionLoading}
+              onComplete={() => setIsEncryptionLoading(false)}
+            />
+            <EditDependentHub
+              dependentName={dependent.fullName}
+              relationship={dependent.relationship}
+              nricNumber={dependent.nricNumber}
+              triageTag={dependent.triageTag}
+              allergies={dependent.allergies}
+              medicalHistory={dependent.medicalHistory}
+              bloodType={dependent.bloodType}
+              criticalMedications={dependent.criticalMedications}
+              onBack={handleEditDependentBack}
+              onSave={handleEditDependentSave}
+              onNavigate={handleDependentNavigate}
+            />
+          </>
+        ) : null;
+      })()}
+      {currentScreen === "editDependentSuccess" && selectedDependentId && (() => {
+        const dependent = dependents.find(d => d.id === selectedDependentId);
+        return dependent ? (
+          <EditDependentSuccessScreen
+            dependentName={dependent.fullName}
+            onBackClick={handleEditDependentSuccessBack}
+          />
+        ) : null;
+      })()}
     </>
   );
 }
