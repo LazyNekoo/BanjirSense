@@ -33,6 +33,7 @@ interface UserProfileScreenProps {
   onEditEmailAddress?: () => void;
   onEditPhoneNumber?: () => void;
   onEditHomeAddress?: () => void;
+  onEditMedicalProfile?: () => void;
   onAddDependent?: () => void;
   onEditDependent?: (dependentId: string) => void;
   onSettings?: () => void;
@@ -45,6 +46,7 @@ export function UserProfileScreen({
   onEditEmailAddress,
   onEditPhoneNumber,
   onEditHomeAddress,
+  onEditMedicalProfile,
   onAddDependent,
   onEditDependent,
   onSettings,
@@ -234,13 +236,21 @@ export function UserProfileScreen({
                 </span>
               </div>
               <div className="p-5">
-                <div className="flex items-center gap-2 mb-5">
-                  <h3 className="text-base font-bold text-slate-900">
-                    Medical & Special Needs
-                  </h3>
-                  <span className="px-1.5 py-0.5 bg-red-100 text-hazard-red text-[9px] font-black rounded uppercase">
-                    Required
-                  </span>
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-slate-900">
+                      Medical & Special Needs
+                    </h3>
+                    <span className="px-1.5 py-0.5 bg-red-100 text-hazard-red text-[9px] font-black rounded uppercase">
+                      Required
+                    </span>
+                  </div>
+                  <button
+                    onClick={onEditMedicalProfile}
+                    className="text-slate-300 hover:text-primary transition-colors"
+                  >
+                    <Edit2 size={18} />
+                  </button>
                 </div>
 
                 <div className="space-y-4">
@@ -259,12 +269,6 @@ export function UserProfileScreen({
                         </p>
                       </div>
                     </div>
-                    <button
-                      aria-disabled="true"
-                      className="text-slate-200 cursor-not-allowed"
-                    >
-                      <Edit2 size={18} />
-                    </button>
                   </div>
 
                   {/* Medical History */}
@@ -282,12 +286,6 @@ export function UserProfileScreen({
                         </p>
                       </div>
                     </div>
-                    <button
-                      aria-disabled="true"
-                      className="text-slate-200 cursor-not-allowed"
-                    >
-                      <Edit2 size={18} />
-                    </button>
                   </div>
 
                   {/* Blood Type */}
@@ -305,12 +303,6 @@ export function UserProfileScreen({
                         </p>
                       </div>
                     </div>
-                    <button
-                      aria-disabled="true"
-                      className="text-slate-200 cursor-not-allowed"
-                    >
-                      <Edit2 size={18} />
-                    </button>
                   </div>
                 </div>
               </div>

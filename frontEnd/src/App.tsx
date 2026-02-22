@@ -20,6 +20,8 @@ import { VerifyEmailAddressScreen } from "./components/VerifyEmailAddressScreen"
 import { EmailUpdateSuccessScreen } from "./components/EmailUpdateSuccessScreen";
 import { EditHomeAddressScreen } from "./components/EditHomeAddressScreen";
 import { HomeAddressUpdateSuccessScreen } from "./components/HomeAddressUpdateSuccessScreen";
+import { MedicalSpecialNeedsScreen } from "./components/MedicalSpecialNeedsScreen";
+import { MedicalProfileSuccessScreen } from "./components/MedicalProfileSuccessScreen";
 
 type AppScreen =
   | "splash"
@@ -43,7 +45,9 @@ type AppScreen =
   | "verifyEmailAddress"
   | "emailUpdateSuccess"
   | "editHomeAddress"
-  | "homeAddressUpdateSuccess";
+  | "homeAddressUpdateSuccess"
+  | "editMedicalProfile"
+  | "medicalProfileSuccess";
 
 interface PersonalDetailsData {
   identityType: 'local' | 'international';
@@ -72,6 +76,11 @@ function App() {
   const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState("");
   const [updatedEmailAddress, setUpdatedEmailAddress] = useState("");
   const [updatedHomeAddress, setUpdatedHomeAddress] = useState("");
+  const [medicalProfileData, setMedicalProfileData] = useState({
+    allergies: "",
+    medicalHistory: "",
+    bloodType: "",
+  });
 
   useEffect(() => {
     // Auto-transition to login screen after 2.5 seconds
@@ -270,6 +279,11 @@ function App() {
     setCurrentScreen("editHomeAddress");
   };
 
+  const handleEditMedicalProfileClick = () => {
+    console.log("Edit medical profile clicked");
+    setCurrentScreen("editMedicalProfile");
+  };
+
   const handleEditPhoneNumberBack = () => {
     setCurrentScreen("profile");
   };
@@ -350,6 +364,30 @@ function App() {
     handleProfileNavigate(screen);
   };
 
+  const handleEditMedicalProfileBack = () => {
+    setCurrentScreen("profile");
+  };
+
+  const handleEditMedicalProfileSave = (data: {
+    allergies: string;
+    medicalHistory: string;
+    bloodType: string;
+  }) => {
+    console.log("Updating medical profile:", data);
+    setMedicalProfileData(data);
+    // TODO: Firebase integration - update medical profile data
+    setCurrentScreen("medicalProfileSuccess");
+  };
+
+  const handleMedicalProfileSuccessRedirect = () => {
+    console.log("Redirecting to profile after medical update");
+    setCurrentScreen("profile");
+  };
+
+  const handleMedicalProfileNavigate = (screen: string) => {
+    handleProfileNavigate(screen);
+  };
+
   return (
     <>
       {currentScreen === "splash" && <SplashScreen />}
@@ -427,6 +465,7 @@ function App() {
           onEditEmailAddress={handleEditEmailClick}
           onEditPhoneNumber={handleEditPhoneClick}
           onEditHomeAddress={handleEditHomeAddressClick}
+          onEditMedicalProfile={handleEditMedicalProfileClick}
           onAddDependent={handleAddDependent}
           onEditDependent={handleEditDependent}
           onSettings={handleProfileSettings}
@@ -504,6 +543,22 @@ function App() {
         <HomeAddressUpdateSuccessScreen
           onNavigate={handleHomeAddressNavigate}
           onRedirectComplete={handleHomeAddressUpdateSuccessRedirect}
+        />
+      )}
+      {currentScreen === "editMedicalProfile" && (
+        <MedicalSpecialNeedsScreen
+          onBack={handleEditMedicalProfileBack}
+          onSave={handleEditMedicalProfileSave}
+          onNavigate={handleMedicalProfileNavigate}
+          initialAllergies={medicalProfileData.allergies}
+          initialMedicalHistory={medicalProfileData.medicalHistory}
+          initialBloodType={medicalProfileData.bloodType}
+        />
+      )}
+      {currentScreen === "medicalProfileSuccess" && (
+        <MedicalProfileSuccessScreen
+          onNavigate={handleMedicalProfileNavigate}
+          onRedirectComplete={handleMedicalProfileSuccessRedirect}
         />
       )}
     </>
