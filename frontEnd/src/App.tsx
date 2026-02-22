@@ -15,6 +15,9 @@ import { UserProfileScreen } from "./components/UserProfileScreen";
 import { EditPhoneNumberScreen } from "./components/EditPhoneNumberScreen";
 import { VerifyPhoneNumberScreen } from "./components/VerifyPhoneNumberScreen";
 import { PhoneUpdateSuccessScreen } from "./components/PhoneUpdateSuccessScreen";
+import { EditEmailAddressScreen } from "./components/EditEmailAddressScreen";
+import { VerifyEmailAddressScreen } from "./components/VerifyEmailAddressScreen";
+import { EmailUpdateSuccessScreen } from "./components/EmailUpdateSuccessScreen";
 
 type AppScreen =
   | "splash"
@@ -33,7 +36,10 @@ type AppScreen =
   | "preparednessComplete"
   | "editPhoneNumber"
   | "verifyPhoneNumber"
-  | "phoneUpdateSuccess";
+  | "phoneUpdateSuccess"
+  | "editEmailAddress"
+  | "verifyEmailAddress"
+  | "emailUpdateSuccess";
 
 interface PersonalDetailsData {
   identityType: 'local' | 'international';
@@ -60,6 +66,7 @@ function App() {
   const [resetPasswordEmail, setResetPasswordEmail] = useState("");
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState("");
+  const [updatedEmailAddress, setUpdatedEmailAddress] = useState("");
 
   useEffect(() => {
     // Auto-transition to login screen after 2.5 seconds
@@ -253,6 +260,11 @@ function App() {
     setCurrentScreen("editPhoneNumber");
   };
 
+  const handleEditEmailClick = () => {
+    console.log("Edit email address clicked");
+    setCurrentScreen("editEmailAddress");
+  };
+
   const handleEditPhoneNumberBack = () => {
     setCurrentScreen("profile");
   };
@@ -280,6 +292,36 @@ function App() {
   };
 
   const handlePhoneUpdateNavigate = (screen: string) => {
+    handleProfileNavigate(screen);
+  };
+
+  const handleEditEmailAddressBack = () => {
+    setCurrentScreen("profile");
+  };
+
+  const handleEditEmailAddressSave = (email: string) => {
+    console.log("Verifying email address:", email);
+    setUpdatedEmailAddress(email);
+    // TODO: Firebase integration - send email verification link/code
+    setCurrentScreen("verifyEmailAddress");
+  };
+
+  const handleVerifyEmailAddressBack = () => {
+    setCurrentScreen("editEmailAddress");
+  };
+
+  const handleVerifyEmailAddressConfirm = (code: string) => {
+    console.log("Email verification code:", code);
+    // TODO: Firebase integration - verify code and update email address
+    setCurrentScreen("emailUpdateSuccess");
+  };
+
+  const handleEmailUpdateSuccessRedirect = () => {
+    console.log("Redirecting to profile after email update");
+    setCurrentScreen("profile");
+  };
+
+  const handleEmailUpdateNavigate = (screen: string) => {
     handleProfileNavigate(screen);
   };
 
@@ -358,6 +400,7 @@ function App() {
       {currentScreen === "profile" && (
         <UserProfileScreen
           onEditProfile={handleProfileEditClick}
+          onEditEmailAddress={handleEditEmailClick}
           onEditPhoneNumber={handleEditPhoneClick}
           onAddDependent={handleAddDependent}
           onEditDependent={handleEditDependent}
@@ -401,6 +444,27 @@ function App() {
         <PhoneUpdateSuccessScreen
           onNavigate={handlePhoneUpdateNavigate}
           onRedirectComplete={handlePhoneUpdateSuccessRedirect}
+        />
+      )}
+      {currentScreen === "editEmailAddress" && (
+        <EditEmailAddressScreen
+          onBack={handleEditEmailAddressBack}
+          onSave={handleEditEmailAddressSave}
+          onNavigate={handleEmailUpdateNavigate}
+        />
+      )}
+      {currentScreen === "verifyEmailAddress" && (
+        <VerifyEmailAddressScreen
+          onBack={handleVerifyEmailAddressBack}
+          onConfirm={handleVerifyEmailAddressConfirm}
+          onNavigate={handleEmailUpdateNavigate}
+          email={updatedEmailAddress}
+        />
+      )}
+      {currentScreen === "emailUpdateSuccess" && (
+        <EmailUpdateSuccessScreen
+          onNavigate={handleEmailUpdateNavigate}
+          onRedirectComplete={handleEmailUpdateSuccessRedirect}
         />
       )}
     </>

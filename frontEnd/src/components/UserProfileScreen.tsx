@@ -31,6 +31,7 @@ interface Dependent {
 
 interface UserProfileScreenProps {
   onEditProfile?: () => void;
+  onEditEmailAddress?: () => void;
   onEditPhoneNumber?: () => void;
   onAddDependent?: () => void;
   onEditDependent?: (dependentId: string) => void;
@@ -42,6 +43,7 @@ interface UserProfileScreenProps {
 
 export function UserProfileScreen({
   onEditProfile,
+  onEditEmailAddress,
   onEditPhoneNumber,
   onAddDependent,
   onEditDependent,
@@ -190,7 +192,7 @@ export function UserProfileScreen({
                   </div>
                 </div>
                 <button
-                  onClick={onEditProfile}
+                  onClick={onEditEmailAddress}
                   className="text-slate-300 hover:text-primary transition-colors"
                 >
                   <Edit2 size={18} />
@@ -213,8 +215,8 @@ export function UserProfileScreen({
                   </div>
                 </div>
                 <button
-                  onClick={onEditProfile}
-                  className="text-slate-300 hover:text-primary transition-colors"
+                  aria-disabled="true"
+                  className="text-slate-200 cursor-not-allowed"
                 >
                   <Edit2 size={18} />
                 </button>
@@ -258,8 +260,8 @@ export function UserProfileScreen({
                       </div>
                     </div>
                     <button
-                      onClick={onEditProfile}
-                      className="text-slate-300 hover:text-primary transition-colors"
+                      aria-disabled="true"
+                      className="text-slate-200 cursor-not-allowed"
                     >
                       <Edit2 size={18} />
                     </button>
@@ -281,8 +283,8 @@ export function UserProfileScreen({
                       </div>
                     </div>
                     <button
-                      onClick={onEditProfile}
-                      className="text-slate-300 hover:text-primary transition-colors"
+                      aria-disabled="true"
+                      className="text-slate-200 cursor-not-allowed"
                     >
                       <Edit2 size={18} />
                     </button>
@@ -304,8 +306,8 @@ export function UserProfileScreen({
                       </div>
                     </div>
                     <button
-                      onClick={onEditProfile}
-                      className="text-slate-300 hover:text-primary transition-colors"
+                      aria-disabled="true"
+                      className="text-slate-200 cursor-not-allowed"
                     >
                       <Edit2 size={18} />
                     </button>
