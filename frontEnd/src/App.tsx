@@ -13,11 +13,30 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
-
 import { auth } from "./lib/firebase";
 import { apiFetch } from "./lib/api";
 
-type AppScreen = "splash" | "login" | "personalDetails" | "emergencyMedical" | "registrationComplete" | "resetPassword" | "verifyPassword" | "passwordResetSuccess";
+import { HomeScreen } from "./components/HomeScreen";
+import { RiskAnalysisScreen } from "./components/RiskAnalysisScreen";
+import { RoutinePreparednessScreen } from "./components/RoutinePreparednessScreen";
+import { PreparednessCompleteScreen } from "./components/PreparednessCompleteScreen";
+import { NotificationCenterScreen } from "./components/NotificationCenterScreen";
+
+
+type AppScreen =
+  | "splash"
+  | "login"
+  | "personalDetails"
+  | "emergencyMedical"
+  | "registrationComplete"
+  | "resetPassword"
+  | "verifyPassword"
+  | "passwordResetSuccess"
+  | "home"
+  | "notifications"
+  | "riskAnalysis"
+  | "routinePreparedness"
+  | "preparednessComplete";
 
 interface PersonalDetailsData {
   identityType: 'local' | 'international';
@@ -74,12 +93,14 @@ function App() {
 
 
   const handleLoginSubmit = async (email: string, password: string) => {
+
     await signInWithEmailAndPassword(auth, email, password);
 
     const verify = await apiFetch("/auth/verify", { method: "POST" });
     console.log("✅ Backend verify:", verify);
 
     // later: setCurrentScreen("home");
+
   };
 
   const handleRegisterClick = () => {
@@ -191,6 +212,38 @@ function App() {
     setCurrentScreen("registrationComplete");
   };
 
+  const handleViewDetailedAnalysis = () => {
+    setCurrentScreen("riskAnalysis");
+  };
+
+  const handleOpenNotifications = () => {
+    setCurrentScreen("notifications");
+  };
+
+  const handleCloseNotifications = () => {
+    setCurrentScreen("home");
+  };
+
+  const handleCloseRiskAnalysis = () => {
+    setCurrentScreen("home");
+  };
+
+  const handleOpenRoutinePreparedness = () => {
+    setCurrentScreen("routinePreparedness");
+  };
+
+  const handleRoutinePreparednessBack = () => {
+    setCurrentScreen("home");
+  };
+
+  const handleRoutinePreparednessSubmit = () => {
+    setCurrentScreen("preparednessComplete");
+  };
+
+  const handlePreparednessCompleteBack = () => {
+    setCurrentScreen("home");
+  };
+
   return (
     <>
       {currentScreen === "splash" && <SplashScreen />}
@@ -254,6 +307,28 @@ function App() {
             </div>
           </div>
         </div>
+      )}
+      {currentScreen === "home" && (
+        <HomeScreen
+          onViewDetailedAnalysis={handleViewDetailedAnalysis}
+          onViewRoutineChecklist={handleOpenRoutinePreparedness}
+          onOpenNotifications={handleOpenNotifications}
+        />
+      )}
+      {currentScreen === "notifications" && (
+        <NotificationCenterScreen onBack={handleCloseNotifications} />
+      )}
+      {currentScreen === "riskAnalysis" && (
+        <RiskAnalysisScreen onClose={handleCloseRiskAnalysis} />
+      )}
+      {currentScreen === "routinePreparedness" && (
+        <RoutinePreparednessScreen
+          onBack={handleRoutinePreparednessBack}
+          onSubmit={handleRoutinePreparednessSubmit}
+        />
+      )}
+      {currentScreen === "preparednessComplete" && (
+        <PreparednessCompleteScreen onBackToHome={handlePreparednessCompleteBack} />
       )}
     </>
   );
