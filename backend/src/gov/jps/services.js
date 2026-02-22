@@ -19,7 +19,10 @@ function pick(obj, keys) {
 
 function toNumberSafe(x) {
   const n = Number(String(x).replace(/,/g, "").trim());
-  return Number.isFinite(n) ? n : null;
+  if (!Number.isFinite(n)) return null;
+  // JPS uses -9999 as "missing"
+  if (n <= -9990) return null;
+  return n;
 }
 
 function normalizeStatus(raw) {
@@ -34,24 +37,28 @@ function normalizeStatus(raw) {
 
 function normalizeStation(raw) {
   // Try common key variants (JPS sometimes uses different naming)
-  const id = pick(raw, ["id", "station_id", "stn_id", "stationid", "no_stesen", "no_stn"]);
-  const name = pick(raw, ["name", "station_name", "stn_name", "nama_stesen", "stesen", "station"]);
-  const state = pick(raw, ["state", "negeri"]);
-  const district = pick(raw, ["district", "daerah"]);
+  const id = pick(raw, ["id", "station_id", "stn_id", "stationid", "no_stesen", "no_stn", "a"]);
+  const name = pick(raw, ["name", "station_name", "stn_name", "nama_stesen", "stesen", "station", "b"]);
+  const district = pick(raw, ["district", "daerah", "e"]);
+  const state = pick(raw, ["state", "negeri", "f"]);
 
-  const lat = toNumberSafe(pick(raw, ["lat", "latitude", "Lat", "Latitude"]));
-  const lng = toNumberSafe(pick(raw, ["lng", "lon", "longitude", "Lng", "Long", "Longitude"]));
+  // JPS dataset uses c=lat, d=lng in many records
+  const lat = toNumberSafe(pick(raw, ["lat", "latitude", "Lat", "Latitude", "c"]));
+  const lng = toNumberSafe(pick(raw, ["lng", "lon", "longitude", "Lng", "Long", "Longitude", "d"]));
 
+  const coordsSource =
+    Number.isFinite(lat) && Number.isFinite(lng) ? "JPS_RAW_CD" : "NONE";
+  
   // Rainfall variants
-  const rainfall1hMm = toNumberSafe(pick(raw, ["rainfall_1h", "rain1h", "rain_1h", "hujan_1j", "hujan1j", "rf_1h"]));
-  const rainfall3hMm = toNumberSafe(pick(raw, ["rainfall_3h", "rain3h", "rain_3h", "hujan_3j", "hujan3j", "rf_3h"]));
-  const rainfallTodayMm = toNumberSafe(pick(raw, ["rainfall_today", "rain_today", "hujan_hari_ini", "hujan", "rf_today"]));
+  const rainfall1hMm = toNumberSafe(pick(raw, ["rainfall_1h", "rain1h", "rain_1h", "hujan_1j", "hujan1j", "rf_1h", "t"]));
+  const rainfall3hMm = toNumberSafe(pick(raw, ["rainfall_3h", "rain3h", "rain_3h", "hujan_3j", "hujan3j", "rf_3h", "v"]));
+  const rainfallTodayMm = toNumberSafe(pick(raw, ["rainfall_today", "rain_today", "hujan_hari_ini", "hujan", "rf_today", "u", "w"]));
 
   // Water level variants
-  const waterLevelM = toNumberSafe(pick(raw, ["water_level", "wl", "paras_air", "aras_air", "level", "stage"]));
+  const waterLevelM = toNumberSafe(pick(raw, ["water_level", "wl", "paras_air", "aras_air", "level", "stage", "m"]));
 
   // Severity/status variants
-  const statusRaw = pick(raw, ["status", "severity", "tahap", "paras_status", "alert_level"]);
+  const statusRaw = pick(raw, ["status", "severity", "tahap", "paras_status", "alert_level", "n"]);
   const status = normalizeStatus(statusRaw);
 
   // Updated time variants
@@ -86,6 +93,7 @@ function normalizeStation(raw) {
     district: district ? String(district) : null,
     lat,
     lng,
+    coordsSource,
     waterLevelM,
     rainfall: {
       last1hMm: rainfall1hMm,
@@ -178,4 +186,5 @@ function filterNearbyStations({ lat, lng, radiusKm, stations }) {
 module.exports = {
   getStationsCached,
   filterNearbyStations,
+  
 };

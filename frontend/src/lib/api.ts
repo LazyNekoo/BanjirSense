@@ -16,7 +16,9 @@ export async function apiFetch<T>(
   const token = await getIdTokenOrNull();
 
   const headers = new Headers(options.headers || {});
+  if (!headers.has("Content-Type") && options.method && options.method !== "GET") {
   headers.set("Content-Type", "application/json");
+}
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
