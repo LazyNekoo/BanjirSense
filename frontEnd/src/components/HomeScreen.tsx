@@ -16,12 +16,14 @@ interface HomeScreenProps {
   onViewDetailedAnalysis: () => void;
   onViewRoutineChecklist: () => void;
   onOpenNotifications: () => void;
+  onOpenProfile?: () => void;
 }
 
 export function HomeScreen({
   onViewDetailedAnalysis,
   onViewRoutineChecklist,
   onOpenNotifications,
+  onOpenProfile,
 }: HomeScreenProps) {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
@@ -189,7 +191,10 @@ export function HomeScreen({
             <Megaphone size={20} />
             <span className="text-[10px] font-medium">Updates</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
+          <button
+            onClick={onOpenProfile}
+            className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
+          >
             <User size={20} />
             <span className="text-[10px] font-medium">Profile</span>
           </button>

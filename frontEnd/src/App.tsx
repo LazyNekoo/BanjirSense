@@ -11,6 +11,7 @@ import { RiskAnalysisScreen } from "./components/RiskAnalysisScreen";
 import { RoutinePreparednessScreen } from "./components/RoutinePreparednessScreen";
 import { PreparednessCompleteScreen } from "./components/PreparednessCompleteScreen";
 import { NotificationCenterScreen } from "./components/NotificationCenterScreen";
+import { UserProfileScreen } from "./components/UserProfileScreen";
 
 type AppScreen =
   | "splash"
@@ -22,6 +23,7 @@ type AppScreen =
   | "verifyPassword"
   | "passwordResetSuccess"
   | "home"
+  | "profile"
   | "notifications"
   | "riskAnalysis"
   | "routinePreparedness"
@@ -185,6 +187,60 @@ function App() {
     setCurrentScreen("home");
   };
 
+  const handleOpenProfile = () => {
+    setCurrentScreen("profile");
+  };
+
+  const handleProfileNavigate = (screen: string) => {
+    switch (screen) {
+      case "home":
+        setCurrentScreen("home");
+        break;
+      case "map":
+        // TODO: Implement map navigation
+        console.log("Map navigation");
+        break;
+      case "updates":
+        setCurrentScreen("notifications");
+        break;
+      case "profile":
+        // Already on profile
+        break;
+      default:
+        setCurrentScreen(screen as AppScreen);
+    }
+  };
+
+  const handleProfileEditClick = () => {
+    console.log("Edit profile clicked");
+    // TODO: Open edit profile modal/screen
+  };
+
+  const handleAddDependent = () => {
+    console.log("Add dependent clicked");
+    // TODO: Open add dependent modal/screen
+  };
+
+  const handleEditDependent = (dependentId: string) => {
+    console.log("Edit dependent:", dependentId);
+    // TODO: Open edit dependent modal/screen
+  };
+
+  const handleProfileSettings = () => {
+    console.log("Profile settings clicked");
+    // TODO: Open settings screen
+  };
+
+  const handleProfileHelp = () => {
+    console.log("Help clicked");
+    // TODO: Open help screen
+  };
+
+  const handleProfileLogout = () => {
+    console.log("Logout clicked");
+    setCurrentScreen("login");
+  };
+
   return (
     <>
       {currentScreen === "splash" && <SplashScreen />}
@@ -254,6 +310,18 @@ function App() {
           onViewDetailedAnalysis={handleViewDetailedAnalysis}
           onViewRoutineChecklist={handleOpenRoutinePreparedness}
           onOpenNotifications={handleOpenNotifications}
+          onOpenProfile={handleOpenProfile}
+        />
+      )}
+      {currentScreen === "profile" && (
+        <UserProfileScreen
+          onEditProfile={handleProfileEditClick}
+          onAddDependent={handleAddDependent}
+          onEditDependent={handleEditDependent}
+          onSettings={handleProfileSettings}
+          onHelp={handleProfileHelp}
+          onLogout={handleProfileLogout}
+          onNavigate={handleProfileNavigate}
         />
       )}
       {currentScreen === "notifications" && (
