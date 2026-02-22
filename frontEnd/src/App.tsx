@@ -18,6 +18,8 @@ import { PhoneUpdateSuccessScreen } from "./components/PhoneUpdateSuccessScreen"
 import { EditEmailAddressScreen } from "./components/EditEmailAddressScreen";
 import { VerifyEmailAddressScreen } from "./components/VerifyEmailAddressScreen";
 import { EmailUpdateSuccessScreen } from "./components/EmailUpdateSuccessScreen";
+import { EditHomeAddressScreen } from "./components/EditHomeAddressScreen";
+import { HomeAddressUpdateSuccessScreen } from "./components/HomeAddressUpdateSuccessScreen";
 
 type AppScreen =
   | "splash"
@@ -39,7 +41,9 @@ type AppScreen =
   | "phoneUpdateSuccess"
   | "editEmailAddress"
   | "verifyEmailAddress"
-  | "emailUpdateSuccess";
+  | "emailUpdateSuccess"
+  | "editHomeAddress"
+  | "homeAddressUpdateSuccess";
 
 interface PersonalDetailsData {
   identityType: 'local' | 'international';
@@ -67,6 +71,7 @@ function App() {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState("");
   const [updatedEmailAddress, setUpdatedEmailAddress] = useState("");
+  const [updatedHomeAddress, setUpdatedHomeAddress] = useState("");
 
   useEffect(() => {
     // Auto-transition to login screen after 2.5 seconds
@@ -225,11 +230,6 @@ function App() {
     }
   };
 
-  const handleProfileEditClick = () => {
-    console.log("Edit profile clicked");
-    setCurrentScreen("editPhoneNumber");
-  };
-
   const handleAddDependent = () => {
     console.log("Add dependent clicked");
     // TODO: Open add dependent modal/screen
@@ -263,6 +263,11 @@ function App() {
   const handleEditEmailClick = () => {
     console.log("Edit email address clicked");
     setCurrentScreen("editEmailAddress");
+  };
+
+  const handleEditHomeAddressClick = () => {
+    console.log("Edit home address clicked");
+    setCurrentScreen("editHomeAddress");
   };
 
   const handleEditPhoneNumberBack = () => {
@@ -322,6 +327,26 @@ function App() {
   };
 
   const handleEmailUpdateNavigate = (screen: string) => {
+    handleProfileNavigate(screen);
+  };
+
+  const handleEditHomeAddressBack = () => {
+    setCurrentScreen("profile");
+  };
+
+  const handleEditHomeAddressSave = (address: string) => {
+    console.log("Updating home address:", address);
+    setUpdatedHomeAddress(address);
+    // TODO: Firebase integration - update address with map/location payload
+    setCurrentScreen("homeAddressUpdateSuccess");
+  };
+
+  const handleHomeAddressUpdateSuccessRedirect = () => {
+    console.log("Redirecting to profile after home address update");
+    setCurrentScreen("profile");
+  };
+
+  const handleHomeAddressNavigate = (screen: string) => {
     handleProfileNavigate(screen);
   };
 
@@ -399,9 +424,9 @@ function App() {
       )}
       {currentScreen === "profile" && (
         <UserProfileScreen
-          onEditProfile={handleProfileEditClick}
           onEditEmailAddress={handleEditEmailClick}
           onEditPhoneNumber={handleEditPhoneClick}
+          onEditHomeAddress={handleEditHomeAddressClick}
           onAddDependent={handleAddDependent}
           onEditDependent={handleEditDependent}
           onSettings={handleProfileSettings}
@@ -465,6 +490,20 @@ function App() {
         <EmailUpdateSuccessScreen
           onNavigate={handleEmailUpdateNavigate}
           onRedirectComplete={handleEmailUpdateSuccessRedirect}
+        />
+      )}
+      {currentScreen === "editHomeAddress" && (
+        <EditHomeAddressScreen
+          onBack={handleEditHomeAddressBack}
+          onSave={handleEditHomeAddressSave}
+          onNavigate={handleHomeAddressNavigate}
+          initialAddress={updatedHomeAddress || undefined}
+        />
+      )}
+      {currentScreen === "homeAddressUpdateSuccess" && (
+        <HomeAddressUpdateSuccessScreen
+          onNavigate={handleHomeAddressNavigate}
+          onRedirectComplete={handleHomeAddressUpdateSuccessRedirect}
         />
       )}
     </>

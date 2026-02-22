@@ -418,6 +418,7 @@ export function ExtendedProfileApp() {
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showAddDependentModal, setShowAddDependentModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const openEditProfileModal = () => setShowEditProfileModal(true);
 
   // Example user data
   const [userData, setUserData] = useState<UserData>({
@@ -458,7 +459,9 @@ export function ExtendedProfileApp() {
     return (
       <>
         <UserProfileScreen
-          onEditProfile={() => setShowEditProfileModal(true)}
+          onEditEmailAddress={openEditProfileModal}
+          onEditPhoneNumber={openEditProfileModal}
+          onEditHomeAddress={openEditProfileModal}
           onAddDependent={() => setShowAddDependentModal(true)}
           onEditDependent={(id: string) => console.log('Edit dependent:', id)}
           onSettings={() => console.log('Settings')}

@@ -30,9 +30,9 @@ interface Dependent {
 }
 
 interface UserProfileScreenProps {
-  onEditProfile?: () => void;
   onEditEmailAddress?: () => void;
   onEditPhoneNumber?: () => void;
+  onEditHomeAddress?: () => void;
   onAddDependent?: () => void;
   onEditDependent?: (dependentId: string) => void;
   onSettings?: () => void;
@@ -42,9 +42,9 @@ interface UserProfileScreenProps {
 }
 
 export function UserProfileScreen({
-  onEditProfile,
   onEditEmailAddress,
   onEditPhoneNumber,
+  onEditHomeAddress,
   onAddDependent,
   onEditDependent,
   onSettings,
@@ -215,8 +215,8 @@ export function UserProfileScreen({
                   </div>
                 </div>
                 <button
-                  aria-disabled="true"
-                  className="text-slate-200 cursor-not-allowed"
+                  onClick={onEditHomeAddress}
+                  className="text-slate-300 hover:text-primary transition-colors"
                 >
                   <Edit2 size={18} />
                 </button>
