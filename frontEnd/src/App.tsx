@@ -110,6 +110,7 @@ function App() {
     // later: navigate to home/map screen
     setCurrentScreen("home");
     setTimeout(loadHomeData, 0);
+
   };
 
 
@@ -117,8 +118,10 @@ function App() {
     await signInWithEmailAndPassword(auth, email, password);
     const verify = await apiFetch("/auth/verify", { method: "POST" });
     console.log("✅ Backend verify:", verify);
+
     setCurrentScreen("home");
     setTimeout(loadHomeData, 0);
+
 
   };
 
