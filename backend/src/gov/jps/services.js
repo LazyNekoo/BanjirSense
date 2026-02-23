@@ -27,11 +27,13 @@ function toNumberSafe(x) {
 
 function normalizeStatus(raw) {
   const s = String(raw || "").toUpperCase();
-  // common statuses observed on JPS: NORMAL / ALERT / WARNING / DANGER
+
+  if (s.includes("ERROR") || s.includes("Ralat".toUpperCase())) return "ERROR";
   if (s.includes("DANGER") || s.includes("BAHAYA")) return "DANGER";
   if (s.includes("WARNING") || s.includes("AMARAN")) return "WARNING";
   if (s.includes("ALERT") || s.includes("WASPADA")) return "ALERT";
   if (s.includes("NORMAL")) return "NORMAL";
+
   return raw ? String(raw) : "UNKNOWN";
 }
 
