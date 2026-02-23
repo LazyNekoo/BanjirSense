@@ -20,14 +20,20 @@ type AiRisk = {
 };
 
 type JpsNearbyStation = {
+  id?: string;
   name?: string;
   stationName?: string;
+  state?: string;
+  district?: string;
+  lat?: number;
+  lng?: number;
   status?: string;
   waterLevel?: number | string;
   rainfall?: number | string;
   updatedAt?: string;
   distanceKm?: number;
 };
+
 
 interface HomeScreenProps {
   onViewDetailedAnalysis: () => void;
@@ -41,6 +47,7 @@ interface HomeScreenProps {
   onRefresh?: () => void;
 }
 
+
 export function HomeScreen({
   onViewDetailedAnalysis,
   onViewRoutineChecklist,
@@ -51,6 +58,25 @@ export function HomeScreen({
   error,
   onRefresh,
 }: HomeScreenProps) {
+
+  //For Ai flood risk detection
+    const riskLevel = ai?.riskLevel ?? "LOW";
+
+  const riskTitle =
+    riskLevel === "HIGH"
+      ? "High Flood Risk Detected"
+      : riskLevel === "MEDIUM"
+        ? "Moderate Flood Risk Detected"
+        : "Low Flood Risk Detected";
+
+  const riskDesc =
+    ai?.summary ??
+    (riskLevel === "HIGH"
+      ? "Immediate flood threat is possible. Stay alert and prepare to move."
+      : riskLevel === "MEDIUM"
+        ? "Some risk detected. Monitor conditions and be prepared."
+        : "No immediate threat. Conditions are currently stable and safe.");
+
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
       <div className="w-[400px] max-w-[400px] h-[824px] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200">
@@ -91,17 +117,18 @@ export function HomeScreen({
               </div>
             </div>
           </section>
+          
 
           <section className="px-5 -mt-16 relative z-10">
             <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-50 shadow-slate-900/5">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex flex-col">
                   <h2 className="text-2xl font-black text-primary leading-tight">
-                    Low Flood Risk Detected
-                  </h2>
-                  <p className="text-sm text-slate-500 mt-1 font-medium">
-                    No immediate threat. Conditions are currently stable and safe.
-                  </p>
+                      {riskTitle}
+                    </h2>
+                    <p className="text-sm text-slate-500 mt-1 font-medium">
+                      {riskDesc}
+                    </p>
                   <section className="px-5 mt-4">
                     <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
                       <div className="flex items-center justify-between mb-2">

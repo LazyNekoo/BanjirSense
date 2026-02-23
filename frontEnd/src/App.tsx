@@ -437,8 +437,12 @@ function App() {
         <NotificationCenterScreen onBack={handleCloseNotifications} />
       )}
       {currentScreen === "riskAnalysis" && (
-        <RiskAnalysisScreen onClose={handleCloseRiskAnalysis} />
-      )}
+          <RiskAnalysisScreen
+            onClose={handleCloseRiskAnalysis}
+            ai={homeAi}
+            jps={homeJps}
+          />
+        )}
       {currentScreen === "routinePreparedness" && (
         <RoutinePreparednessScreen
           onBack={handleRoutinePreparednessBack}
