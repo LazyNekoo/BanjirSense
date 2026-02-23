@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+// src/components/core/UserProfileScreen.tsx
+import React, { useMemo } from "react";
 import {
   Phone,
   Mail,
-  Home,
+  Home as HomeIcon,
   Edit2,
   Settings,
   HelpCircle,
@@ -18,7 +19,7 @@ import {
   Map,
   Megaphone,
   User,
-} from 'lucide-react';
+} from "lucide-react";
 
 type UserProfileData = {
   fullName?: string;
@@ -43,8 +44,7 @@ interface Dependent {
 }
 
 interface UserProfileScreenProps {
-
-  profile?: UserProfileData; 
+  profile?: UserProfileData;
   dependents?: { id: string; fullName: string; relationship: string; triageTag: string }[];
   onEditEmailAddress?: () => void;
   onEditPhoneNumber?: () => void;
@@ -74,82 +74,51 @@ export function UserProfileScreen({
 }: UserProfileScreenProps) {
   const getTriageColor = (triageTag: string): string => {
     const colors: { [key: string]: string } = {
-      elderly: 'orange',
-      child: 'green',
-      'oku-physical': 'purple',
-      'oku-neuro': 'purple',
+      elderly: "orange",
+      child: "green",
+      "oku-physical": "purple",
+      "oku-neuro": "purple",
     };
-    return colors[triageTag] || 'blue';
+    return colors[triageTag] || "blue";
   };
 
   const getTriageIcon = (triageTag: string): string => {
     const icons: { [key: string]: string } = {
-      elderly: 'elderly',
-      child: 'child',
-      'oku-physical': 'wheelchair',
-      'oku-neuro': 'psychology',
+      elderly: "elderly",
+      child: "child",
+      "oku-physical": "wheelchair",
+      "oku-neuro": "psychology",
     };
-    return icons[triageTag] || 'info';
+    return icons[triageTag] || "info";
   };
 
-  const defaultDependents: Dependent[] = [
-    {
-      id: '1',
-      name: 'Salmah binti Hamid',
-      relationship: 'Mother',
-      badges: ['Elderly (60+)', 'Limited Mobility'],
-      icon: 'elderly',
-      color: 'orange',
-    },
-    {
-      id: '2',
-      name: 'Aiman Hakim',
-      relationship: 'Son',
-      badges: ['Child (<12)'],
-      icon: 'child',
-      color: 'green',
-    },
-    {
-      id: '3',
-      name: 'Siti Aminah',
-      relationship: 'Sister',
-      badges: ['OKU (Physical)', 'Requires Meds'],
-      icon: 'wheelchair',
-      color: 'purple',
-    },
-  ];
-
-  const dependents: Dependent[] = passedDependents 
-    ? passedDependents.map(d => ({
-        id: d.id,
-        name: d.fullName,
-        relationship: d.relationship,
-        badges: [],
-        icon: getTriageIcon(d.triageTag),
-        color: getTriageColor(d.triageTag),
-      }))
-    : defaultDependents;
-
-  const [medicalDataIncomplete] = useState(true);
+  const dependents: Dependent[] = (passedDependents || []).map((d) => ({
+    id: d.id,
+    name: d.fullName,
+    relationship: d.relationship,
+    badges: [],
+    icon: getTriageIcon(d.triageTag),
+    color: getTriageColor(d.triageTag),
+  }));
 
   const getBadgeStyles = (color: string) => {
     const colors: { [key: string]: string } = {
-      orange: 'bg-orange-50 text-orange-600 border-orange-100',
-      green: 'bg-green-50 text-green-600 border-green-100',
-      purple: 'bg-purple-50 text-purple-600 border-purple-100',
-      blue: 'bg-blue-50 text-blue-600 border-blue-100',
-      red: 'bg-red-50 text-red-600 border-red-100',
+      orange: "bg-orange-50 text-orange-600 border-orange-100",
+      green: "bg-green-50 text-green-600 border-green-100",
+      purple: "bg-purple-50 text-purple-600 border-purple-100",
+      blue: "bg-blue-50 text-blue-600 border-blue-100",
+      red: "bg-red-50 text-red-600 border-red-100",
     };
     return colors[color] || colors.blue;
   };
 
   const getIconColor = (color: string) => {
     const colors: { [key: string]: string } = {
-      orange: 'text-orange-600 bg-orange-50',
-      green: 'text-green-600 bg-green-50',
-      purple: 'text-purple-600 bg-purple-50',
-      blue: 'text-blue-600 bg-blue-50',
-      red: 'text-red-600 bg-red-50',
+      orange: "text-orange-600 bg-orange-50",
+      green: "text-green-600 bg-green-50",
+      purple: "text-purple-600 bg-purple-50",
+      blue: "text-blue-600 bg-blue-50",
+      red: "text-red-600 bg-red-50",
     };
     return colors[color] || colors.blue;
   };
@@ -163,13 +132,29 @@ export function UserProfileScreen({
     return icons[icon] || <User size={20} />;
   };
 
-  
+  // ✅ use backend profile values (fallbacks only if missing)
+  const displayName = profile?.fullName?.trim() || "Your Name";
+  const displayId = profile?.icNumber?.trim() || "NRIC not set";
+  const displayPhone = profile?.phoneNumber?.trim() || "Phone not set";
+  const displayEmail = profile?.email?.trim() || "Email not set";
+  const displayAddress = profile?.address?.trim() || "Address not set";
 
+  // ✅ compute “rescue ready” properly (instead of hardcoded true)
+  const medicalDataIncomplete = useMemo(() => {
+    const em = profile?.emergencyMedical || {};
+    const allergies = (em.allergies || "").trim();
+    const history = (em.medicalHistory || "").trim();
+    const blood = (em.bloodType || "").trim();
+    return !allergies || !history || !blood;
+  }, [profile]);
+
+  const allergiesText = profile?.emergencyMedical?.allergies?.trim();
+  const historyText = profile?.emergencyMedical?.medicalHistory?.trim();
+  const bloodText = profile?.emergencyMedical?.bloodType?.trim();
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-text">
       <div className="w-full md:w-[400px] max-w-[400px] h-screen md:h-[824px] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200">
-        {/* Header */}
         <header className="flex-none px-6 pt-8 pb-4 bg-white/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between border-b border-slate-100">
           <h1 className="text-lg font-black text-slate-900">Profile</h1>
           <button
@@ -180,7 +165,6 @@ export function UserProfileScreen({
           </button>
         </header>
 
-        {/* Main Content - Scrollable */}
         <main className="flex-1 overflow-y-auto px-6 space-y-6 no-scrollbar pb-32">
           {/* Profile Card */}
           <div className="bg-white border border-slate-100 rounded-[24px] p-5 shadow-sm">
@@ -197,15 +181,14 @@ export function UserProfileScreen({
               </div>
               <div>
                 <h2 className="text-lg font-bold text-slate-900 leading-tight">
-                  Amirul Hafiz bin Ramli
+                  {displayName}
                 </h2>
                 <p className="text-xs font-medium text-light-text">
-                  NRIC: 920512-10-5433
+                  {displayId.startsWith("NRIC") ? displayId : `NRIC: ${displayId}`}
                 </p>
               </div>
             </div>
 
-            {/* Contact Details */}
             <div className="space-y-4">
               {/* Phone */}
               <div className="flex items-center justify-between group">
@@ -218,7 +201,7 @@ export function UserProfileScreen({
                       Phone Number
                     </p>
                     <p className="text-sm font-medium text-slate-700">
-                      +60 12-345 6789
+                      {displayPhone}
                     </p>
                   </div>
                 </div>
@@ -241,7 +224,7 @@ export function UserProfileScreen({
                       Email Address
                     </p>
                     <p className="text-sm font-medium text-slate-700">
-                      amirul.hafiz@email.com
+                      {displayEmail}
                     </p>
                   </div>
                 </div>
@@ -257,14 +240,14 @@ export function UserProfileScreen({
               <div className="flex items-center justify-between group">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
-                    <Home size={16} />
+                    <HomeIcon size={16} />
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       Home Address
                     </p>
                     <p className="text-sm font-medium text-slate-700 leading-tight">
-                      No. 24, Jalan Teluk Gadung 27/93, Seksyen 27, Shah Alam
+                      {displayAddress}
                     </p>
                   </div>
                 </div>
@@ -278,7 +261,7 @@ export function UserProfileScreen({
             </div>
           </div>
 
-          {/* Readiness Triage - Critical Warning */}
+          {/* Medical section */}
           {medicalDataIncomplete && (
             <div className="bg-white border border-red-100 rounded-[24px] overflow-hidden shadow-sm">
               <div className="bg-red-50 px-4 py-2 flex items-center gap-2">
@@ -287,6 +270,7 @@ export function UserProfileScreen({
                   Missing Information • Profile Not Rescue Ready
                 </span>
               </div>
+
               <div className="p-5">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
@@ -306,54 +290,45 @@ export function UserProfileScreen({
                 </div>
 
                 <div className="space-y-4">
-                  {/* Allergies */}
-                  <div className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-hazard-red">
-                        <AlertTriangle size={16} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          Allergies
-                        </p>
-                        <p className="text-sm font-medium text-slate-300 italic">
-                          e.g., Penicillin, Peanuts
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-hazard-red">
+                      <AlertTriangle size={16} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Allergies
+                      </p>
+                      <p className={`text-sm font-medium ${allergiesText ? "text-slate-700" : "text-slate-300 italic"}`}>
+                        {allergiesText || "e.g., Penicillin, Peanuts"}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Medical History */}
-                  <div className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-hazard-red">
-                        <ShoppingBag size={16} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          Medical History
-                        </p>
-                        <p className="text-sm font-medium text-slate-300 italic">
-                          e.g., Asthma, Hypertension
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-hazard-red">
+                      <ShoppingBag size={16} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Medical History
+                      </p>
+                      <p className={`text-sm font-medium ${historyText ? "text-slate-700" : "text-slate-300 italic"}`}>
+                        {historyText || "e.g., Asthma, Hypertension"}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Blood Type */}
-                  <div className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-hazard-red">
-                        <Droplets size={16} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          Blood Type
-                        </p>
-                        <p className="text-sm font-medium text-primary">
-                          Select Blood Type
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-hazard-red">
+                      <Droplets size={16} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Blood Type
+                      </p>
+                      <p className={`text-sm font-medium ${bloodText ? "text-slate-700" : "text-primary"}`}>
+                        {bloodText || "Select Blood Type"}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -361,12 +336,10 @@ export function UserProfileScreen({
             </div>
           )}
 
-          {/* Household & Dependents */}
+          {/* Dependents */}
           <div>
             <div className="mb-4">
-              <h3 className="text-lg font-bold text-slate-900">
-                Household & Dependents
-              </h3>
+              <h3 className="text-lg font-bold text-slate-900">Household & Dependents</h3>
               <p className="text-xs text-light-text leading-relaxed">
                 Your household data is encrypted. This information is only shared
                 with NADMA/BOMBA during active rescue operations to prioritize
@@ -374,7 +347,6 @@ export function UserProfileScreen({
               </p>
             </div>
 
-            {/* Add New Dependent Button */}
             <button
               onClick={onAddDependent}
               className="w-full py-3 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center gap-2 text-primary font-bold text-sm hover:bg-slate-50 transition-colors mb-4"
@@ -383,49 +355,46 @@ export function UserProfileScreen({
               Add New Dependent
             </button>
 
-            {/* Dependents List */}
             <div className="space-y-3">
-              {dependents.map((dependent) => (
-                <div
-                  key={dependent.id}
-                  className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex items-center justify-between cursor-pointer hover:border-primary/20 transition-colors"
-                  onClick={() => onEditDependent?.(dependent.id)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center ${getIconColor(
-                        dependent.color
-                      )}`}
-                    >
-                      {getDependentIcon(dependent.icon)}
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900">
-                        {dependent.name}
-                      </h4>
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        {dependent.badges.map((badge, index) => (
-                          <span
-                            key={index}
-                            className={`text-[9px] font-bold px-2 py-0.5 rounded-full border uppercase ${getBadgeStyles(
-                              dependent.color
-                            )}`}
-                          >
-                            {badge}
-                          </span>
-                        ))}
+              {dependents.length === 0 ? (
+                <div className="text-xs text-slate-500 bg-slate-50 border border-slate-100 rounded-2xl p-4">
+                  No dependents added yet.
+                </div>
+              ) : (
+                dependents.map((dependent) => (
+                  <div
+                    key={dependent.id}
+                    className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex items-center justify-between cursor-pointer hover:border-primary/20 transition-colors"
+                    onClick={() => onEditDependent?.(dependent.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${getIconColor(dependent.color)}`}>
+                        {getDependentIcon(dependent.icon)}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900">{dependent.name}</h4>
+                        <div className="flex flex-wrap gap-1.5 mt-1">
+                          {dependent.badges.map((badge, index) => (
+                            <span
+                              key={index}
+                              className={`text-[9px] font-bold px-2 py-0.5 rounded-full border uppercase ${getBadgeStyles(dependent.color)}`}
+                            >
+                              {badge}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
+                    <span className="text-[10px] font-bold text-slate-400">
+                      {dependent.relationship}
+                    </span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400">
-                    {dependent.relationship}
-                  </span>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
-          {/* Settings Menu */}
+          {/* Settings */}
           <div className="bg-white border border-slate-100 rounded-[24px] p-2 shadow-sm">
             <button
               onClick={onSettings}
@@ -437,7 +406,9 @@ export function UserProfileScreen({
               </div>
               <span className="text-slate-300">›</span>
             </button>
-            <div className="h-px bg-slate-50 mx-4"></div>
+
+            <div className="h-px bg-slate-50 mx-4" />
+
             <button
               onClick={onHelp}
               className="w-full p-4 flex items-center justify-between text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors"
@@ -448,7 +419,9 @@ export function UserProfileScreen({
               </div>
               <span className="text-slate-300">›</span>
             </button>
-            <div className="h-px bg-slate-50 mx-4"></div>
+
+            <div className="h-px bg-slate-50 mx-4" />
+
             <button
               onClick={onLogout}
               className="w-full p-4 flex items-center justify-between text-hazard-red hover:bg-red-50 rounded-2xl transition-colors mt-1"
@@ -464,22 +437,21 @@ export function UserProfileScreen({
         {/* Bottom Navigation */}
         <nav className="flex-none bg-white border-t border-slate-100 px-6 py-4 grid grid-cols-5 items-end z-30">
           <button
-            onClick={() => onNavigate?.('home')}
+            onClick={() => onNavigate?.("home")}
             className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
           >
-            <Home size={20} />
+            <HomeIcon size={20} />
             <span className="text-[10px] font-medium">Home</span>
           </button>
 
           <button
-            onClick={() => onNavigate?.('map')}
+            onClick={() => onNavigate?.("map")}
             className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
           >
             <Map size={20} />
             <span className="text-[10px] font-medium">Map</span>
           </button>
 
-          {/* SOS Button - Centered */}
           <div className="flex flex-col items-center gap-1 -mt-10">
             <button className="w-20 h-20 bg-primary rounded-full shadow-2xl shadow-blue-900/40 flex items-center justify-center text-white ring-[6px] ring-white active:scale-95 transition-transform font-black text-2xl tracking-tighter hover:bg-blue-900">
               SOS
@@ -487,7 +459,7 @@ export function UserProfileScreen({
           </div>
 
           <button
-            onClick={() => onNavigate?.('updates')}
+            onClick={() => onNavigate?.("updates")}
             className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
           >
             <Megaphone size={20} />
