@@ -35,7 +35,7 @@ import { EditDependentHub } from "./components/EditDependentHub";
 import { EditDependentSuccessScreen } from "./components/EditDependentSuccessScreen";
 import { AppSettingsScreen } from "./components/AppSettingsScreen";
 import { HelpSupportScreen } from "./components/HelpSupportScreen";
-
+import type { AiRisk, JpsNearbyStation } from "./types/banjirsense";
 
 type AppScreen =
   | "splash"
@@ -103,11 +103,12 @@ interface CurrentDependentData {
 }
 
 function App() {
-    type AiRisk = {
+ /*   type AiRisk = {
     riskLevel: "LOW" | "MEDIUM" | "HIGH";
     hoursAhead?: number;
     riskScore?: number;
-    summary?: string; // optional if your backend sends it
+    summary?: string;
+    tipsBM?: string[]; 
   };
 
   type JpsNearbyStation = {
@@ -123,13 +124,13 @@ function App() {
     status?: string; // Normal/Alert/Warning/Danger
     updatedAt?: string;
     distanceKm?: number;
-  };
+  };*/
 
   const [homeAi, setHomeAi] = useState<AiRisk | null>(null);
   const [homeJps, setHomeJps] = useState<JpsNearbyStation | null>(null);
   const [homeLoading, setHomeLoading] = useState(false);
   const [homeError, setHomeError] = useState<string | null>(null);
-  
+  const [userLoc, setUserLoc] = useState<{lat:number; lng:number} | null>(null);
   const [currentScreen, setCurrentScreen] = useState<AppScreen>("splash");
   const [personalDetailsData, setPersonalDetailsData] = useState<PersonalDetailsData | null>(null);
   const [resetPasswordEmail, setResetPasswordEmail] = useState("");
@@ -350,6 +351,8 @@ function App() {
         apiFetch<any>(`/gov/jps/nearby?lat=${lat}&lng=${lng}&radiusKm=30`),
       ]);
 
+      setUserLoc({ lat, lng });
+
       // AI
       if (ai.status === "fulfilled") {
         setHomeAi({
@@ -357,6 +360,7 @@ function App() {
           hoursAhead: ai.value.hoursAhead,
           riskScore: ai.value.riskScore,
           summary: ai.value.summary,
+          tipsBM: ai.value.tipsBM,
         });
       } else {
         setHomeAi(null);
@@ -370,27 +374,19 @@ function App() {
           jps.value?.[0] ||
           null;
 
-        setHomeJps(
-          station
-            ? {
-                id: station.id,
-                name: station.name,
-                state: station.state,
-                district: station.district,
-                lat: station.lat,
-                lng: station.lng,
-                status: station.status,
-                updatedAt: station.updatedAt,
-                distanceKm: station.distanceKm,
-                waterLevel: station.waterLevelM ?? null,
-                rainfall:
-                  station.rainfall?.todayMm ??
-                  station.rainfall?.last1hMm ??
-                  station.rainfall?.last3hMm ??
-                  null,
-              }
-            : null
-        );
+        setHomeJps(station ? {
+              id: station.id ?? undefined,
+              name: station.name ?? undefined,
+              state: station.state ?? undefined,
+              district: station.district ?? undefined,
+              lat: station.lat ?? undefined,
+              lng: station.lng ?? undefined,
+              status: station.status ?? undefined,
+              updatedAt: station.updatedAt ?? undefined,
+              distanceKm: station.distanceKm ?? undefined,
+              waterLevelM: station.waterLevelM ?? null,
+              rainfall: station.rainfall ?? null,
+            } : null);
       } else {
         setHomeJps(null);
       }
@@ -861,10 +857,15 @@ function App() {
         <RoutinePreparednessScreen
           onBack={handleRoutinePreparednessBack}
           onSubmit={handleRoutinePreparednessSubmit}
+          ai={homeAi} 
+          userLoc={userLoc}
+         
         />
       )}
       {currentScreen === "preparednessComplete" && (
-        <PreparednessCompleteScreen onBackToHome={handlePreparednessCompleteBack} />
+        <PreparednessCompleteScreen onBackToHome={handlePreparednessCompleteBack}
+        ai={homeAi}
+         />
       )}
       {currentScreen === "editPhoneNumber" && (
         <EditPhoneNumberScreen

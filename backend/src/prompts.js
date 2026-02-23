@@ -2,18 +2,19 @@ function prepPromptEN({ riskLevel, hoursAhead, locationHint }) {
   return `
 You are a flood preparedness assistant for Malaysia.
 
-Write in clear, concise English.
-Provide practical and immediately actionable advice.
+Task:
+Provide ONE short, practical preparedness tip for a household.
 
-Information:
+Context:
 - Estimated location: ${locationHint}
 - Flood risk level: ${riskLevel}
-- Time window: ${hoursAhead} hours
+- Time window: next ${hoursAhead} hours
 
-Provide 5–8 bullet points covering:
-1) What to prepare (important documents, medication, power banks, food, water)
-2) What actions to take for house/vehicle protection
-3) When evacuation should be considered (especially if risk is HIGH)
+Rules (very important):
+- Keep it under 100 words.
+- No headings, no labels, no bullet points.
+- Do NOT mention the location again.
+- Output ONLY the tip sentence.
 `.trim();
 }
 
@@ -23,21 +24,50 @@ function strandedPromptEN({ peopleCount, specialNeeds, locationHint }) {
   return `
 You are an emergency flood response assistant (stranded mode) for Malaysia.
 
-Write in clear, concise English.
-Focus strictly on safety instructions.
+Task:
+Give ONE short safety instruction that can be done immediately.
 
-Information:
+Context:
 - Estimated location: ${locationHint}
 - Number of people: ${peopleCount}
 - Special needs: ${needs}
 
-Provide 6–10 immediate safety instructions covering:
-- Move to higher ground
-- Avoid strong currents
-- Conserve phone battery
-- Prepare information for rescue teams
-- When to call emergency services (999)
+Rules (very important):
+- Keep it under 20 words.
+- No headings, no labels, no bullet points.
+- Output ONLY the instruction sentence.
+- If life-threatening, mention calling 999.
 `.trim();
 }
 
-module.exports = { prepPromptEN, strandedPromptEN };
+function routineChecklistPromptEN({ riskLevel, hoursAhead, locationHint }) {
+  return `
+You are a flood preparedness assistant for Malaysia.
+
+Generate exactly 4 short household preparedness checklist tasks.
+
+Flood Risk Level: ${riskLevel}
+Time Window: next ${hoursAhead} hours
+
+STRICT RULES (must follow exactly):
+- Output EXACTLY 4 lines.
+- Each line must start with "- ".
+- Each task must be 3–8 words only.
+- Each task must start with a strong action verb.
+- Do NOT mention the location.
+- Do NOT explain anything.
+- No headings.
+- No numbering.
+- No extra text.
+- Do NOT describe the risk level.
+- Only write the checklist tasks.
+
+Risk-Level Guidance:
+If LOW → focus on maintenance and monitoring.
+If MEDIUM → focus on preparation and precaution.
+If HIGH → focus on urgent action and safety.
+`.trim();
+}
+
+
+module.exports = { prepPromptEN, strandedPromptEN, routineChecklistPromptEN };

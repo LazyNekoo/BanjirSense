@@ -1,5 +1,5 @@
 const { GEMINI_API_KEY, GEMINI_MODEL } = require("./config");
-const { prepPromptEN, strandedPromptEN } = require("./prompts");
+const { prepPromptEN, strandedPromptEN, routineChecklistPromptEN } = require("./prompts");
 
 // node-fetch v3 needs dynamic import in CommonJS:
 const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
@@ -42,4 +42,17 @@ async function getStrandedGuidanceEN(input) {
   return callGemini(strandedPromptEN(input));
 }
 
-module.exports = { getPrepGuidanceEN, getStrandedGuidanceEN };
+async function getRoutineChecklistEN(input) {
+  const raw = await callGemini(routineChecklistPromptEN(input));
+
+  // Convert "- task" lines into clean array
+  const tasks = raw
+    .split("\n")
+    .map((line) => line.replace(/^- /, "").trim())
+    .filter(Boolean)
+    .slice(0, 4);
+
+  return tasks;
+}
+
+module.exports = { getPrepGuidanceEN, getStrandedGuidanceEN, getRoutineChecklistEN };
