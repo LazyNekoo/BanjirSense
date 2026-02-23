@@ -242,7 +242,7 @@ export function RiskAnalysisScreen({ onClose, ai, jps }: RiskAnalysisScreenProps
                   <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center text-white">
                     <Droplets size={14} />
                   </div>
-                  <span className="font-black text-sm tracking-tight text-dark-navy">BanjirSense+</span>
+                  <span className="font-black text-sm tracking-tight text-dark-navy">BanjirSense</span>
                 </div>
               </div>
             </section>
