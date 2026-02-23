@@ -12,17 +12,17 @@ async function getUserProfile(uid) {
 
 async function upsertUserProfile(uid, data) {
   const now = admin.firestore.FieldValue.serverTimestamp();
+  const ref = userRef(uid);
+  const snap = await ref.get();
 
-  await userRef(uid).set(
-    {
-      uid,
-      ...data,
-      updatedAt: now,
-      createdAt: now,
-    },
-    { merge: true }
-  );
+  const payload = {
+    uid,
+    ...data,
+    updatedAt: now,
+    ...(snap.exists ? {} : { createdAt: now }),
+  };
 
+  await ref.set(payload, { merge: true });
   return getUserProfile(uid);
 }
 

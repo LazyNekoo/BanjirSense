@@ -1,40 +1,40 @@
 import { useState, useEffect } from "react";
-import SplashScreen from "./components/SplashScreen";
-import LoginScreen from "./components/LoginScreen";
-import { PersonalDetailsScreen } from "./components/PersonalDetailsScreen";
-import { EmergencyMedicalScreen } from "./components/EmergencyMedicalScreen";
-import { ResetPasswordScreen } from "./components/ResetPasswordScreen";
-import { VerifyPasswordScreen } from "./components/VerifyPasswordScreen";
-import { PasswordResetSuccessScreen } from "./components/PasswordResetSuccessScreen";
+import SplashScreen from "./components/auth/SplashScreen";
+import LoginScreen from "./components/auth/LoginScreen";
+import { PersonalDetailsScreen } from "./components/auth/PersonalDetailsScreen";
+import { EmergencyMedicalScreen } from "./components/profile/EmergencyMedicalScreen";
+import { ResetPasswordScreen } from "./components/auth/ResetPasswordScreen";
+import { VerifyPasswordScreen } from "./components/auth/VerifyPasswordScreen";
+import { PasswordResetSuccessScreen } from "./components/auth/PasswordResetSuccessScreen";
 import {GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, } from "firebase/auth";
 import { auth } from "./lib/firebase";
 import { apiFetch } from "./lib/api";
-import { HomeScreen } from "./components/HomeScreen";
-import { RiskAnalysisScreen } from "./components/RiskAnalysisScreen";
-import { RoutinePreparednessScreen } from "./components/RoutinePreparednessScreen";
-import { PreparednessCompleteScreen } from "./components/PreparednessCompleteScreen";
-import { NotificationCenterScreen } from "./components/NotificationCenterScreen";
-import { UserProfileScreen } from "./components/UserProfileScreen";
-import { EditPhoneNumberScreen } from "./components/EditPhoneNumberScreen";
-import { VerifyPhoneNumberScreen } from "./components/VerifyPhoneNumberScreen";
-import { PhoneUpdateSuccessScreen } from "./components/PhoneUpdateSuccessScreen";
-import { EditEmailAddressScreen } from "./components/EditEmailAddressScreen";
-import { VerifyEmailAddressScreen } from "./components/VerifyEmailAddressScreen";
-import { EmailUpdateSuccessScreen } from "./components/EmailUpdateSuccessScreen";
-import { EditHomeAddressScreen } from "./components/EditHomeAddressScreen";
-import { HomeAddressUpdateSuccessScreen } from "./components/HomeAddressUpdateSuccessScreen";
-import { MedicalSpecialNeedsScreen } from "./components/MedicalSpecialNeedsScreen";
-import { MedicalProfileSuccessScreen } from "./components/MedicalProfileSuccessScreen";
-import { AddDependentIdentityScreen } from "./components/AddDependentIdentityScreen";
-import { AddDependentTriageScreen } from "./components/AddDependentTriageScreen";
-import { AddDependentMedicalScreen } from "./components/AddDependentMedicalScreen";
-import { AddDependentSuccessScreen } from "./components/AddDependentSuccessScreen";
-import { EncryptionLoadingModal } from "./components/EncryptionLoadingModal";
-import { DependentProfileScreen } from "./components/DependentProfileScreen";
-import { EditDependentHub } from "./components/EditDependentHub";
-import { EditDependentSuccessScreen } from "./components/EditDependentSuccessScreen";
-import { AppSettingsScreen } from "./components/AppSettingsScreen";
-import { HelpSupportScreen } from "./components/HelpSupportScreen";
+import { HomeScreen } from "./components/core/HomeScreen";
+import { RiskAnalysisScreen } from "./components/core/RiskAnalysisScreen";
+import { RoutinePreparednessScreen } from "./components/core/RoutinePreparednessScreen";
+import { PreparednessCompleteScreen } from "./components/core/PreparednessCompleteScreen";
+import { NotificationCenterScreen } from "./components/core/NotificationCenterScreen";
+import { UserProfileScreen } from "./components/core/UserProfileScreen";
+import { EditPhoneNumberScreen } from "./components/contact/EditPhoneNumberScreen";
+import { VerifyPhoneNumberScreen } from "./components/contact/VerifyPhoneNumberScreen";
+import { PhoneUpdateSuccessScreen } from "./components/contact/PhoneUpdateSuccessScreen";
+import { EditEmailAddressScreen } from "./components/contact/EditEmailAddressScreen";
+import { VerifyEmailAddressScreen } from "./components/contact/VerifyEmailAddressScreen";
+import { EmailUpdateSuccessScreen } from "./components/contact/EmailUpdateSuccessScreen";
+import { EditHomeAddressScreen } from "./components/contact/EditHomeAddressScreen";
+import { HomeAddressUpdateSuccessScreen } from "./components/contact/HomeAddressUpdateSuccessScreen";
+import { MedicalSpecialNeedsScreen } from "./components/profile/MedicalSpecialNeedsScreen";
+import { MedicalProfileSuccessScreen } from "./components/profile/MedicalProfileSuccessScreen";
+import { AddDependentIdentityScreen } from "./components/dependent/AddDependentIdentityScreen";
+import { AddDependentTriageScreen } from "./components/dependent/AddDependentTriageScreen";
+import { AddDependentMedicalScreen } from "./components/dependent/AddDependentMedicalScreen";
+import { AddDependentSuccessScreen } from "./components/dependent/AddDependentSuccessScreen";
+import { EncryptionLoadingModal } from "./components/shared/EncryptionLoadingModal";
+import { DependentProfileScreen } from "./components/dependent/DependentProfileScreen";
+import { EditDependentHub } from "./components/dependent/EditDependentHub";
+import { EditDependentSuccessScreen } from "./components/dependent/EditDependentSuccessScreen";
+import { AppSettingsScreen } from "./components/core/AppSettingsScreen";
+import { HelpSupportScreen } from "./components/core/HelpSupportScreen";
 import type { AiRisk, JpsNearbyStation } from "./types/banjirsense";
 
 type AppScreen =
@@ -72,6 +72,43 @@ type AppScreen =
   | "appSettings"
   | "helpSupport";
 
+  //For user dependents management
+type DependentRecord = {
+  id: string;
+  fullName: string;
+  relationship: string;
+  triageTag: string;
+  nricNumber: string;
+  allergies: string;
+  medicalHistory: string;
+  criticalMedications: string;
+  bloodType: string;
+  createdAt?: any;
+  updatedAt?: any;
+};
+
+async function apiListDependents() {
+  const res = await apiFetch<{ ok: boolean; dependents: DependentRecord[] }>("/dependents");
+  return res.dependents || [];
+}
+
+async function apiCreateDependent(payload: Omit<DependentRecord, "id">) {
+  const res = await apiFetch<{ ok: boolean; dependent: DependentRecord }>("/dependents", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return res.dependent;
+}
+
+async function apiUpdateDependent(id: string, payload: Partial<Omit<DependentRecord, "id">>) {
+  const res = await apiFetch<{ ok: boolean; dependent: DependentRecord }>(`/dependents/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+  return res.dependent;
+}
+
+//user profile data types
 interface PersonalDetailsData {
   identityType: 'local' | 'international';
   icNumber?: string;
@@ -103,29 +140,8 @@ interface CurrentDependentData {
 }
 
 function App() {
- /*   type AiRisk = {
-    riskLevel: "LOW" | "MEDIUM" | "HIGH";
-    hoursAhead?: number;
-    riskScore?: number;
-    summary?: string;
-    tipsBM?: string[]; 
-  };
 
-  type JpsNearbyStation = {
-    id?: string;
-    name?: string;
-    stationName?: string;
-    state?: string;
-    district?: string;
-    lat?: number;
-    lng?: number;
-    waterLevel?: number | string;
-    rainfall?: number | string;
-    status?: string; // Normal/Alert/Warning/Danger
-    updatedAt?: string;
-    distanceKm?: number;
-  };*/
-
+  
   const [homeAi, setHomeAi] = useState<AiRisk | null>(null);
   const [homeJps, setHomeJps] = useState<JpsNearbyStation | null>(null);
   const [homeLoading, setHomeLoading] = useState(false);
@@ -159,6 +175,25 @@ function App() {
       criticalMedications: 'Amlodipine (5mg Daily)',
     },
   ]);
+  const syncDependentsFromBackend = async () => {
+  try {
+    const items = await apiListDependents();
+    if (items.length > 0) {
+      setDependents(items as any); // keep your existing dependents state shape
+    }
+  } catch (e) {
+    console.warn("Dependents sync failed (keeping local):", e);
+  }
+};
+  const [meProfile, setMeProfile] = useState<any | null>(null);
+  const syncProfileFromBackend = async () => {
+  try {
+    const res = await apiFetch<{ ok: boolean; profile: any }>("/me");
+    setMeProfile(res.profile || null);
+  } catch (e) {
+    console.warn("Profile sync failed (keeping local UI defaults):", e);
+  }
+};
 
   useEffect(() => {
     // Auto-transition to login screen after 2.5 seconds
@@ -430,8 +465,10 @@ function App() {
   };
 
   const handleOpenProfile = () => {
-    setCurrentScreen("profile");
-  };
+  setCurrentScreen("profile");
+  setTimeout(syncProfileFromBackend, 0); 
+  setTimeout(syncDependentsFromBackend, 0); 
+};
 
   const handleProfileNavigate = (screen: string) => {
     switch (screen) {
@@ -446,7 +483,9 @@ function App() {
         setCurrentScreen("notifications");
         break;
       case "profile":
-        // Already on profile
+        setCurrentScreen("profile");
+        setTimeout(syncProfileFromBackend, 0);
+        setTimeout(syncDependentsFromBackend, 0); 
         break;
       default:
         setCurrentScreen(screen as AppScreen);
@@ -495,6 +534,34 @@ function App() {
   }) => {
     console.log("Step 3 completed:", data);
     const updatedData = { ...currentDependentData, ...data };
+        (async () => {
+      try {
+        // only create if we have the minimum required fields
+        if (
+          updatedData.fullName &&
+          updatedData.relationship &&
+          updatedData.nricNumber &&
+          updatedData.triageTag
+        ) {
+          await apiCreateDependent({
+            fullName: updatedData.fullName,
+            relationship: updatedData.relationship,
+            nricNumber: updatedData.nricNumber,
+            triageTag: updatedData.triageTag,
+            allergies: updatedData.allergies || "None",
+            medicalHistory: updatedData.medicalHistory || "None",
+            criticalMedications: updatedData.criticalMedications || "None",
+            bloodType: updatedData.bloodType || "",
+          } as any);
+
+          // refresh list (but keep local if it fails)
+          await syncDependentsFromBackend();
+        }
+      } catch (e) {
+        console.warn("Create dependent failed (keeping local):", e);
+      }
+    })();
+
     setCurrentDependentData(updatedData);
     
     // Show encryption loading modal
@@ -576,6 +643,25 @@ function App() {
           : d
         )
       );
+
+        (async () => {
+      try {
+        await apiUpdateDependent(selectedDependentId, {
+          fullName: data.dependentName,
+          relationship: data.relationship,
+          nricNumber: data.nricNumber,
+          triageTag: data.triageTag,
+          allergies: data.allergies,
+          medicalHistory: data.medicalHistory,
+          bloodType: data.bloodType,
+          criticalMedications: data.criticalMedications,
+        });
+
+        await syncDependentsFromBackend();
+      } catch (e) {
+        console.warn("Update dependent failed (keeping local):", e);
+      }
+    })();
       
       // Show encryption loading modal
       setIsEncryptionLoading(true);
@@ -587,6 +673,8 @@ function App() {
       
       console.log("Dependent updated:", data);
     }
+
+    
   };
 
   const handleEditDependentSuccessBack = () => {
@@ -824,6 +912,7 @@ function App() {
       )}
       {currentScreen === "profile" && (
         <UserProfileScreen
+          profile={meProfile} 
           dependents={dependents.map(d => ({
             id: d.id,
             fullName: d.fullName,

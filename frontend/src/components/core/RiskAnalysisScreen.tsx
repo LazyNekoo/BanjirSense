@@ -1,5 +1,5 @@
 import { Brain, Droplets, Home, Map, Megaphone, ShieldCheck, Sun, User, X } from "lucide-react";
-import type { AiRisk, JpsNearbyStation } from "../types/banjirsense";
+import type { AiRisk, JpsNearbyStation } from "../../types/banjirsense";
 
 
 interface RiskAnalysisScreenProps {
