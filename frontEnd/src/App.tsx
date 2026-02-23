@@ -818,8 +818,12 @@ function App() {
           onViewDetailedAnalysis={handleViewDetailedAnalysis}
           onViewRoutineChecklist={handleOpenRoutinePreparedness}
           onOpenNotifications={handleOpenNotifications}
-
           onOpenProfile={handleOpenProfile}
+          ai={homeAi}
+          jps={homeJps}
+          isLoading={homeLoading}
+          error={homeError}
+          onRefresh={loadHomeData}
         />
       )}
       {currentScreen === "profile" && (
@@ -840,12 +844,6 @@ function App() {
           onHelp={handleProfileHelp}
           onLogout={handleProfileLogout}
           onNavigate={handleProfileNavigate}
-
-          ai={homeAi}
-          jps={homeJps}
-          isLoading={homeLoading}
-          error={homeError}
-          onRefresh={loadHomeData}
 
         />
       )}
