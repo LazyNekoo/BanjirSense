@@ -40,11 +40,15 @@ interface HomeScreenProps {
   onViewRoutineChecklist: () => void;
   onOpenNotifications: () => void;
 
+  onOpenProfile?: () => void;
+
+
   ai?: AiRisk | null;
   jps?: JpsNearbyStation | null;
   isLoading?: boolean;
   error?: string | null;
   onRefresh?: () => void;
+
 }
 
 
@@ -52,11 +56,15 @@ export function HomeScreen({
   onViewDetailedAnalysis,
   onViewRoutineChecklist,
   onOpenNotifications,
+
+  onOpenProfile,
+
   ai,
   jps,
   isLoading,
   error,
   onRefresh,
+
 }: HomeScreenProps) {
 
   //For Ai flood risk detection
@@ -304,7 +312,10 @@ export function HomeScreen({
             <Megaphone size={20} />
             <span className="text-[10px] font-medium">Updates</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
+          <button
+            onClick={onOpenProfile}
+            className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
+          >
             <User size={20} />
             <span className="text-[10px] font-medium">Profile</span>
           </button>
