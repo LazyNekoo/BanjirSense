@@ -12,19 +12,79 @@ import {
   User,
 } from "lucide-react";
 
+type AiRisk = {
+  riskLevel: "LOW" | "MEDIUM" | "HIGH";
+  hoursAhead?: number;
+  riskScore?: number;
+  summary?: string;
+};
+
+type JpsNearbyStation = {
+  id?: string;
+  name?: string;
+  stationName?: string;
+  state?: string;
+  district?: string;
+  lat?: number;
+  lng?: number;
+  status?: string;
+  waterLevel?: number | string;
+  rainfall?: number | string;
+  updatedAt?: string;
+  distanceKm?: number;
+};
+
+
 interface HomeScreenProps {
   onViewDetailedAnalysis: () => void;
   onViewRoutineChecklist: () => void;
   onOpenNotifications: () => void;
+
   onOpenProfile?: () => void;
+
+
+  ai?: AiRisk | null;
+  jps?: JpsNearbyStation | null;
+  isLoading?: boolean;
+  error?: string | null;
+  onRefresh?: () => void;
+
 }
+
 
 export function HomeScreen({
   onViewDetailedAnalysis,
   onViewRoutineChecklist,
   onOpenNotifications,
+
   onOpenProfile,
+
+  ai,
+  jps,
+  isLoading,
+  error,
+  onRefresh,
+
 }: HomeScreenProps) {
+
+  //For Ai flood risk detection
+    const riskLevel = ai?.riskLevel ?? "LOW";
+
+  const riskTitle =
+    riskLevel === "HIGH"
+      ? "High Flood Risk Detected"
+      : riskLevel === "MEDIUM"
+        ? "Moderate Flood Risk Detected"
+        : "Low Flood Risk Detected";
+
+  const riskDesc =
+    ai?.summary ??
+    (riskLevel === "HIGH"
+      ? "Immediate flood threat is possible. Stay alert and prepare to move."
+      : riskLevel === "MEDIUM"
+        ? "Some risk detected. Monitor conditions and be prepared."
+        : "No immediate threat. Conditions are currently stable and safe.");
+
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
       <div className="w-[400px] max-w-[400px] h-[824px] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200">
@@ -33,7 +93,7 @@ export function HomeScreen({
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-blue-200">
               <Droplets size={20} />
             </div>
-            <h1 className="font-black text-lg tracking-tight text-slate-900">BanjirSense+</h1>
+            <h1 className="font-black text-lg tracking-tight text-slate-900">BanjirSense</h1>
           </div>
           <button
             type="button"
@@ -56,22 +116,83 @@ export function HomeScreen({
               <div className="bg-white/95 backdrop-blur px-4 py-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3">
                 <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
                 <span className="text-xs font-black text-primary uppercase tracking-widest">
-                  Safe Zone • Low Risk
+                  {isLoading
+                    ? "Loading live risk..."
+                    : ai
+                      ? `AI Risk • ${ai.riskLevel}`
+                      : "AI Risk • Unavailable"}
                 </span>
               </div>
             </div>
           </section>
+          
 
           <section className="px-5 -mt-16 relative z-10">
             <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-50 shadow-slate-900/5">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex flex-col">
                   <h2 className="text-2xl font-black text-primary leading-tight">
-                    Low Flood Risk Detected
-                  </h2>
-                  <p className="text-sm text-slate-500 mt-1 font-medium">
-                    No immediate threat. Conditions are currently stable and safe.
-                  </p>
+                      {riskTitle}
+                    </h2>
+                    <p className="text-sm text-slate-500 mt-1 font-medium">
+                      {riskDesc}
+                    </p>
+                  <section className="px-5 mt-4">
+                    <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+                          Official JPS Station Nearby
+                        </p>
+                        {onRefresh && (
+                          <button
+                            onClick={onRefresh}
+                            className="text-[11px] font-bold text-primary hover:underline"
+                          >
+                            Refresh
+                          </button>
+                        )}
+                      </div>
+
+                      {error && (
+                        <p className="text-xs text-red-600 font-semibold">
+                          {error}
+                        </p>
+                      )}
+
+                      {!jps ? (
+                        <p className="text-sm text-slate-500">
+                          {isLoading ? "Finding nearest station..." : "No station data available."}
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-sm font-bold text-slate-900">
+                            {jps.stationName || jps.name || "Unnamed Station"}
+                          </p>
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
+                              Status: {jps.status ?? "N/A"}
+                            </span>
+                            <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
+                              Water: {jps.waterLevel ?? "N/A"}
+                            </span>
+                            <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
+                              Rain: {jps.rainfall ?? "N/A"}
+                            </span>
+                            {typeof jps.distanceKm === "number" && (
+                              <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
+                                {jps.distanceKm.toFixed(1)} km
+                              </span>
+                            )}
+                          </div>
+                          {jps.updatedAt && (
+                            <p className="text-[11px] text-slate-400">
+                              Updated: {jps.updatedAt}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </section>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-4">
@@ -166,7 +287,7 @@ export function HomeScreen({
                   <Droplets size={16} />
                 </div>
                 <span className="font-black text-sm tracking-tight text-dark-navy">
-                  BanjirSense+
+                  BanjirSense
                 </span>
               </div>
             </div>

@@ -6,6 +6,9 @@ import { EmergencyMedicalScreen } from "./components/EmergencyMedicalScreen";
 import { ResetPasswordScreen } from "./components/ResetPasswordScreen";
 import { VerifyPasswordScreen } from "./components/VerifyPasswordScreen";
 import { PasswordResetSuccessScreen } from "./components/PasswordResetSuccessScreen";
+import {GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, } from "firebase/auth";
+import { auth } from "./lib/firebase";
+import { apiFetch } from "./lib/api";
 import { HomeScreen } from "./components/HomeScreen";
 import { RiskAnalysisScreen } from "./components/RiskAnalysisScreen";
 import { RoutinePreparednessScreen } from "./components/RoutinePreparednessScreen";
@@ -32,6 +35,7 @@ import { EditDependentHub } from "./components/EditDependentHub";
 import { EditDependentSuccessScreen } from "./components/EditDependentSuccessScreen";
 import { AppSettingsScreen } from "./components/AppSettingsScreen";
 import { HelpSupportScreen } from "./components/HelpSupportScreen";
+
 
 type AppScreen =
   | "splash"
@@ -99,6 +103,33 @@ interface CurrentDependentData {
 }
 
 function App() {
+    type AiRisk = {
+    riskLevel: "LOW" | "MEDIUM" | "HIGH";
+    hoursAhead?: number;
+    riskScore?: number;
+    summary?: string; // optional if your backend sends it
+  };
+
+  type JpsNearbyStation = {
+    id?: string;
+    name?: string;
+    stationName?: string;
+    state?: string;
+    district?: string;
+    lat?: number;
+    lng?: number;
+    waterLevel?: number | string;
+    rainfall?: number | string;
+    status?: string; // Normal/Alert/Warning/Danger
+    updatedAt?: string;
+    distanceKm?: number;
+  };
+
+  const [homeAi, setHomeAi] = useState<AiRisk | null>(null);
+  const [homeJps, setHomeJps] = useState<JpsNearbyStation | null>(null);
+  const [homeLoading, setHomeLoading] = useState(false);
+  const [homeError, setHomeError] = useState<string | null>(null);
+  
   const [currentScreen, setCurrentScreen] = useState<AppScreen>("splash");
   const [personalDetailsData, setPersonalDetailsData] = useState<PersonalDetailsData | null>(null);
   const [resetPasswordEmail, setResetPasswordEmail] = useState("");
@@ -138,15 +169,36 @@ function App() {
   }, []);
 
   const handleGoogleLogin = async () => {
-    console.log("Google login initiated");
-    // Firebase GoogleAuthProvider integration point
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+
+    // prove backend can read token
+    const verify = await apiFetch<{
+      ok: boolean;
+      uid: string;
+      email: string | null;
+      profileExists: boolean;
+      profile: any;
+    }>("/auth/verify", { method: "POST" });
+
+    console.log("✅ Backend verify:", verify);
+
+    // later: navigate to home/map screen
+    setCurrentScreen("home");
+    setTimeout(loadHomeData, 0);
+
   };
 
+
   const handleLoginSubmit = async (email: string, password: string) => {
-    console.log("Login attempt:", { email, password });
-    // Firebase email/password authentication integration point
-    // TODO: After successful authentication, navigate to homescreen
+    await signInWithEmailAndPassword(auth, email, password);
+    const verify = await apiFetch("/auth/verify", { method: "POST" });
+    console.log("✅ Backend verify:", verify);
+
     setCurrentScreen("home");
+    setTimeout(loadHomeData, 0);
+
+
   };
 
   const handleRegisterClick = () => {
@@ -166,16 +218,15 @@ function App() {
   };
 
   const handleResetPasswordSendCode = async (email: string) => {
-    console.log("Sending verification code to:", email);
-    setResetPasswordEmail(email);
     setIsResettingPassword(true);
-    
-    // TODO: Firebase integration - sendPasswordResetEmail(email)
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await sendPasswordResetEmail(auth, email);
       setIsResettingPassword(false);
-      setCurrentScreen("verifyPassword");
-    }, 1500);
+      setCurrentScreen("passwordResetSuccess"); // skip verify screen
+    } catch (e: any) {
+      setIsResettingPassword(false);
+      throw e;
+    }
   };
 
   const handleVerifyPasswordBack = () => {
@@ -206,10 +257,33 @@ function App() {
     setCurrentScreen("login");
   };
 
-  const handlePersonalDetailsNext = (data: PersonalDetailsData) => {
-    console.log("Personal details completed:", data);
-    // Firebase integration point - save personal details
-    setPersonalDetailsData(data);
+  const handlePersonalDetailsNext = async (data: any) => {
+    // data includes password + confirmPassword from UI
+    const { password, confirmPassword, ...profile } = data;
+
+    if (!password || password !== confirmPassword) {
+      throw new Error("Passwords do not match");
+    }
+
+    // 1) Create Firebase user
+    await createUserWithEmailAndPassword(auth, profile.email, password);
+
+    // 2) Save profile to backend (secure, uid comes from token)
+    await apiFetch("/me", {
+      method: "PUT",
+      body: JSON.stringify({
+        identityType: profile.identityType,
+        icNumber: profile.icNumber || null,
+        passportNumber: profile.passportNumber || null,
+        countryOfOrigin: profile.countryOfOrigin || null,
+        fullName: profile.fullName,
+        email: profile.email,
+        phoneNumber: profile.phoneNumber,
+        address: profile.address,
+      }),
+    });
+
+    setPersonalDetailsData(profile);
     setCurrentScreen("emergencyMedical");
   };
 
@@ -218,15 +292,113 @@ function App() {
     setCurrentScreen("personalDetails");
   };
 
-  const handleEmergencyMedicalComplete = (data: EmergencyMedicalData) => {
-    console.log("Emergency & medical completed:", data);
-    console.log("Full registration data:", {
-      personalDetails: personalDetailsData,
-      emergencyMedical: data,
+  const handleEmergencyMedicalComplete = async (data: EmergencyMedicalData) => {
+    // store as part of user profile (simplest)
+    await apiFetch("/me", {
+      method: "PUT",
+      body: JSON.stringify({
+        emergencyMedical: {
+          hasDisability: data.hasDisability,
+          hasYoungChildren: data.hasYoungChildren,
+          bloodType: data.bloodType,
+          allergies: data.allergies,
+          medicalHistory: data.medicalHistory,
+        },
+      }),
     });
-    // Firebase integration point - complete user registration
-    // Save combined data to database
+
     setCurrentScreen("registrationComplete");
+  };
+
+  //Get user's location with browser geolocation API
+  const getBrowserLocation = () =>
+  new Promise<{ lat: number; lng: number }>((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error("Geolocation not supported"));
+    navigator.geolocation.getCurrentPosition(
+      (pos) =>
+        resolve({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        }),
+      (err) => reject(err),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+
+  // Load home screen data (AI risk + JPS stations) when entering home screen
+  const loadHomeData = async () => {
+    setHomeLoading(true);
+    setHomeError(null);
+
+    try {
+      let lat = 3.1390;
+      let lng = 101.6869;
+
+      try {
+        const loc = await getBrowserLocation();
+        lat = loc.lat;
+        lng = loc.lng;
+      } catch (err) {
+        console.warn("Geolocation failed, using fallback KL", err);
+      }
+
+      const [ai, jps] = await Promise.allSettled([
+        apiFetch<any>("/predict-flood", {
+          method: "POST",
+          body: JSON.stringify({ lat, lng }),
+        }),
+        apiFetch<any>(`/gov/jps/nearby?lat=${lat}&lng=${lng}&radiusKm=30`),
+      ]);
+
+      // AI
+      if (ai.status === "fulfilled") {
+        setHomeAi({
+          riskLevel: ai.value.riskLevel || ai.value.risk || "LOW",
+          hoursAhead: ai.value.hoursAhead,
+          riskScore: ai.value.riskScore,
+          summary: ai.value.summary,
+        });
+      } else {
+        setHomeAi(null);
+      }
+
+      // JPS
+      if (jps.status === "fulfilled") {
+        const station =
+          jps.value?.station ||
+          jps.value?.stations?.[0] ||
+          jps.value?.[0] ||
+          null;
+
+        setHomeJps(
+          station
+            ? {
+                id: station.id,
+                name: station.name,
+                state: station.state,
+                district: station.district,
+                lat: station.lat,
+                lng: station.lng,
+                status: station.status,
+                updatedAt: station.updatedAt,
+                distanceKm: station.distanceKm,
+                waterLevel: station.waterLevelM ?? null,
+                rainfall:
+                  station.rainfall?.todayMm ??
+                  station.rainfall?.last1hMm ??
+                  station.rainfall?.last3hMm ??
+                  null,
+              }
+            : null
+        );
+      } else {
+        setHomeJps(null);
+      }
+    } catch (e: any) {
+      setHomeError(e?.message || "Failed to load home data");
+    } finally {
+      setHomeLoading(false);
+    }
   };
 
   const handleViewDetailedAnalysis = () => {
@@ -646,6 +818,7 @@ function App() {
           onViewDetailedAnalysis={handleViewDetailedAnalysis}
           onViewRoutineChecklist={handleOpenRoutinePreparedness}
           onOpenNotifications={handleOpenNotifications}
+
           onOpenProfile={handleOpenProfile}
         />
       )}
@@ -667,14 +840,25 @@ function App() {
           onHelp={handleProfileHelp}
           onLogout={handleProfileLogout}
           onNavigate={handleProfileNavigate}
+
+          ai={homeAi}
+          jps={homeJps}
+          isLoading={homeLoading}
+          error={homeError}
+          onRefresh={loadHomeData}
+
         />
       )}
       {currentScreen === "notifications" && (
         <NotificationCenterScreen onBack={handleCloseNotifications} />
       )}
       {currentScreen === "riskAnalysis" && (
-        <RiskAnalysisScreen onClose={handleCloseRiskAnalysis} />
-      )}
+          <RiskAnalysisScreen
+            onClose={handleCloseRiskAnalysis}
+            ai={homeAi}
+            jps={homeJps}
+          />
+        )}
       {currentScreen === "routinePreparedness" && (
         <RoutinePreparednessScreen
           onBack={handleRoutinePreparednessBack}
