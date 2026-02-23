@@ -12,7 +12,7 @@ import {
   User,
 } from "lucide-react";
 
-import type { AiRisk, JpsNearbyStation } from "../types/banjirsense";
+import type { AiRisk, JpsNearbyStation } from "../../types/banjirsense";
 
 /*type AiRisk = {
   riskLevel: "LOW" | "MEDIUM" | "HIGH";

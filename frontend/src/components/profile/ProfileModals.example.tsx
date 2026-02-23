@@ -2,7 +2,7 @@
 // This shows how to extend the UserProfileScreen with edit functionality
 
 import React, { useState } from 'react';
-import { UserProfileScreen } from './UserProfileScreen';
+import { UserProfileScreen } from '../core/UserProfileScreen';
 
 interface EditProfileModalProps {
   isOpen: boolean;

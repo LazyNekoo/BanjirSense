@@ -20,6 +20,19 @@ import {
   User,
 } from 'lucide-react';
 
+type UserProfileData = {
+  fullName?: string;
+  icNumber?: string;
+  phoneNumber?: string;
+  email?: string;
+  address?: string;
+  emergencyMedical?: {
+    allergies?: string;
+    medicalHistory?: string;
+    bloodType?: string;
+  };
+};
+
 interface Dependent {
   id: string;
   name: string;
@@ -30,6 +43,8 @@ interface Dependent {
 }
 
 interface UserProfileScreenProps {
+
+  profile?: UserProfileData; 
   dependents?: { id: string; fullName: string; relationship: string; triageTag: string }[];
   onEditEmailAddress?: () => void;
   onEditPhoneNumber?: () => void;
@@ -44,6 +59,7 @@ interface UserProfileScreenProps {
 }
 
 export function UserProfileScreen({
+  profile,
   dependents: passedDependents,
   onEditEmailAddress,
   onEditPhoneNumber,
@@ -146,6 +162,9 @@ export function UserProfileScreen({
     };
     return icons[icon] || <User size={20} />;
   };
+
+  
+
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-text">
