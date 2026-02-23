@@ -9,13 +9,32 @@ import {
   User,
 } from "lucide-react";
 
+type AiRisk = {
+  riskLevel: "LOW" | "MEDIUM" | "HIGH";
+  hoursAhead?: number;
+  riskScore?: number;
+  summary?: string;
+  tipsBM?: string[];
+};
+
 interface PreparednessCompleteScreenProps {
   onBackToHome: () => void;
+  ai?: AiRisk | null;
 }
 
-export function PreparednessCompleteScreen({
-  onBackToHome,
-}: PreparednessCompleteScreenProps) {
+export function PreparednessCompleteScreen({ onBackToHome, ai }: PreparednessCompleteScreenProps) {
+  const geminiTip =
+    ai?.tipsBM?.find((t) => typeof t === "string" && t.trim().length > 0) ??
+    "Tip will appear after you refresh Home.";
+
+  const aiText =
+    ai?.summary ?? "AI summary will appear after you refresh Home.";
+
+    const cleanGeminiTip = geminiTip
+    ?.replace(/\(Location:[^)]+\)/gi, "") // remove (Location: ...)
+    ?.replace(/\*\*/g, "")                // remove markdown bold if any
+    ?.trim();
+
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
       <div className="w-[400px] max-w-[400px] h-[824px] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200">
@@ -71,9 +90,14 @@ export function PreparednessCompleteScreen({
               </span>
             </div>
             <p className="text-[13px] leading-relaxed text-slate-700">
-              Data confirms your readiness profile is optimal. Household vulnerability score decreased by{" "}
-              <span className="font-bold text-primary">45%</span> since last audit.
+              <span className="font-bold text-primary">AI:</span> {aiText}
             </p>
+
+            <div className="mt-3 pt-3 border-t border-slate-200">
+              <p className="text-[13px] text-slate-700 leading-relaxed">
+                  {cleanGeminiTip}
+                </p>
+            </div>
           </div>
         </main>
 

@@ -1,6 +1,6 @@
 // src/prediction/service.js
 const { predictFloodRisk } = require("../vertex");
-const { getPrepGuidanceEN } = require("../gemini");
+const { getPrepGuidanceEN, getRoutineChecklistEN  } = require("../gemini");
 const { getStationsCached, filterNearbyStations } = require("../gov/jps/services"); 
 
 function buildSummary({ riskLevel, hoursAhead }) {
@@ -57,6 +57,13 @@ async function runPrediction({ lat, lng, weather }) {
     locationHint: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
   });
 
+  //Utk page Preparedness Analysis
+  const checklist = await getRoutineChecklistEN({
+  riskLevel: pred.riskLevel,
+  hoursAhead: pred.hoursAhead,
+  locationHint: `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+});
+
   return {
     ok: true,
     riskLevel: pred.riskLevel,
@@ -64,6 +71,7 @@ async function runPrediction({ lat, lng, weather }) {
     hoursAhead: pred.hoursAhead,
     summary: buildSummary(pred),
     tipsBM: tipsFromGuidance(guidanceEN),
+    checklist, 
     updatedAt: new Date().toISOString(),
     source: (!process.env.PROJECT_ID || !process.env.VERTEX_ENDPOINT_ID) ? "heuristic" : "vertex",
 

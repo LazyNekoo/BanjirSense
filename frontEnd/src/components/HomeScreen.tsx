@@ -12,7 +12,9 @@ import {
   User,
 } from "lucide-react";
 
-type AiRisk = {
+import type { AiRisk, JpsNearbyStation } from "../types/banjirsense";
+
+/*type AiRisk = {
   riskLevel: "LOW" | "MEDIUM" | "HIGH";
   hoursAhead?: number;
   riskScore?: number;
@@ -29,10 +31,14 @@ type JpsNearbyStation = {
   lng?: number;
   status?: string;
   waterLevel?: number | string;
-  rainfall?: number | string;
+  rainfall?: {
+    last1hMm?: number | string | null;
+    todayMm?: number | string | null;
+    last3hMm?: number | string | null;
+  } | null;
   updatedAt?: string;
   distanceKm?: number;
-};
+};*/
 
 
 interface HomeScreenProps {
@@ -173,11 +179,14 @@ export function HomeScreen({
                               Status: {jps.status ?? "N/A"}
                             </span>
                             <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
-                              Water: {jps.waterLevel ?? "N/A"}
+                              Water: {jps.waterLevelM ?? "N/A"}
                             </span>
                             <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
-                              Rain: {jps.rainfall ?? "N/A"}
-                            </span>
+                                Rain 1h: {jps.rainfall?.last1hMm ?? "N/A"}
+                              </span>
+                              <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
+                                Rain Today: {jps.rainfall?.todayMm ?? "N/A"}
+                              </span>
                             {typeof jps.distanceKm === "number" && (
                               <span className="px-2 py-1 rounded-full bg-slate-50 border border-slate-100 font-semibold">
                                 {jps.distanceKm.toFixed(1)} km
@@ -224,47 +233,6 @@ export function HomeScreen({
               <span className="text-[10px] font-bold text-primary bg-blue-50 px-2 py-1 rounded-md">
                 INTELLIGENCE
               </span>
-            </div>
-            <div className="space-y-4">
-              <div className="bg-white border border-slate-100 p-4 rounded-2xl flex gap-4 hover:border-blue-200 transition-colors">
-                <div className="w-10 h-10 rounded-xl bg-slate-50 flex-shrink-0 flex items-center justify-center text-primary border border-slate-100">
-                  <CloudRain size={18} />
-                </div>
-                <div>
-                  <p className="text-[15px] font-semibold text-slate-900">
-                    Monitor daily weather reports.
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Stay updated with local forecasts to remain proactive.
-                  </p>
-                </div>
-              </div>
-              <div className="bg-white border border-slate-100 p-4 rounded-2xl flex gap-4 hover:border-blue-200 transition-colors">
-                <div className="w-10 h-10 rounded-xl bg-slate-50 flex-shrink-0 flex items-center justify-center text-primary border border-slate-100">
-                  <Droplet size={18} />
-                </div>
-                <div>
-                  <p className="text-[15px] font-semibold text-slate-900">
-                    Maintain home drainage systems.
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Clear gutters and drains while weather is clear.
-                  </p>
-                </div>
-              </div>
-              <div className="bg-white border border-slate-100 p-4 rounded-2xl flex gap-4 hover:border-blue-200 transition-colors">
-                <div className="w-10 h-10 rounded-xl bg-slate-50 flex-shrink-0 flex items-center justify-center text-primary border border-slate-100">
-                  <Package size={18} />
-                </div>
-                <div>
-                  <p className="text-[15px] font-semibold text-slate-900">
-                    Review emergency supply lists.
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Ensure your safety kit is stocked and ready.
-                  </p>
-                </div>
-              </div>
             </div>
             <button
               onClick={onViewRoutineChecklist}

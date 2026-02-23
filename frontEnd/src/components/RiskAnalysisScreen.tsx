@@ -1,21 +1,6 @@
 import { Brain, Droplets, Home, Map, Megaphone, ShieldCheck, Sun, User, X } from "lucide-react";
+import type { AiRisk, JpsNearbyStation } from "../types/banjirsense";
 
-type AiRisk = {
-  riskLevel: "LOW" | "MEDIUM" | "HIGH";
-  hoursAhead?: number;
-  riskScore?: number;
-  summary?: string;
-};
-
-type JpsNearbyStation = {
-  name?: string;
-  stationName?: string;
-  status?: string;
-  waterLevel?: number | string | null;
-  rainfall?: number | string | null;
-  updatedAt?: string | null;
-  distanceKm?: number;
-};
 
 interface RiskAnalysisScreenProps {
   onClose: () => void;
@@ -23,59 +8,32 @@ interface RiskAnalysisScreenProps {
   jps?: JpsNearbyStation | null;
 }
 
-export function RiskAnalysisScreen({ onClose, ai, jps }: RiskAnalysisScreenProps){
+export function RiskAnalysisScreen({ onClose, ai, jps }: RiskAnalysisScreenProps) {
+  const riskLevel = ai?.riskLevel ?? "LOW";
 
-    const waterLevel =
-    typeof (jps as any)?.waterLevel === "number"
-      ? (jps as any).waterLevel
-      : typeof (jps as any)?.waterLevelM === "number"
-        ? (jps as any).waterLevelM
-        : typeof (jps as any)?.waterLevel === "string"
-          ? Number((jps as any).waterLevel)
-          : null;
+  // ✅ Water level
+  const waterLevel = typeof jps?.waterLevelM === "number" ? jps.waterLevelM : null;
 
-    // Clamp to a reasonable visual scale (0–10m)
-    const maxM = 10;
-    const levelClamped = waterLevel == null || Number.isNaN(waterLevel) ? 0 : Math.max(0, Math.min(maxM, waterLevel));
-    const levelPct = Math.round((levelClamped / maxM) * 100);
+  // Clamp for visual scale (0–10m)
+  const maxM = 10;
+  const levelClamped =
+    waterLevel == null || Number.isNaN(waterLevel) ? 0 : Math.max(0, Math.min(maxM, waterLevel));
+  const levelPct = Math.round((levelClamped / maxM) * 100);
 
-    // 5 bars fill based on percentage
-    const totalBars = 5;
-    const filledBars = Math.round((levelPct / 100) * totalBars);
+  // 5 bars fill based on percentage
+  const totalBars = 5;
+  const filledBars = Math.round((levelPct / 100) * totalBars);
 
-    // Rainfall (if available)
-    const rain1h =
-      (jps as any)?.rainfall?.last1hMm ?? (jps as any)?.rainfall1hMm ?? null;
-    const rainToday =
-      (jps as any)?.rainfall?.todayMm ?? (jps as any)?.rainfallTodayMm ?? null;
+  // ✅ Rainfall
+  const rain1h = jps?.rainfall?.last1hMm ?? null;
+  const rainToday = jps?.rainfall?.todayMm ?? null;
 
-    // AI score %
-    const aiScorePct =
-      typeof ai?.riskScore === "number" ? Math.round(ai.riskScore * 100) : null;
+  // ✅ AI score %
+  const aiScorePct = typeof ai?.riskScore === "number" ? Math.round(ai.riskScore * 100) : null;
 
-    const riskLevel = ai?.riskLevel ?? "LOW";
-
-    // Use AI score if exists, else fallback from level
-    const score =
-      typeof ai?.riskScore === "number"
-        ? ai.riskScore
-        : riskLevel === "HIGH"
-          ? 0.85
-          : riskLevel === "MEDIUM"
-            ? 0.55
-            : 0.2;
-
-    const soilPct = Math.max(0, Math.min(100, Math.round(score * 100)));
-    const drainageUsed = Math.max(0, Math.min(100, Math.round(score * 100)));
-
-    const waterLevelText =
-      jps?.waterLevel != null && jps.waterLevel !== ""
-        ? `${jps.waterLevel}${typeof jps.waterLevel === "number" ? "m" : ""}`
-        : "N/A";
-
-    const insightText =
-      ai?.summary ??
-      `AI indicates ${riskLevel} flood risk in the next ${ai?.hoursAhead ?? 6} hours based on nearby conditions.`;
+  const insightText =
+    ai?.summary ??
+    `AI indicates ${riskLevel} flood risk in the next ${ai?.hoursAhead ?? 6} hours based on nearby conditions.`;
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
@@ -95,7 +53,11 @@ export function RiskAnalysisScreen({ onClose, ai, jps }: RiskAnalysisScreenProps
               <ShieldCheck size={16} />
             </div>
             <h1 className="font-black text-sm tracking-tight text-slate-800">
-              {riskLevel === "HIGH" ? "High Risk Area" : riskLevel === "MEDIUM" ? "Moderate Risk Area" : "Low Risk Area"}
+              {riskLevel === "HIGH"
+                ? "High Risk Area"
+                : riskLevel === "MEDIUM"
+                  ? "Moderate Risk Area"
+                  : "Low Risk Area"}
             </h1>
           </div>
           <button
@@ -109,6 +71,7 @@ export function RiskAnalysisScreen({ onClose, ai, jps }: RiskAnalysisScreenProps
 
         <div className="absolute inset-x-0 bottom-0 top-32 bg-white rounded-t-[2.5rem] z-30 flex flex-col border-t border-slate-100 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
           <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mt-4 mb-2" />
+
           <main className="flex-1 overflow-y-auto no-scrollbar px-6 pb-40">
             <div className="flex items-center justify-between mt-4 mb-6">
               <div>
@@ -118,11 +81,7 @@ export function RiskAnalysisScreen({ onClose, ai, jps }: RiskAnalysisScreenProps
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary" />
                   </span>
-                  {riskLevel === "HIGH"
-                      ? "High Risk Detected"
-                      : riskLevel === "MEDIUM"
-                        ? "Moderate Risk"
-                        : "Environment Stable"}
+                  {riskLevel === "HIGH" ? "High Risk Detected" : riskLevel === "MEDIUM" ? "Moderate Risk" : "Environment Stable"}
                 </p>
               </div>
               <div className="flex flex-col items-end">
@@ -133,23 +92,20 @@ export function RiskAnalysisScreen({ onClose, ai, jps }: RiskAnalysisScreenProps
 
             <section className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
+                {/* ✅ Water Level */}
                 <div className="bg-white border border-slate-100 p-4 rounded-3xl shadow-sm">
                   <div className="flex justify-between items-start mb-2">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                       Water Level (JPS)
                     </span>
-
                     <span className="text-xs font-bold text-white bg-primary px-2 py-0.5 rounded">
                       {waterLevel == null ? "N/A" : `${waterLevel.toFixed(2)}m`}
                     </span>
                   </div>
 
-                  {/* Dynamic bars */}
                   <div className="h-14 flex items-end gap-1">
                     {Array.from({ length: totalBars }).map((_, i) => {
                       const active = i < filledBars;
-
-                      // Make heights slightly increasing for nice visual
                       const heights = ["h-3", "h-4", "h-6", "h-8", "h-10"];
                       const heightClass = heights[i] ?? "h-4";
 
@@ -159,63 +115,64 @@ export function RiskAnalysisScreen({ onClose, ai, jps }: RiskAnalysisScreenProps
                           className={`w-full rounded-sm transition-all duration-300 ${heightClass} ${
                             active ? "bg-primary" : "bg-primary/20"
                           }`}
-                          title={active ? "Filled" : "Empty"}
                         />
                       );
                     })}
                   </div>
 
                   <div className="flex items-center justify-between mt-2">
-                    <p className="text-[10px] text-slate-400 font-medium">
-                      Scale: 0–{maxM}m
-                    </p>
-                    <p className="text-[10px] text-slate-500 font-bold">
-                      {levelPct}% of scale
-                    </p>
+                    <p className="text-[10px] text-slate-400 font-medium">Scale: 0–{maxM}m</p>
+                    <p className="text-[10px] text-slate-500 font-bold">{levelPct}% of scale</p>
                   </div>
                 </div>
+
+                {/* ✅ Rainfall */}
                 <div className="bg-white border border-slate-100 p-4 rounded-3xl shadow-sm">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                        Rainfall (JPS)
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <div className="flex justify-between text-xs font-semibold">
-                        <span className="text-slate-500">Last 1h</span>
-                        <span className="text-slate-900">{rain1h == null ? "N/A" : `${rain1h} mm`}</span>
-                      </div>
-                      <div className="flex justify-between text-xs font-semibold">
-                        <span className="text-slate-500">Today</span>
-                        <span className="text-slate-900">{rainToday == null ? "N/A" : `${rainToday} mm`}</span>
-                      </div>
-                    </div>
-                  </div>
-              </div>
-              <div className="bg-white border border-slate-100 p-4 rounded-3xl shadow-sm">
-                  <div className="flex justify-between items-center mb-3">
+                  <div className="flex justify-between items-start mb-2">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                      AI Risk Score
-                    </span>
-                    <span className="text-xs font-black text-primary">
-                      {aiScorePct == null ? "N/A" : `${aiScorePct}%`}
+                      Rainfall (JPS)
                     </span>
                   </div>
 
-                  <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                    <div
-                      className="bg-primary h-full rounded-full transition-all duration-300"
-                      style={{ width: `${aiScorePct ?? 0}%` }}
-                    />
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span className="text-slate-500">Last 1h</span>
+                      <span className="text-slate-900">{rain1h == null ? "N/A" : `${rain1h} mm`}</span>
+                    </div>
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span className="text-slate-500">Today</span>
+                      <span className="text-slate-900">{rainToday == null ? "N/A" : `${rainToday} mm`}</span>
+                    </div>
                   </div>
-
-                  <p className="text-[10px] text-slate-400 mt-2 font-medium">
-                    Estimated flood probability (next 6h) based on live JPS data.<br></br>Higher % = higher risk.
-                  </p>
                 </div>
+              </div>
+
+              {/* ✅ AI Risk Score */}
+              <div className="bg-white border border-slate-100 p-4 rounded-3xl shadow-sm">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    AI Risk Score
+                  </span>
+                  <span className="text-xs font-black text-primary">
+                    {aiScorePct == null ? "N/A" : `${aiScorePct}%`}
+                  </span>
+                </div>
+
+                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                  <div
+                    className="bg-primary h-full rounded-full transition-all duration-300"
+                    style={{ width: `${aiScorePct ?? 0}%` }}
+                  />
+                </div>
+
+                <p className="text-[10px] text-slate-400 mt-2 font-medium">
+                  Estimated flood probability (next 6h) based on live JPS data.<br />
+                  Higher % = higher risk.
+                </p>
+              </div>
             </section>
 
+            {/* ✅ AI Insights */}
             <section className="mt-8">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -225,8 +182,8 @@ export function RiskAnalysisScreen({ onClose, ai, jps }: RiskAnalysisScreenProps
               </div>
               <div className="bg-blue-50 border border-blue-100 p-5 rounded-3xl relative overflow-hidden">
                 <p className="text-sm leading-relaxed text-slate-600 font-medium">
-                <span className="text-primary font-bold">AI Analysis:</span> {insightText}
-              </p>
+                  <span className="text-primary font-bold">AI Analysis:</span> {insightText}
+                </p>
               </div>
             </section>
 
