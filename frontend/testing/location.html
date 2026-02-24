@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<body>
+  <button id="btn">Get My Location</button>
+  <pre id="out"></pre>
+
+  <script>
+    const out = document.getElementById("out");
+
+    document.getElementById("btn").onclick = () => {
+      if (!navigator.geolocation) {
+        out.textContent = "Geolocation not supported";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          out.textContent = `lat=${lat}, lng=${lng}\nCalling backend...`;
+
+          const resp = await fetch("http://localhost:8080/predict-flood", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lat, lng, weather: { rainfallMm: 10, riverLevelM: 1.2 } })
+          });
+
+          const data = await resp.json();
+          out.textContent = `lat=${lat}, lng=${lng}\n\n` + JSON.stringify(data, null, 2);
+        },
+        (err) => out.textContent = "Location error: " + err.message,
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    };
+  </script>
+</body>
+</html>
