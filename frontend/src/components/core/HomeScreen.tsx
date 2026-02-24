@@ -1,17 +1,17 @@
+import { useState } from "react";
 import {
   Bell,
   Brain,
-  CloudRain,
-  Droplet,
   Droplets,
   Home,
   Map,
   Megaphone,
-  Package,
   ShieldCheck,
   User,
 } from "lucide-react";
 
+import { useNavigation } from "../../lib/navigation";
+import { ShelterMap } from "../maps";
 import type { AiRisk, JpsNearbyStation } from "../../types/banjirsense";
 
 /*type AiRisk = {
@@ -47,6 +47,8 @@ interface HomeScreenProps {
   onOpenNotifications: () => void;
 
   onOpenProfile?: () => void;
+  onNavigate?: (screen: string) => void;
+  onOpenMap?: () => void;
 
 
   ai?: AiRisk | null;
@@ -64,6 +66,8 @@ export function HomeScreen({
   onOpenNotifications,
 
   onOpenProfile,
+  onNavigate,
+  onOpenMap,
 
   ai,
   jps,
@@ -72,6 +76,24 @@ export function HomeScreen({
   onRefresh,
 
 }: HomeScreenProps) {
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  const navigation = useNavigation();
+
+  const openMap = () => {
+    if (onOpenMap) {
+      onOpenMap();
+      return;
+    }
+    if (onNavigate) {
+      onNavigate("map");
+      return;
+    }
+    if (navigation) {
+      navigation.navigate("map");
+      return;
+    }
+    setIsMapOpen(true);
+  };
 
   //For Ai flood risk detection
     const riskLevel = ai?.riskLevel ?? "LOW";
@@ -262,12 +284,28 @@ export function HomeScreen({
           </section>
         </main>
 
+        {isMapOpen && (
+          <div className="fixed inset-0 z-[9999] bg-slate-100 flex items-center justify-center p-0 md:p-4">
+            <div className="relative w-full max-w-[400px] h-screen md:h-[824px] md:rounded-[3rem] overflow-hidden shadow-2xl border border-slate-200">
+              <ShelterMap
+                onNavigate={(screen) => {
+                  if (screen === 'home') {
+                    setIsMapOpen(false);
+                    return;
+                  }
+                  navigation?.navigate(screen);
+                }}
+              />
+            </div>
+          </div>
+        )}
+
         <nav className="flex-none bg-white border-t border-slate-100 px-6 py-4 grid grid-cols-5 items-end z-30">
           <button className="flex flex-col items-center gap-1 text-primary">
             <Home size={20} />
             <span className="text-[10px] font-bold">Home</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
+          <button onClick={openMap} className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
             <Map size={20} />
             <span className="text-[10px] font-medium">Map</span>
           </button>
@@ -276,12 +314,31 @@ export function HomeScreen({
               <span className="text-2xl font-black tracking-tighter">SOS</span>
             </button>
           </div>
-          <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
+          <button
+            onClick={() => {
+              if (onNavigate) {
+                onNavigate("updates");
+                return;
+              }
+              if (navigation) {
+                navigation.navigate("updates");
+              }
+            }}
+            className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
+          >
             <Megaphone size={20} />
             <span className="text-[10px] font-medium">Updates</span>
           </button>
           <button
-            onClick={onOpenProfile}
+            onClick={() => {
+              if (onOpenProfile) {
+                onOpenProfile();
+                return;
+              }
+              if (navigation) {
+                navigation.navigate("profile");
+              }
+            }}
             className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
           >
             <User size={20} />

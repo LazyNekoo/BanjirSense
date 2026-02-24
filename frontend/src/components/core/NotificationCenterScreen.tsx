@@ -2,6 +2,7 @@ import { Droplets, Home, Map, Megaphone, User } from "lucide-react";
 
 interface NotificationCenterScreenProps {
   onBack: () => void;
+  onNavigate?: (screen: string) => void;
 }
 
 const urgentAlerts = [
@@ -45,7 +46,7 @@ const generalUpdates = [
   },
 ];
 
-export function NotificationCenterScreen({ onBack }: NotificationCenterScreenProps) {
+export function NotificationCenterScreen({ onBack, onNavigate }: NotificationCenterScreenProps) {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
       <div className="w-[400px] max-w-[400px] h-[824px] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200">
@@ -132,12 +133,12 @@ export function NotificationCenterScreen({ onBack }: NotificationCenterScreenPro
           <button
             type="button"
             onClick={onBack}
-            className="flex flex-col items-center gap-1 text-primary"
+            className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
           >
             <Home size={20} />
-            <span className="text-[10px] font-bold">Home</span>
+            <span className="text-[10px] font-medium">Home</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
+          <button onClick={() => onNavigate?.("map")} className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
             <Map size={20} />
             <span className="text-[10px] font-medium">Map</span>
           </button>
@@ -146,11 +147,11 @@ export function NotificationCenterScreen({ onBack }: NotificationCenterScreenPro
               <span className="text-2xl font-black tracking-tighter">SOS</span>
             </button>
           </div>
-          <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
+          <button className="flex flex-col items-center gap-1 text-primary">
             <Megaphone size={20} />
-            <span className="text-[10px] font-medium">Updates</span>
+            <span className="text-[10px] font-bold">Updates</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
+          <button onClick={() => onNavigate?.("profile")} className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
             <User size={20} />
             <span className="text-[10px] font-medium">Profile</span>
           </button>
