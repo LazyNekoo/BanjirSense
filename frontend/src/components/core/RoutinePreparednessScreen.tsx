@@ -38,39 +38,44 @@ export function RoutinePreparednessScreen({
     ? `${userLoc.lat.toFixed(3)}, ${userLoc.lng.toFixed(3)} (Your Current Location)`
     : "Near you";
 
-  // ✅ AI checklist tasks: use first 4 strings from tipsBM (if any)
-  const aiTasks =
-    ai?.tipsBM?.filter((t) => typeof t === "string" && t.trim().length > 0).slice(0, 4) ??
-    [];
+    // 1️⃣ Extract clean AI tasks
+    const parsedTasks =
+      ai?.tipsBM
+        ?.filter((t) => typeof t === "string" && t.trim().length > 0)
+        .map((t) => t.replace(/^- /, "").trim())
+        .filter(Boolean) ?? [];
 
-  // ✅ fallback fixed tasks if AI tasks missing
-  const fallbackTasks = [
-    {
-      title: "Audit Dependent Profile",
-      detail: "Review contact details and health needs for elderly or children.",
-    },
-    {
-      title: "System Sync Check",
-      detail: "Ensure all IoT sensors and home alarms are active and reporting.",
-    },
-    {
-      title: "Neighborhood Awareness",
-      detail: "Connect with neighbors to verify community contact trees.",
-    },
-    {
-      title: "Maintenance Reporting",
-      detail: "Log any observed blocked drains or infrastructure damage.",
-    },
-  ];
+    // 2️⃣ Fallback titles (simple version)
+    const fallbackTitles = [
+      "Check local flood alerts",
+      "Charge emergency devices",
+      "Prepare important documents",
+      "Clear nearby drains",
+    ];
 
-  // ✅ this is what UI will render
-  const checklistItems =
-    aiTasks.length > 0
-      ? aiTasks.map((t) => ({
-          title: t.trim(),
-          detail: "AI-generated for your current risk level.",
-        }))
-      : fallbackTasks;
+    // 3️⃣ Ensure minimum 3 tasks
+    const minTasks = 3;
+
+    let combinedTasks: string[] = [];
+
+    // If AI returned tasks
+    if (parsedTasks.length >= minTasks) {
+      combinedTasks = parsedTasks.slice(0, 4);
+    } else {
+      combinedTasks = [
+        ...parsedTasks,
+        ...fallbackTitles.slice(0, minTasks - parsedTasks.length),
+      ];
+    }
+
+    // Limit to maximum 4 tasks
+    combinedTasks = combinedTasks.slice(0, 4);
+
+    // 4️⃣ Convert to UI structure
+    const checklistItems = combinedTasks.map((title) => ({
+      title,
+      detail: "AI-generated for your current risk level.",
+    }));
 
   // ✅ Gemini tip: use the next item (5th) if exists, else use first non-empty
   const geminiTip =
