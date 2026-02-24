@@ -129,19 +129,19 @@ BanjirSense integrates official Malaysian disaster and flood data to ensure accu
 - Heuristic + Vertex AI fallback logic  
 
 ### Real-Time Flow
-Weather + Location
-        ↓
-JPS Official Data
-        ↓
-Risk Scoring Model
-        ↓
-Gemini AI Guidance
-        ↓
-User SOS / Reports
-        ↓
-Firebase Real-Time Sync
-        ↓
-Live Map + Rescue Coordination
+Weather + Location <br>
+        ↓ <br>
+JPS Official Data <br>
+        ↓ <br>
+Risk Scoring Model <br>
+        ↓ <br>
+Gemini AI Guidance <br>
+        ↓ <br>
+User SOS / Reports <br>
+        ↓ <br>
+Firebase Real-Time Sync <br>
+        ↓ <br>
+Live Map + Rescue Coordination <br>
 
 
 ---
