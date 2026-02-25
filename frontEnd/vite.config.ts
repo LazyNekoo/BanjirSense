@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
-      host: "127.0.0.1",
+      host: mode === "development" ? "127.0.0.1" : "0.0.0.0",
       port: Number(env.VITE_PORT) || 3000,
       open: true,
     },

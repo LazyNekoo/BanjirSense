@@ -11,48 +11,20 @@ import {
 } from "lucide-react";
 
 import { useNavigation } from "../../lib/navigation";
-import { ShelterMap } from "../maps";
+import ShelterMap from "../maps/ShelterMap";
 import type { AiRisk, JpsNearbyStation } from "../../types/banjirsense";
-
-/*type AiRisk = {
-  riskLevel: "LOW" | "MEDIUM" | "HIGH";
-  hoursAhead?: number;
-  riskScore?: number;
-  summary?: string;
-};
-
-type JpsNearbyStation = {
-  id?: string;
-  name?: string;
-  stationName?: string;
-  state?: string;
-  district?: string;
-  lat?: number;
-  lng?: number;
-  status?: string;
-  waterLevel?: number | string;
-  rainfall?: {
-    last1hMm?: number | string | null;
-    todayMm?: number | string | null;
-    last3hMm?: number | string | null;
-  } | null;
-  updatedAt?: string;
-  distanceKm?: number;
-};*/
-
+import HomeRiskMap from "../maps/HomeRiskMap";
 
 interface HomeScreenProps {
   onViewDetailedAnalysis: () => void;
   onViewRoutineChecklist: () => void;
   onOpenNotifications: () => void;
-
   onOpenProfile?: () => void;
   onOpenSOS?: () => void;
   onNavigate?: (screen: string) => void;
   onOpenMap?: () => void;
   onOpenUpdates?: () => void;
-
-
+  userLoc?: { lat: number; lng: number } | null;
   ai?: AiRisk | null;
   jps?: JpsNearbyStation | null;
   isLoading?: boolean;
@@ -66,12 +38,11 @@ export function HomeScreen({
   onViewDetailedAnalysis,
   onViewRoutineChecklist,
   onOpenNotifications,
-
   onOpenProfile,
   onOpenSOS,
   onNavigate,
   onOpenMap,
-
+  userLoc,
   ai,
   jps,
   isLoading,
@@ -138,14 +109,12 @@ export function HomeScreen({
 
         <main className="flex-1 overflow-y-auto no-scrollbar pb-28">
           <section className="relative w-full h-[65%] bg-slate-100 overflow-hidden">
-            <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiT2BRHWVAkT2997eMVBBylQVOm92MZ5qCf06rhsB7RT6DeXEaQ-HLF23r3vhWRASaM8y0HKH602UwKUPQI04WxSqRQBWIohcdnvau4TE3lGo8xRJjAZYj0BZQpVSMdpf1s1QNyjUent5KPiteoUQo-yiNayMaITkGxHTiRre0zsLXjOyI4mkXJEfGOt1lSxoU5zN96-3jDUN5RSsC-BJGADE4M5t_T4wzzkx_qO5wfzsoAfpoadMUyvsa9smAUUFSMBp9lVi5LY3L"
-              alt="Map view"
-              className="w-full h-full object-cover grayscale-[0.4]"
-            />
-            <div className="absolute inset-0 map-overlay-polygon bg-primary/20 border-2 border-primary/40" />
-            <div className="absolute top-4 left-4 right-4 flex justify-center">
-              <div className="bg-white/95 backdrop-blur px-4 py-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3">
+            <HomeRiskMap userLoc={userLoc} />
+
+           
+            {/* keep your AI Risk pill */}
+            <div className="absolute top-4 left-4 right-4 flex justify-center pointer-events-none">
+              <div className="pointer-events-auto bg-white/95 backdrop-blur px-4 py-2 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3">
                 <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
                 <span className="text-xs font-black text-primary uppercase tracking-widest">
                   {isLoading
@@ -292,14 +261,15 @@ export function HomeScreen({
           <div className="fixed inset-0 z-[9999] bg-slate-100 flex items-center justify-center p-0 md:p-4">
             <div className="relative w-full max-w-[400px] h-screen md:h-[824px] md:rounded-[3rem] overflow-hidden shadow-2xl border border-slate-200">
               <ShelterMap
-                onNavigate={(screen) => {
-                  if (screen === 'home') {
-                    setIsMapOpen(false);
-                    return;
-                  }
-                  navigation?.navigate(screen);
-                }}
-              />
+                  userLoc={userLoc ?? undefined} 
+                  onNavigate={(screen) => {
+                    if (screen === "home") {
+                      setIsMapOpen(false);
+                      return;
+                    }
+                    navigation?.navigate(screen);
+                  }}
+                />
             </div>
           </div>
         )}
