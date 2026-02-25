@@ -237,9 +237,8 @@ This ensured secure communication between frontend and backend, preventing unaut
 - Arrival confirmation interface
 - Clean error handling & fallbacks
 
----
 
-## 📍 Nearby JPS Integration
+### 📍 Nearby JPS Integration
 
 Users can view:
 - Nearest official JPS monitoring station  
@@ -250,7 +249,7 @@ Users can view:
 
 This integration increases system credibility and prevents purely AI-based assumptions.
 
-## 🏠 Nearby PPS (JKM) Integration
+### 🏠 Nearby PPS (JKM) Integration
 
 Users can view:
 - Nearest active evacuation centre (Pusat Pemindahan Sementara – PPS)  
