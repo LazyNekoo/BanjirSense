@@ -11,6 +11,7 @@ import { auth } from "./lib/firebase";
 import { apiFetch } from "./lib/api";
 import { HomeScreen } from "./components/core/HomeScreen";
 import { SOSActivation } from "./components/sos/SOSActivation";
+import { SOSCameraCapture } from "./components/sos/SOSCameraCapture";
 import { RiskAnalysisScreen } from "./components/core/RiskAnalysisScreen";
 import { RoutinePreparednessScreen } from "./components/core/RoutinePreparednessScreen";
 import { PreparednessCompleteScreen } from "./components/core/PreparednessCompleteScreen";
@@ -72,7 +73,8 @@ type AppScreen =
   | "editDependentSuccess"
   | "appSettings"
   | "helpSupport"
-  | "sos";
+  | "sos"
+  | "sosCamera";
 
   //For user dependents management
 type DependentRecord = {
@@ -922,8 +924,19 @@ function App() {
           isOpen={true}
           onCancel={() => setCurrentScreen("home")}
           onActivate={() => {
-            // TODO: handle SOS activation logic
-            console.log("SOS ACTIVATED!");
+            console.log("SOS ACTIVATED! Moving to camera capture...");
+            setCurrentScreen("sosCamera");
+          }}
+        />
+      )}
+      {currentScreen === "sosCamera" && (
+        <SOSCameraCapture
+          onSkipAndSend={() => {
+            console.log("SOS sent without photo");
+            setCurrentScreen("home");
+          }}
+          onSendPhoto={(photoDataUrl) => {
+            console.log("SOS sent with photo", photoDataUrl.substring(0, 50));
             setCurrentScreen("home");
           }}
         />
