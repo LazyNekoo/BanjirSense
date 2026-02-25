@@ -52,7 +52,7 @@ Time Window: next ${hoursAhead} hours
 STRICT RULES (must follow exactly):
 - Output EXACTLY 4 lines.
 - Each line must start with "- ".
-- Each task must be less than 20 words only.
+- Each task must be less than 10 words only.
 - Each task must start with a strong action verb.
 - Do NOT mention the location.
 - Do NOT explain anything.

@@ -88,7 +88,6 @@ type AppScreen =
   | "sosDashboard"
   | "sosArrival"
   | "map"
-  | "helpSupport"
   | "updates"
   | "submitReport"
   | "analysisProgress"
@@ -165,7 +164,7 @@ interface CurrentDependentData {
 
 function App() {
 
-  
+  const [prepScorePct, setPrepScorePct] = useState<number>(100);
   const [homeAi, setHomeAi] = useState<AiRisk | null>(null);
   const [homeJps, setHomeJps] = useState<JpsNearbyStation | null>(null);
   const [homeLoading, setHomeLoading] = useState(false);
@@ -504,7 +503,8 @@ function App() {
     setCurrentScreen("home");
   };
 
-  const handleRoutinePreparednessSubmit = () => {
+  const handleRoutinePreparednessSubmit = (scorePct: number) => {
+    setPrepScorePct(scorePct);
     setCurrentScreen("preparednessComplete");
   };
 
@@ -1145,9 +1145,11 @@ function App() {
         />
       )}
       {currentScreen === "preparednessComplete" && (
-        <PreparednessCompleteScreen onBackToHome={handlePreparednessCompleteBack}
-        ai={homeAi}
-         />
+        <PreparednessCompleteScreen
+          onBackToHome={handlePreparednessCompleteBack}
+          ai={homeAi}
+          scorePct={prepScorePct}
+        />
       )}
       {currentScreen === "editPhoneNumber" && (
         <EditPhoneNumberScreen

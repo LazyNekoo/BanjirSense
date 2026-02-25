@@ -9,6 +9,8 @@ import {
   User,
 } from "lucide-react";
 
+import { useMemo, useState, useEffect } from "react";
+
 type AiRisk = {
   riskLevel: "LOW" | "MEDIUM" | "HIGH";
   hoursAhead?: number;
@@ -19,7 +21,7 @@ type AiRisk = {
 
 interface RoutinePreparednessScreenProps {
   onBack: () => void;
-  onSubmit: () => void;
+  onSubmit: (scorePct: number) => void;
   ai?: AiRisk | null;
   userLoc?: { lat: number; lng: number } | null;
 }
@@ -37,51 +39,91 @@ export function RoutinePreparednessScreen({
   userLoc
     ? `${userLoc.lat.toFixed(3)}, ${userLoc.lng.toFixed(3)} (Your Current Location)`
     : "Near you";
-
+    
     // 1️⃣ Extract clean AI tasks
-    const parsedTasks =
-      ai?.tipsBM
-        ?.filter((t) => typeof t === "string" && t.trim().length > 0)
-        .map((t) => t.replace(/^- /, "").trim())
-        .filter(Boolean) ?? [];
+    const parsedTasks = useMemo(() => {
+      return (
+        ai?.tipsBM
+          ?.filter((t) => typeof t === "string" && t.trim().length > 0)
+          .map((t) => t.replace(/^- /, "").trim())
+          .filter(Boolean) ?? []
+      );
+    }, [ai?.tipsBM]);
 
-    // 2️⃣ Fallback titles (simple version)
-    const fallbackTitles = [
-      "Check local flood alerts",
-      "Charge emergency devices",
-      "Prepare important documents",
-      "Clear nearby drains",
-    ];
+    // 2️⃣ Fallback titles
+    const fallbackTitles = useMemo(
+      () => [
+        "Check local flood alerts",
+        "Charge emergency devices",
+        "Prepare important documents",
+        "Clear nearby drains",
+      ],
+      []
+    );
 
-    // 3️⃣ Ensure minimum 3 tasks
+    // 3️⃣ Minimum scored tasks
     const minTasks = 3;
 
-    let combinedTasks: string[] = [];
+    // ✅ 4️⃣ Build tasks list (ONLY ONE useMemo here)
+    const combinedTasks = useMemo(() => {
+      let tasks: string[] = [];
 
-    // If AI returned tasks
-    if (parsedTasks.length >= minTasks) {
-      combinedTasks = parsedTasks.slice(0, 4);
-    } else {
-      combinedTasks = [
-        ...parsedTasks,
-        ...fallbackTitles.slice(0, minTasks - parsedTasks.length),
-      ];
-    }
+      if (parsedTasks.length >= minTasks) {
+        tasks = parsedTasks.slice(0, 4);
+      } else {
+        tasks = [
+          ...parsedTasks,
+          ...fallbackTitles.slice(0, minTasks - parsedTasks.length),
+        ];
+      }
 
-    // Limit to maximum 4 tasks
-    combinedTasks = combinedTasks.slice(0, 4);
+      return tasks.slice(0, 5);
+    }, [parsedTasks, fallbackTitles]);
 
-    // 4️⃣ Convert to UI structure
-    const checklistItems = combinedTasks.map((title) => ({
-      title,
-      detail: "AI-generated for your current risk level.",
-    }));
+    // ✅ 5️⃣ Convert to checklist items
+    const checklistItems = useMemo(() => {
+      return combinedTasks.map((title) => ({
+        title,
+        detail: "AI-generated for your current risk level.",
+      }));
+    }, [combinedTasks]);
 
   // ✅ Gemini tip: use the next item (5th) if exists, else use first non-empty
   const geminiTip =
     (ai?.tipsBM?.filter((t) => typeof t === "string" && t.trim().length > 0)[4] ??
       ai?.tipsBM?.find((t) => typeof t === "string" && t.trim().length > 0) ??
       "No Gemini tips available yet. Tap refresh on Home to fetch the latest guidance.") as string;
+
+    // after minTasks + checklistItems is built
+      const [checked, setChecked] = useState<Record<string, boolean>>(() =>
+        Object.fromEntries(checklistItems.map((i) => [i.title, false])) //unchecked by default
+      );
+
+      useEffect(() => {
+      setChecked(
+        Object.fromEntries(
+          checklistItems.map((i) => [i.title, false])
+        )
+      );
+    }, [checklistItems]);
+
+      const scoredTitles = useMemo(
+        () => checklistItems.slice(0, minTasks).map((i) => i.title),
+        [checklistItems, minTasks]
+      );
+
+      const completedCount = useMemo(() => {
+        return scoredTitles.filter((title) => checked[title]).length;
+      }, [checked, scoredTitles]);
+
+      const scorePct = useMemo(() => {
+        if (minTasks <= 0) return 0;
+        return (completedCount / minTasks) * 100;
+      }, [completedCount, minTasks]);
+
+      const scoreText = `${scorePct.toFixed(0)}%`; // or toFixed(2) if you want 66.67%
+
+    
 
   // ✅ status label + color
   const statusLabel = riskLevel === "HIGH" ? "High Risk" : riskLevel === "MEDIUM" ? "Moderate" : "Stable";
@@ -154,7 +196,14 @@ export function RoutinePreparednessScreen({
                 key={item.title}
                 className="flex items-start gap-4 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-primary/30 transition-all cursor-pointer group"
               >
-                <input type="checkbox" defaultChecked className="custom-checkbox mt-0.5" />
+                <input
+                      type="checkbox"
+                      className="custom-checkbox mt-0.5"
+                      checked={!!checked[item.title]}
+                      onChange={(e) =>
+                        setChecked((prev) => ({ ...prev, [item.title]: e.target.checked }))
+                      }
+                    />
 
                 <div className="flex-1">
                   <p className="text-[15px] font-bold text-slate-900 group-hover:text-primary transition-colors">
@@ -172,7 +221,7 @@ export function RoutinePreparednessScreen({
 
           <div className="mt-8 px-2">
             <button
-              onClick={onSubmit}
+              onClick={() => onSubmit(scorePct)}
               className="w-full bg-primary hover:bg-blue-900 text-white py-5 rounded-2xl font-bold text-base shadow-xl shadow-blue-900/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
             >
               Submit &amp; Sync Preparedness

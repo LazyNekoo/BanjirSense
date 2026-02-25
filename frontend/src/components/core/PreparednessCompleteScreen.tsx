@@ -20,14 +20,15 @@ type AiRisk = {
 interface PreparednessCompleteScreenProps {
   onBackToHome: () => void;
   ai?: AiRisk | null;
+  scorePct: number;
 }
 
-export function PreparednessCompleteScreen({ onBackToHome, ai }: PreparednessCompleteScreenProps) {
+export function PreparednessCompleteScreen({ onBackToHome, ai, scorePct }: PreparednessCompleteScreenProps) {
   const geminiTip =
     ai?.tipsBM?.find((t) => typeof t === "string" && t.trim().length > 0) ??
     "Tip will appear after you refresh Home.";
 
-  const aiText =
+    const aiText =
     ai?.summary ?? "AI summary will appear after you refresh Home.";
 
     const cleanGeminiTip = geminiTip
@@ -67,7 +68,7 @@ export function PreparednessCompleteScreen({ onBackToHome, ai }: PreparednessCom
           <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 px-4 py-2 rounded-full mb-10">
             <ShieldCheck size={16} className="text-primary" />
             <span className="text-sm font-bold text-primary uppercase tracking-wider">
-              Preparation Score: 100%
+              Preparation Score: {scorePct.toFixed(0)}%
             </span>
           </div>
           <div className="w-full space-y-4">
