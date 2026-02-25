@@ -279,7 +279,7 @@ The SOS flow includes:
 
 ---
 
-## 📊 Market Validation (Pre-Development Survey)
+## 📊 Market Validation (Pre-Development Survey) - 🚨 please refer our canva presentaion slides for details
 
 Before development, we conducted a survey (20 respondents) to validate problem relevance and feature priorities.
 
@@ -294,7 +294,7 @@ These findings directly influenced our system architecture and feature prioritiz
 
 ---
 
-## 🧪 User Acceptance Testing (UAT)
+## 🧪 User Acceptance Testing (UAT) - 🚨 please refer our canva presentaion slides for details
 
 ### We conducted structured real-user testing to evaluate:
 - Risk clarity  
@@ -327,9 +327,65 @@ These findings directly influenced our system architecture and feature prioritiz
 2. **Enhanced Trust Through Official Data Visibility**  
    Added visible nearest JPS station distance indicator to reinforce credibility and reduce reliance on AI-only risk assumptions.
 
-3. xxxxxx
+3. **Improved Map Reliability & Marker Rendering**
+   Users reported that the red user-location marker sometimes disappeared when navigating back to the Home screen.  
+   We identified that the legacy `<Marker>` component was unstable during remounting and replaced it with `<MarkerF>`, ensuring consistent rendering across navigation transitions.
 
-These improvements were directly influenced by user feedback and demonstrate iterative development aligned with real-world usability needs.
+4. **Optimized Shelter Capacity Visualization**
+   Users found raw victim numbers harder to interpret quickly.  
+   We introduced:
+   - Color-coded occupancy indicators (🟢 Available, 🟡 Almost Full, 🔴 Full)
+   - Automatic occupancy percentage calculation
+   - Capacity clamping (0–100%) to prevent invalid display states
+
+5. **Enhanced Shelter Navigation Flow**
+   Initially, the “Get Directions” button and shelter information card appeared side-by-side, reducing clarity.  
+   Based on usability testing, we:
+   - Stacked the action button above the route detail card
+   - Auto-focused map to the nearest PPS
+   - Displayed structured PPS details (name, location, distance, occupancy)
+  
+6. **Converted Static Checklist into AI-Generated Checklist**
+
+   Initial prototype used static safety instructions.
+   Users indicated that generic instructions felt less trustworthy.
+
+   ✅ Iteration:
+   - Replaced static checklist with Gemini-generated dynamic checklist.
+   - Checklist now adapts to real-time flood risk level.
+   - Tasks are concise, actionable, and context-aware.
+  
+7. **Improved AI Output Structure for Clarity Under Stress**
+
+   Early Gemini outputs were longer and included explanatory text.
+   Test users reported that lengthy instructions reduce clarity in emergency situations.
+
+   ✅ Iteration:
+   - Enforced strict output rules (3–8 words, verb-based, no narrative).
+   - Limited output to 3–4 concise action steps.
+   - Removed unnecessary explanatory text.
+
+   Result: Faster comprehension under high-stress scenarios.
+   
+8. **Strengthened Trust Through Government + AI Hybrid Model**
+
+   Some users expressed concern about relying purely on AI prediction.
+
+   ✅ Iteration:
+   - Combined JPS official station data with AI risk scoring.
+   - Displayed nearest JPS station alongside AI risk result.
+   - Ensured transparency between data source and AI output.
+
+   This increased perceived reliability and system credibility.
+
+9. **Future AI Severity Validation (Vision API Roadmap)**
+
+   Users were concerned about fake emergency reports.
+
+   ✅ Planned Iteration:
+   - Integrate Google Cloud Vision API for water-level image validation.
+   - Assist rescue prioritization logic.
+   - Reduce false-positive emergency submissions.
 
 ---
 
