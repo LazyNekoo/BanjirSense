@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import SplashScreen from "./components/auth/SplashScreen";
 import LoginScreen from "./components/auth/LoginScreen";
 import { PersonalDetailsScreen } from "./components/auth/PersonalDetailsScreen";
@@ -10,6 +10,7 @@ import {GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createU
 import { auth } from "./lib/firebase";
 import { apiFetch } from "./lib/api";
 import { HomeScreen } from "./components/core/HomeScreen";
+import { SOSActivation } from "./components/sos/SOSActivation";
 import { RiskAnalysisScreen } from "./components/core/RiskAnalysisScreen";
 import { RoutinePreparednessScreen } from "./components/core/RoutinePreparednessScreen";
 import { PreparednessCompleteScreen } from "./components/core/PreparednessCompleteScreen";
@@ -70,7 +71,8 @@ type AppScreen =
   | "editDependent"
   | "editDependentSuccess"
   | "appSettings"
-  | "helpSupport";
+  | "helpSupport"
+  | "sos";
 
   //For user dependents management
 type DependentRecord = {
@@ -217,7 +219,7 @@ function App() {
       profile: any;
     }>("/auth/verify", { method: "POST" });
 
-    console.log("✅ Backend verify:", verify);
+    console.log("âœ… Backend verify:", verify);
 
     // later: navigate to home/map screen
     setCurrentScreen("home");
@@ -229,7 +231,7 @@ function App() {
   const handleLoginSubmit = async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
     const verify = await apiFetch("/auth/verify", { method: "POST" });
-    console.log("✅ Backend verify:", verify);
+    console.log("âœ… Backend verify:", verify);
 
     setCurrentScreen("home");
     setTimeout(loadHomeData, 0);
@@ -469,6 +471,10 @@ function App() {
   setTimeout(syncProfileFromBackend, 0); 
   setTimeout(syncDependentsFromBackend, 0); 
 };
+
+  const handleOpenSOS = () => {
+    setCurrentScreen("sos");
+  };
 
   const handleProfileNavigate = (screen: string) => {
     switch (screen) {
@@ -903,11 +909,23 @@ function App() {
           onViewRoutineChecklist={handleOpenRoutinePreparedness}
           onOpenNotifications={handleOpenNotifications}
           onOpenProfile={handleOpenProfile}
+          onOpenSOS={handleOpenSOS}
           ai={homeAi}
           jps={homeJps}
           isLoading={homeLoading}
           error={homeError}
           onRefresh={loadHomeData}
+        />
+      )}
+      {currentScreen === "sos" && (
+        <SOSActivation
+          isOpen={true}
+          onCancel={() => setCurrentScreen("home")}
+          onActivate={() => {
+            // TODO: handle SOS activation logic
+            console.log("SOS ACTIVATED!");
+            setCurrentScreen("home");
+          }}
         />
       )}
       {currentScreen === "profile" && (

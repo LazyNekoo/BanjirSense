@@ -47,8 +47,10 @@ interface HomeScreenProps {
   onOpenNotifications: () => void;
 
   onOpenProfile?: () => void;
+  onOpenSOS?: () => void;
   onNavigate?: (screen: string) => void;
   onOpenMap?: () => void;
+  onOpenUpdates?: () => void;
 
 
   ai?: AiRisk | null;
@@ -66,6 +68,7 @@ export function HomeScreen({
   onOpenNotifications,
 
   onOpenProfile,
+  onOpenSOS,
   onNavigate,
   onOpenMap,
 
@@ -112,6 +115,7 @@ export function HomeScreen({
       : riskLevel === "MEDIUM"
         ? "Some risk detected. Monitor conditions and be prepared."
         : "No immediate threat. Conditions are currently stable and safe.");
+
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
@@ -310,7 +314,15 @@ export function HomeScreen({
             <span className="text-[10px] font-medium">Map</span>
           </button>
           <div className="flex flex-col items-center gap-1 -mt-10">
-            <button className="w-20 h-20 bg-primary rounded-full shadow-2xl shadow-blue-900/40 flex items-center justify-center text-white ring-[6px] ring-white active:scale-95 transition-transform">
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenSOS) {
+                  onOpenSOS();
+                }
+              }}
+              className="w-20 h-20 bg-primary rounded-full shadow-2xl shadow-blue-900/40 flex items-center justify-center text-white ring-[6px] ring-white active:scale-95 transition-transform"
+            >
               <span className="text-2xl font-black tracking-tighter">SOS</span>
             </button>
           </div>
