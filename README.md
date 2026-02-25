@@ -7,23 +7,111 @@
 
 ## 🚨 Problem Statement
 
-Flooding remains one of the most frequent and damaging disasters in Malaysia.
+Malaysia experiences recurring large-scale monsoon floods and sudden urban flash floods that disrupt communities, displace thousands, and strain emergency response systems every year.
 
-Existing systems provide:
-- Rainfall data  
-- River water levels  
-- Victim statistics  
-- Weather forecasts  
+While official platforms such as **Public InfoBanjir (JPS)**, **MyCuaca**, and **NADMA** provide rainfall data, river levels, and disaster updates, they primarily function as monitoring systems rather than real-time decision-support tools.
 
-However, they do **not**:
-- Predict localized flood risk clearly for individuals  
-- Provide personalized preparation guidance  
-- Enable real-time citizen-to-authority coordination  
-- Validate emergency severity using AI  
-- Support structured rescue prioritization  
+There remains a critical gap between:
 
-Flood apps today are **reactive**.  
-BanjirSense is designed to be **predictive, guided, and coordinated**.
+- Flood monitoring  
+- Personalized risk understanding  
+- Immediate action guidance  
+- Structured citizen-to-authority coordination  
+
+During flood emergencies, individuals often face:
+
+- Uncertainty about what actions to take  
+- Lack of location-specific risk clarity  
+- Delays in reporting distress situations  
+- Difficulty communicating severity and special needs  
+- Limited structured coordination between affected individuals and responders  
+
+Flash floods, in particular, occur rapidly with minimal warning — leaving victims little time to prepare or evacuate.
+
+> The challenge is not the absence of flood data —  
+> but the absence of actionable, AI-powered decision support and coordinated response infrastructure.
+
+---
+
+## 📊 Current Malaysia Flood Context
+
+Recent flood events have displaced thousands across multiple states, with recurring monsoon and flash flood incidents affecting urban and rural communities alike.
+
+Examples from late 2025 to early 2026 include:
+- Thousands evacuated across multiple states during monsoon floods
+- Urban flash floods disrupting transportation corridors
+- Sudden water surges in cities such as Shah Alam and Ipoh
+
+These recurring events highlight the urgent need for:
+- Faster decision-making tools
+- Real-time risk visibility
+- Structured emergency coordination systems
+
+---
+
+## 🌍 SDG Alignment & Target Contribution
+
+BanjirSense aligns with the following United Nations Sustainable Development Goals (SDGs) and specific targets:
+
+---
+
+### 🌆 SDG 11 — Sustainable Cities & Communities
+
+**Target 11.5**  
+> Significantly reduce the number of deaths and the number of people affected by disasters, including water-related disasters, and substantially decrease direct economic losses.
+
+**How BanjirSense Contributes:**
+- Provides early flood risk clarity through AI-based prediction
+- Enables faster evacuation decisions
+- Supports structured rescue prioritization
+- Reduces confusion during emergency situations
+
+---
+
+### 🌱 SDG 13 — Climate Action
+
+**Target 13.1**  
+> Strengthen resilience and adaptive capacity to climate-related hazards and natural disasters in all countries.
+
+**How BanjirSense Contributes:**
+- Enhances climate adaptation through AI-driven flood risk forecasting
+- Integrates real-time official flood monitoring data
+- Strengthens community-level disaster preparedness
+- Improves coordinated response mechanisms
+
+---
+
+### ❤️ SDG 3 — Good Health & Well-Being
+
+**Target 3.d**  
+> Strengthen the capacity for early warning, risk reduction, and management of national and global health risks.
+
+**How BanjirSense Contributes:**
+- Improves early warning clarity using AI-generated guidance
+- Reduces emergency response delays
+- Supports structured distress communication
+- Enhances survival preparedness during flood events
+
+---
+
+## 🎯 Core Problem Summary
+
+Flood monitoring systems exist.
+
+Flood response data exists.
+
+However, there is a missing layer between:
+
+Data → Decision → Action → Coordination
+
+BanjirSense addresses this gap by transforming passive flood information into:
+
+- Predictive risk assessment  
+- Personalized survival guidance  
+- Real-time distress reporting  
+- Structured rescue coordination  
+
+This shifts disaster management from reactive monitoring to predictive, guided, and coordinated response.
 
 ---
 
@@ -220,6 +308,41 @@ This ensured secure communication between frontend and backend, preventing unaut
 
 ---
 
+### 🔹 Challenge 3: Government API Payload Shape Variability
+
+The JPS and JKM endpoints returned inconsistent response formats:
+- Sometimes `{ ok, shelters: [...] }`
+- Sometimes raw arrays `[...]`
+- Sometimes nested objects like `{ points: [...] }`
+
+This created runtime instability in the frontend.
+
+#### ✅ Solution:
+- Implemented defensive response parsing logic
+- Added fallback extraction checks
+- Created normalization helpers before UI rendering
+- Ensured frontend only consumes standardized data structure
+
+This improved system robustness against unpredictable external APIs.
+
+---
+
+### 🔹 Challenge 14: Balancing AI Automation with Ethical Responsibility
+
+Using AI for emergency prioritization raises ethical concerns:
+- Over-prioritization risk
+- False positives
+- Bias in severity detection
+
+#### ✅ Engineering Decision:
+- Combine AI output with official government data
+- Plan Vision API validation before automatic prioritization
+- Keep human-in-the-loop rescue coordination concept
+
+This ensures responsible AI deployment in disaster management.
+
+---
+
 ## 👤 User Features
 
 ### ✅ Implemented
@@ -279,7 +402,7 @@ The SOS flow includes:
 
 ---
 
-## 📊 Market Validation (Pre-Development Survey) - 🚨 please refer our canva presentaion slides for details
+## 📊 Market Validation (Pre-Development Survey)
 
 Before development, we conducted a survey (20 respondents) to validate problem relevance and feature priorities.
 
@@ -294,8 +417,7 @@ These findings directly influenced our system architecture and feature prioritiz
 
 ---
 
-## 🧪 User Acceptance Testing (UAT) - 🚨 please refer our canva presentaion slides for details
-
+## 🧪 User Acceptance Testing (UAT) 
 ### We conducted structured real-user testing to evaluate:
 - Risk clarity  
 - AI checklist usefulness  
@@ -386,21 +508,6 @@ These findings directly influenced our system architecture and feature prioritiz
    - Integrate Google Cloud Vision API for water-level image validation.
    - Assist rescue prioritization logic.
    - Reduce false-positive emergency submissions.
-
----
-
-## 🌍 SDG Alignment
-
-BanjirSense aligns with:
-
-### SDG 11 — Sustainable Cities & Communities
-Improves disaster resilience through predictive guidance.
-
-### SDG 13 — Climate Action
-Supports climate adaptation using AI-based risk modeling.
-
-### SDG 3 — Good Health & Well-Being
-Enhances emergency response coordination and survival guidance.
 
 ---
 
