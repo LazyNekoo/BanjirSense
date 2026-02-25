@@ -93,11 +93,7 @@ export function PreparednessCompleteScreen({ onBackToHome, ai }: PreparednessCom
               <span className="font-bold text-primary">AI:</span> {aiText}
             </p>
 
-            <div className="mt-3 pt-3 border-t border-slate-200">
-              <p className="text-[13px] text-slate-700 leading-relaxed">
-                  {cleanGeminiTip}
-                </p>
-            </div>
+            
           </div>
         </main>
 
