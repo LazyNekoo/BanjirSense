@@ -1,14 +1,16 @@
 import { Brain, Droplets, Home, Map, Megaphone, ShieldCheck, Sun, User, X } from "lucide-react";
 import type { AiRisk, JpsNearbyStation } from "../../types/banjirsense";
+import HomeRiskMap from "../maps/HomeRiskMap";
 
 
 interface RiskAnalysisScreenProps {
   onClose: () => void;
   ai?: AiRisk | null;
   jps?: JpsNearbyStation | null;
+  userLoc?: { lat: number; lng: number } | null;
 }
 
-export function RiskAnalysisScreen({ onClose, ai, jps }: RiskAnalysisScreenProps) {
+export function RiskAnalysisScreen({ onClose, ai, jps, userLoc }: RiskAnalysisScreenProps) {
   const riskLevel = ai?.riskLevel ?? "LOW";
 
   // ✅ Water level
@@ -39,13 +41,8 @@ export function RiskAnalysisScreen({ onClose, ai, jps }: RiskAnalysisScreenProps
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
       <div className="w-[400px] max-w-[400px] h-[824px] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200">
         <div className="absolute inset-0 z-0">
-          <img
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiT2BRHWVAkT2997eMVBBylQVOm92MZ5qCf06rhsB7RT6DeXEaQ-HLF23r3vhWRASaM8y0HKH602UwKUPQI04WxSqRQBWIohcdnvau4TE3lGo8xRJjAZYj0BZQpVSMdpf1s1QNyjUent5KPiteoUQo-yiNayMaITkGxHTiRre0zsLXjOyI4mkXJEfGOt1lSxoU5zN96-3jDUN5RSsC-BJGADE4M5t_T4wzzkx_qO5wfzsoAfpoadMUyvsa9smAUUFSMBp9lVi5LY3L"
-            alt="Map background"
-            className="w-full h-full object-cover brightness-[0.9] contrast-[0.9]"
-          />
-          <div className="absolute inset-0 map-overlay-polygon bg-primary/10 border-2 border-primary/20" />
-        </div>
+            <HomeRiskMap userLoc={userLoc} />
+          </div>
 
         <header className="absolute top-0 left-0 right-0 z-20 px-6 pt-8 pb-4 flex justify-between items-center">
           <div className="bg-white/90 backdrop-blur-md p-2 px-4 rounded-2xl border border-slate-200/50 flex items-center gap-3 shadow-sm">
