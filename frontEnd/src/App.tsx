@@ -13,6 +13,7 @@ import { HomeScreen } from "./components/core/HomeScreen";
 import { SOSActivation } from "./components/sos/SOSActivation";
 import { SOSCameraCapture } from "./components/sos/SOSCameraCapture";
 import { SOSRescueDashboard } from "./components/sos/SOSRescueDashboard";
+import { SOSArrivalConfirmed } from "./components/sos/SOSArrivalConfirmed";
 import { RiskAnalysisScreen } from "./components/core/RiskAnalysisScreen";
 import { RoutinePreparednessScreen } from "./components/core/RoutinePreparednessScreen";
 import { PreparednessCompleteScreen } from "./components/core/PreparednessCompleteScreen";
@@ -76,7 +77,8 @@ type AppScreen =
   | "helpSupport"
   | "sos"
   | "sosCamera"
-  | "sosDashboard";
+  | "sosDashboard"
+  | "sosArrival";
 
   //For user dependents management
 type DependentRecord = {
@@ -946,8 +948,8 @@ function App() {
       {currentScreen === "sosDashboard" && (
         <SOSRescueDashboard
           onConfirmArrival={() => {
-            console.log("Safe arrival confirmed — returning home");
-            setCurrentScreen("home");
+            console.log("Safe arrival confirmed — showing arrival screen");
+            setCurrentScreen("sosArrival");
           }}
           onNavigate={(screen) => setCurrentScreen(screen as AppScreen)}
           dependents={dependents.map(d => ({
@@ -956,6 +958,12 @@ function App() {
             relationship: d.relationship,
             triageTag: d.triageTag,
           }))}
+        />
+      )}
+      {currentScreen === "sosArrival" && (
+        <SOSArrivalConfirmed
+          onReturnHome={() => setCurrentScreen("home")}
+          onNavigate={(screen) => setCurrentScreen(screen as AppScreen)}
         />
       )}
       {currentScreen === "profile" && (
