@@ -56,6 +56,7 @@ interface UserProfileScreenProps {
   onHelp?: () => void;
   onLogout?: () => void;
   onNavigate?: (screen: string) => void;
+  onOpenSOS?: () => void;
 }
 
 export function UserProfileScreen({
@@ -71,6 +72,7 @@ export function UserProfileScreen({
   onHelp,
   onLogout,
   onNavigate,
+  onOpenSOS,
 }: UserProfileScreenProps) {
   const getTriageColor = (triageTag: string): string => {
     const colors: { [key: string]: string } = {
@@ -156,7 +158,7 @@ export function UserProfileScreen({
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-text">
       <div className="w-full md:w-[400px] max-w-[400px] h-screen md:h-[824px] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200">
         <header className="flex-none px-6 pt-8 pb-4 bg-white/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between border-b border-slate-100">
-          <h1 className="text-lg font-black text-slate-900">Profile</h1>
+          <h1 className="text-lg font-black tracking-tight text-slate-900">Profile</h1>
           <button
             onClick={onSettings}
             className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 hover:text-primary transition-colors border border-slate-100"
@@ -453,7 +455,9 @@ export function UserProfileScreen({
           </button>
 
           <div className="flex flex-col items-center gap-1 -mt-10">
-            <button className="w-20 h-20 bg-primary rounded-full shadow-2xl shadow-blue-900/40 flex items-center justify-center text-white ring-[6px] ring-white active:scale-95 transition-transform font-black text-2xl tracking-tighter hover:bg-blue-900">
+            <button
+              onClick={() => onOpenSOS?.()}
+              className="w-20 h-20 bg-primary rounded-full shadow-2xl shadow-blue-900/40 flex items-center justify-center text-white ring-[6px] ring-white active:scale-95 transition-transform font-black text-2xl tracking-tighter hover:bg-blue-900">
               SOS
             </button>
           </div>

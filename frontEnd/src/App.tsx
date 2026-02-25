@@ -39,6 +39,13 @@ import { EditDependentHub } from "./components/dependent/EditDependentHub";
 import { EditDependentSuccessScreen } from "./components/dependent/EditDependentSuccessScreen";
 import { AppSettingsScreen } from "./components/core/AppSettingsScreen";
 import { HelpSupportScreen } from "./components/core/HelpSupportScreen";
+import { UpdatesHub } from "./components/update/UpdatesHub";
+import { SubmitReport } from "./components/update/SubmitReport";
+import type { ReportFormData } from "./components/update/SubmitReport";
+import { AnalysisProgress } from "./components/update/AnalysisProgress";
+import { ReportDetails } from "./components/update/ReportDetails";
+import type { ReportDetailsData } from "./components/update/ReportDetails";
+import { ReportSuccess } from "./components/update/ReportSuccess";
 import type { AiRisk, JpsNearbyStation } from "./types/banjirsense";
 import ShelterMap from "./components/maps/ShelterMap";
 
@@ -82,6 +89,11 @@ type AppScreen =
   | "sosArrival"
   | "map"
   | "helpSupport"
+  | "updates"
+  | "submitReport"
+  | "analysisProgress"
+  | "reportDetails"
+  | "reportSuccess"
 
 
   //For user dependents management
@@ -197,6 +209,8 @@ function App() {
     console.warn("Dependents sync failed (keeping local):", e);
   }
 };
+  const [pendingReport, setPendingReport] = useState<ReportFormData | null>(null);
+  const [submittedReport, setSubmittedReport] = useState<ReportDetailsData | null>(null);
   const [meProfile, setMeProfile] = useState<any | null>(null);
   const syncProfileFromBackend = async () => {
   try {
@@ -523,7 +537,7 @@ function App() {
         }, 0);
         break;
       case "updates":
-        setCurrentScreen("notifications");
+        setCurrentScreen("updates");
         break;
       case "profile":
         setCurrentScreen("profile");
@@ -1020,6 +1034,7 @@ function App() {
           onHelp={handleProfileHelp}
           onLogout={handleProfileLogout}
           onNavigate={handleProfileNavigate}
+          onOpenSOS={handleOpenSOS}
           
 
         />
@@ -1031,12 +1046,86 @@ function App() {
               <ShelterMap
                 userLoc={userLoc ?? undefined}
                 onNavigate={handleProfileNavigate}
+                onOpenSOS={handleOpenSOS}
               />
             </div>
           </div>
         )}
       {currentScreen === "notifications" && (
-        <NotificationCenterScreen onBack={handleCloseNotifications} />
+        <NotificationCenterScreen
+          onBack={handleCloseNotifications}
+          onNavigate={handleProfileNavigate}
+          onOpenSOS={handleOpenSOS}
+        />
+      )}
+      {currentScreen === "updates" && (
+        <UpdatesHub
+          onNavigate={handleProfileNavigate}
+          onOpenSOS={handleOpenSOS}
+          onAddReport={() => setCurrentScreen("submitReport")}
+          onViewReport={() => {
+            if (submittedReport) setCurrentScreen("reportDetails");
+          }}
+        />
+      )}
+      {currentScreen === "submitReport" && (
+        <SubmitReport
+          onBack={() => setCurrentScreen("updates")}
+          onNavigate={handleProfileNavigate}
+          onOpenSOS={handleOpenSOS}
+          onSubmit={(data) => {
+            setPendingReport(data);
+            setCurrentScreen("analysisProgress");
+          }}
+        />
+      )}
+      {currentScreen === "analysisProgress" && (
+        <AnalysisProgress
+          onNavigate={handleProfileNavigate}
+          onOpenSOS={handleOpenSOS}
+          onComplete={() => {
+            const now = new Date();
+            const formatted = now.toLocaleDateString("en-MY", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }) + ", " + now.toLocaleTimeString("en-MY", { hour: "2-digit", minute: "2-digit" });
+            setSubmittedReport({
+              title: pendingReport?.title || "Community Flood Report",
+              category: pendingReport?.category || "Flood Level",
+              timestamp: formatted,
+              location: pendingReport?.location || "Taman Sri Muda",
+              gps: "GPS: 3.0478° N, 101.5183° E",
+              aiAnalysis:
+                "Image analysis confirms high water levels (approx. 0.5m) reaching residential gates. Situation matches local sensor data for rising flood risk.",
+              confidenceScore: 94,
+              floodDepthEstimate: "approx. 0.5m",
+              isVerified: true,
+            });
+            setCurrentScreen("reportSuccess");
+          }}
+        />
+      )}
+      {currentScreen === "reportDetails" && submittedReport && (
+        <ReportDetails
+          report={submittedReport}
+          onBack={() => setCurrentScreen("updates")}
+          onNavigate={handleProfileNavigate}
+          onOpenSOS={handleOpenSOS}
+        />
+      )}
+      {currentScreen === "reportSuccess" && (
+        <ReportSuccess
+          onBackToDashboard={() => {
+            setCurrentScreen("home");
+            setTimeout(loadHomeData, 0);
+          }}
+          onViewReport={() => {
+            if (submittedReport) setCurrentScreen("reportDetails");
+          }}
+          onNavigate={handleProfileNavigate}
+          onOpenSOS={handleOpenSOS}
+        />
       )}
       {currentScreen === "riskAnalysis" && (
           <RiskAnalysisScreen

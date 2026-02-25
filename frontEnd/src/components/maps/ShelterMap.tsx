@@ -24,6 +24,7 @@ interface ShelterMapProps {
   userLoc?: { lat: number; lng: number };
   safeZoneStatus?: { area: string; riskLevel: "low" | "medium" | "high" };
   onNavigate?: (screen: string) => void;
+  onOpenSOS?: () => void;
 }
 
 // backend might return: { ok, shelters: [...] } OR plain array
@@ -139,6 +140,7 @@ const ShelterMap: React.FC<ShelterMapProps> = ({
   userLoc,
   safeZoneStatus = { area: "Shah Alam", riskLevel: "low" },
   onNavigate,
+  onOpenSOS,
 }) => {
   const navigation = useNavigation();
 
@@ -439,7 +441,7 @@ const ShelterMap: React.FC<ShelterMapProps> = ({
   }, [allShelters, userLoc]);
 
   return (
-    <div className="w-[400px] h-[824px] bg-slate-100 font-display text-dark-text relative overflow-hidden flex flex-col">
+    <div className="w-full h-full bg-slate-100 font-display text-dark-text relative overflow-hidden flex flex-col">
       <div className="absolute inset-0">
         {!isLoaded && !loadError && (
           <div className="w-full h-full flex items-center justify-center text-slate-500 text-sm">
@@ -615,14 +617,15 @@ const ShelterMap: React.FC<ShelterMapProps> = ({
           </button>
 
           <div
-            className={`px-6 transition-[height] duration-200 overflow-hidden flex flex-col ${
-              isSheetOpen ? "pb-32" : "pb-0"
+            className={`px-6 overflow-hidden flex flex-col transition-all duration-200 ${
+              isSheetOpen ? "overflow-y-auto pb-4" : "pb-0"
             }`}
             style={{
-              height: `${sheetHeight * 100}vh`,
-              paddingBottom: isSheetOpen
-                ? "calc(8rem + env(safe-area-inset-bottom))"
-                : "0",
+              maxHeight: isSheetOpen
+                ? activePanel === "shelter"
+                  ? "340px"
+                  : "280px"
+                : "0px",
             }}
           >
             {activePanel !== "shelter" ? (
@@ -839,7 +842,7 @@ const ShelterMap: React.FC<ShelterMapProps> = ({
         onClose={() => setSelectedShelter(null)}
       />
 
-      <nav className="absolute bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-100 px-6 py-4 grid grid-cols-5 items-end">
+      <nav className="flex-none bg-white border-t border-slate-100 px-6 py-4 grid grid-cols-5 items-end z-40">
         <button
           onClick={() => handleNavigate("home")}
           className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
@@ -857,8 +860,11 @@ const ShelterMap: React.FC<ShelterMapProps> = ({
         </button>
 
         <div className="flex flex-col items-center gap-1 -mt-10">
-          <button className="w-20 h-20 bg-primary rounded-full shadow-2xl shadow-blue-900/40 flex items-center justify-center text-white ring-[6px] ring-white active:scale-95 transition-transform">
-            <span className="text-2xl font-black tracking-tighter">SOS</span>
+          <button
+            onClick={() => onOpenSOS?.()}
+            className="w-20 h-20 bg-primary rounded-full shadow-2xl shadow-blue-900/40 flex items-center justify-center text-white ring-[6px] ring-white active:scale-95 transition-transform font-black text-2xl tracking-tighter hover:bg-blue-900"
+          >
+            SOS
           </button>
         </div>
 

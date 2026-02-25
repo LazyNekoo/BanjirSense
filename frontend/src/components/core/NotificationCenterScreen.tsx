@@ -3,6 +3,7 @@ import { Droplets, Home, Map, Megaphone, User } from "lucide-react";
 interface NotificationCenterScreenProps {
   onBack: () => void;
   onNavigate?: (screen: string) => void;
+  onOpenSOS?: () => void;
 }
 
 const urgentAlerts = [
@@ -46,7 +47,7 @@ const generalUpdates = [
   },
 ];
 
-export function NotificationCenterScreen({ onBack, onNavigate }: NotificationCenterScreenProps) {
+export function NotificationCenterScreen({ onBack, onNavigate, onOpenSOS }: NotificationCenterScreenProps) {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
       <div className="w-[400px] max-w-[400px] h-[824px] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200">
@@ -133,23 +134,26 @@ export function NotificationCenterScreen({ onBack, onNavigate }: NotificationCen
           <button
             type="button"
             onClick={onBack}
-            className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors"
+            className="flex flex-col items-center gap-1 text-primary"
           >
             <Home size={20} />
-            <span className="text-[10px] font-medium">Home</span>
+            <span className="text-[10px] font-bold">Home</span>
           </button>
           <button onClick={() => onNavigate?.("map")} className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
             <Map size={20} />
             <span className="text-[10px] font-medium">Map</span>
           </button>
           <div className="flex flex-col items-center gap-1 -mt-10">
-            <button className="w-20 h-20 bg-primary rounded-full shadow-2xl shadow-blue-900/40 flex items-center justify-center text-white ring-[6px] ring-white active:scale-95 transition-transform">
-              <span className="text-2xl font-black tracking-tighter">SOS</span>
+            <button
+              onClick={() => onOpenSOS?.()}
+              className="w-20 h-20 bg-primary rounded-full shadow-2xl shadow-blue-900/40 flex items-center justify-center text-white ring-[6px] ring-white active:scale-95 transition-transform font-black text-2xl tracking-tighter hover:bg-blue-900"
+            >
+              SOS
             </button>
           </div>
-          <button className="flex flex-col items-center gap-1 text-primary">
+          <button onClick={() => onNavigate?.("updates")} className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
             <Megaphone size={20} />
-            <span className="text-[10px] font-bold">Updates</span>
+            <span className="text-[10px] font-medium">Updates</span>
           </button>
           <button onClick={() => onNavigate?.("profile")} className="flex flex-col items-center gap-1 text-slate-400 hover:text-primary transition-colors">
             <User size={20} />
