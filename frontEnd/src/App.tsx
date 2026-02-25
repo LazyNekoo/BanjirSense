@@ -79,9 +79,9 @@ type AppScreen =
   | "sos"
   | "sosCamera"
   | "sosDashboard"
-  | "sosArrival";
+  | "sosArrival"
   | "map"
-  | "helpSupport";
+  | "helpSupport"
 
 
   //For user dependents management
