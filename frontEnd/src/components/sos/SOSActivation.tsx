@@ -68,9 +68,9 @@ export const SOSActivation = ({
   const strokeDashoffset = circumference - (holdProgress / 100) * circumference;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-0 md:p-4 font-display">
       {/* Main Container */}
-      <div className="w-full max-w-[400px] h-[824px] bg-[#050505] rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-zinc-800 font-display">
+      <div className="w-full max-w-[400px] h-[824px] bg-zinc-900 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-zinc-700 font-display">
         {/* Header */}
         <header className="flex-none px-6 pt-8 pb-4 flex justify-between items-center border-b border-zinc-800/50">
           <div className="flex items-center gap-2">

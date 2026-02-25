@@ -12,6 +12,7 @@ import { apiFetch } from "./lib/api";
 import { HomeScreen } from "./components/core/HomeScreen";
 import { SOSActivation } from "./components/sos/SOSActivation";
 import { SOSCameraCapture } from "./components/sos/SOSCameraCapture";
+import { SOSRescueDashboard } from "./components/sos/SOSRescueDashboard";
 import { RiskAnalysisScreen } from "./components/core/RiskAnalysisScreen";
 import { RoutinePreparednessScreen } from "./components/core/RoutinePreparednessScreen";
 import { PreparednessCompleteScreen } from "./components/core/PreparednessCompleteScreen";
@@ -74,7 +75,8 @@ type AppScreen =
   | "appSettings"
   | "helpSupport"
   | "sos"
-  | "sosCamera";
+  | "sosCamera"
+  | "sosDashboard";
 
   //For user dependents management
 type DependentRecord = {
@@ -933,12 +935,27 @@ function App() {
         <SOSCameraCapture
           onSkipAndSend={() => {
             console.log("SOS sent without photo");
-            setCurrentScreen("home");
+            setCurrentScreen("sosDashboard");
           }}
           onSendPhoto={(photoDataUrl) => {
             console.log("SOS sent with photo", photoDataUrl.substring(0, 50));
+            setCurrentScreen("sosDashboard");
+          }}
+        />
+      )}
+      {currentScreen === "sosDashboard" && (
+        <SOSRescueDashboard
+          onConfirmArrival={() => {
+            console.log("Safe arrival confirmed — returning home");
             setCurrentScreen("home");
           }}
+          onNavigate={(screen) => setCurrentScreen(screen as AppScreen)}
+          dependents={dependents.map(d => ({
+            id: d.id,
+            fullName: d.fullName,
+            relationship: d.relationship,
+            triageTag: d.triageTag,
+          }))}
         />
       )}
       {currentScreen === "profile" && (

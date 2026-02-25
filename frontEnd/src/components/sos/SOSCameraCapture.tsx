@@ -84,9 +84,9 @@ export const SOSCameraCapture = ({
   );
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-0 md:p-4 font-display">
       {/* Main Container — 400×824 */}
-      <div className="w-full max-w-[400px] h-[824px] bg-[#050505] rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-zinc-800 font-display">
+      <div className="w-full max-w-[400px] h-[824px] bg-zinc-900 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-zinc-700 font-display">
 
         {/* Scanline animation overlay */}
         <div className="absolute inset-0 pointer-events-none z-[5] overflow-hidden">
@@ -146,7 +146,7 @@ export const SOSCameraCapture = ({
         {/* ── Camera Viewfinder / Preview ── */}
         <main className="relative z-10 flex-1 flex flex-col">
           {/* Viewfinder Area */}
-          <div className="relative flex-1 mx-4 my-2 rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800">
+          <div className="relative flex-1 mx-4 my-2 rounded-2xl overflow-hidden bg-zinc-800 border border-zinc-700">
             {/* Live camera or captured preview */}
             {!capturedImage ? (
               <>
@@ -158,7 +158,7 @@ export const SOSCameraCapture = ({
                   className="w-full h-full object-cover"
                 />
                 {/* Fallback placeholder when camera isn't available */}
-                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/80 pointer-events-none">
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-800/80 pointer-events-none">
                   <div className="flex flex-col items-center gap-2 text-zinc-500">
                     <Camera className="w-12 h-12" />
                     <span className="text-xs font-medium">Connecting to camera...</span>
