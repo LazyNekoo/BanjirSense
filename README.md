@@ -55,7 +55,7 @@ BanjirSense uses meaningful AI integration across multiple layers:
 
 ### 🔹 Flood Risk Scoring 
 - Heuristic flood risk model (active fallback)
-- Vertex AI–ready architecture for ML-based prediction
+- Vertex AI–ready architecture for ML-based prediction (Phase 2)
 - Dynamic risk scoring (LOW / MEDIUM / HIGH)
 - Real-time risk computation using live JPS data
 
@@ -82,7 +82,39 @@ BanjirSense uses meaningful AI integration across multiple layers:
 - Firebase Authentication (Google + Email)  
 - Firebase Admin token verification  
 - Cloud Firestore (real-time sync)  
-- Per-user profile + dependents storage  
+- Per-user profile + dependents storage (Data is stored per authenticated user UID)
+
+---
+
+## 🧠 AI Justification & Design Rationale
+
+### 🔹 Gemini AI Justification
+
+Gemini was chosen to generate structured, risk-aware survival guidance dynamically, enabling personalized decision support instead of static informational alerts.  
+Instead of displaying generic flood warnings, Gemini produces concise, actionable preparation steps tailored to the user’s real-time risk level and context.  
+This improves clarity, reduces decision delay, and enhances emergency readiness.
+
+---
+
+### 🔹 Vertex AI Justification
+
+The Vertex AI-ready architecture enables scalable, machine learning-based flood prediction.  
+While the current system uses a heuristic fallback model, the backend is structured to seamlessly integrate a trained Vertex AI model for advanced predictive analytics.  
+This design ensures future deployment of data-driven flood forecasting without requiring architectural redesign, supporting long-term scalability and government-level integration.
+
+---
+
+### 🔹 Vision API Justification (Phase 2)
+
+The Google Cloud Vision API is planned for AI-assisted severity validation during emergency reporting.  
+When users upload images in Stranded Mode, Vision will:
+
+- Detect water level presence and coverage
+- Estimate environmental severity indicators
+- Reduce false or misleading distress reports
+- Assist in rescue prioritization logic
+
+This ensures ethical and responsible AI usage by validating emergency conditions before resource allocation, improving accuracy and operational efficiency in disaster response coordination.
 
 ---
 
@@ -155,6 +187,36 @@ Live Map + Rescue Coordination <br>
 - Structured Firestore subcollections:
   - `users/{uid}`
   - `users/{uid}/dependents`
+
+---
+## 🛠️ Technical Challenges & Engineering Decisions
+
+### 🔹 Challenge 1: Incomplete Government Data (Null Coordinates)
+
+Some JPS monitoring stations returned `null` latitude and longitude values, preventing accurate nearest-station detection and distance calculations.
+
+#### ✅ Solution:
+- Implemented a backend **data normalization layer** to clean and standardize incoming station data.
+- Added a **10-minute caching mechanism** to reduce repeated API calls and improve stability.
+- Introduced a **fallback coordinate mapping strategy** for demo-region stations to ensure continuity in risk detection and display.
+
+This ensured reliable nearest-station computation and improved system robustness.
+
+---
+
+### 🔹 Challenge 2: Secure Frontend–Backend Authentication
+
+Ensuring that only authenticated users could access protected backend routes (e.g., `/users`, `/dependents`, `/sos`) required secure token validation beyond frontend-only authentication.
+
+#### ✅ Solution:
+- Implemented **Firebase ID token retrieval** on the frontend.
+- Verified tokens server-side using the **Firebase Admin SDK**.
+- Secured backend routes using middleware-based token validation.
+- Structured user data storage under authenticated UID paths:
+  - `users/{uid}`
+  - `users/{uid}/dependents`
+
+This ensured secure communication between frontend and backend, preventing unauthorized API access.
 
 ---
 
@@ -235,18 +297,40 @@ These findings directly influenced our system architecture and feature prioritiz
 
 ## 🧪 User Acceptance Testing (UAT)
 
-We conducted structured real-user testing to evaluate:
+### We conducted structured real-user testing to evaluate:
 - Risk clarity  
 - AI checklist usefulness  
 - Nearby JPS trust impact  
 - Shelter map usability  
 - SOS confidence level  
-- Navigation ease  
+- Navigation ease
 
-Feedback was used to:
+### 📊 Quantitative Metrics
+
+- **Task completion rate (risk identification):** [XX]%  
+- **Average time to complete flood risk check:** [XX] seconds  
+- **Average time to activate SOS flow:** [XX] seconds  
+- **Clarity rating (1–5 scale):** [X.X] / 5  
+- **Users preferring AI-generated checklist over generic warning:** [X]/[TOTAL_TESTERS]  
+
+### Feedback was used to:
 - Improve UI clarity  
 - Simplify station status labels  
 - Enhance emergency flow readability  
+
+---
+
+### 🔁 Key Iterations Implemented Based on Feedback
+
+1. **Improved Government Station Status Clarity**  
+   Replaced ambiguous “ERROR” station labels with clearer messaging such as “Data Unavailable” to prevent confusion and increase trust.
+
+2. **Enhanced Trust Through Official Data Visibility**  
+   Added visible nearest JPS station distance indicator to reinforce credibility and reduce reliance on AI-only risk assumptions.
+
+3. xxxxxx
+
+These improvements were directly influenced by user feedback and demonstrate iterative development aligned with real-world usability needs.
 
 ---
 
