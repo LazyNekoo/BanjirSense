@@ -36,6 +36,7 @@ import { EditDependentSuccessScreen } from "./components/dependent/EditDependent
 import { AppSettingsScreen } from "./components/core/AppSettingsScreen";
 import { HelpSupportScreen } from "./components/core/HelpSupportScreen";
 import type { AiRisk, JpsNearbyStation } from "./types/banjirsense";
+import ShelterMap from "./components/maps/ShelterMap";
 
 type AppScreen =
   | "splash"
@@ -70,6 +71,7 @@ type AppScreen =
   | "editDependent"
   | "editDependentSuccess"
   | "appSettings"
+  | "map"
   | "helpSupport";
 
   //For user dependents management
@@ -203,6 +205,13 @@ function App() {
 
     return () => clearTimeout(timer);
   }, []);
+
+// Ensure we have user's location when entering home/map screen (for map centering + AI prediction)
+  useEffect(() => {
+  if (currentScreen === "home" || currentScreen === "map") {
+    setTimeout(ensureHomeLocation, 0);
+  }
+}, [currentScreen]);
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
@@ -378,6 +387,8 @@ function App() {
         console.warn("Geolocation failed, using fallback KL", err);
       }
 
+      setUserLoc({ lat, lng })
+
       const [ai, jps] = await Promise.allSettled([
         apiFetch<any>("/predict-flood", {
           method: "POST",
@@ -386,7 +397,7 @@ function App() {
         apiFetch<any>(`/gov/jps/nearby?lat=${lat}&lng=${lng}&radiusKm=30`),
       ]);
 
-      setUserLoc({ lat, lng });
+      //setUserLoc({ lat, lng });
 
       // AI
       if (ai.status === "fulfilled") {
@@ -432,6 +443,19 @@ function App() {
     }
   };
 
+  // Ensure we have user's location when entering home screen (for map centering + AI prediction)
+  const ensureHomeLocation = async () => {
+  if (userLoc) return; // ✅ already have it
+
+  try {
+    const loc = await getBrowserLocation();
+    setUserLoc(loc);
+  } catch (err) {
+    // fallback KL so map still has a marker center
+    setUserLoc({ lat: 3.1390, lng: 101.6869 });
+  }
+};
+
   const handleViewDetailedAnalysis = () => {
     setCurrentScreen("riskAnalysis");
   };
@@ -462,6 +486,7 @@ function App() {
 
   const handlePreparednessCompleteBack = () => {
     setCurrentScreen("home");
+    setTimeout(loadHomeData, 0); 
   };
 
   const handleOpenProfile = () => {
@@ -474,10 +499,13 @@ function App() {
     switch (screen) {
       case "home":
         setCurrentScreen("home");
+        setTimeout(ensureHomeLocation, 0); 
         break;
       case "map":
-        // TODO: Implement map navigation
-        console.log("Map navigation");
+        setCurrentScreen("map");
+        setTimeout(async () => {
+          await ensureHomeLocation();
+        }, 0);
         break;
       case "updates":
         setCurrentScreen("notifications");
@@ -903,6 +931,8 @@ function App() {
           onViewRoutineChecklist={handleOpenRoutinePreparedness}
           onOpenNotifications={handleOpenNotifications}
           onOpenProfile={handleOpenProfile}
+          onNavigate={handleProfileNavigate}
+          userLoc={userLoc}
           ai={homeAi}
           jps={homeJps}
           isLoading={homeLoading}
@@ -929,9 +959,21 @@ function App() {
           onHelp={handleProfileHelp}
           onLogout={handleProfileLogout}
           onNavigate={handleProfileNavigate}
+          
 
         />
       )}
+      {currentScreen === "map" && (
+        // Map screen with same layout as home but full map component 
+          <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
+            <div className="w-[400px] max-w-[400px] h-[824px] bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200">
+              <ShelterMap
+                userLoc={userLoc ?? undefined}
+                onNavigate={handleProfileNavigate}
+              />
+            </div>
+          </div>
+        )}
       {currentScreen === "notifications" && (
         <NotificationCenterScreen onBack={handleCloseNotifications} />
       )}
@@ -940,6 +982,7 @@ function App() {
             onClose={handleCloseRiskAnalysis}
             ai={homeAi}
             jps={homeJps}
+            userLoc={userLoc}
           />
         )}
       {currentScreen === "routinePreparedness" && (
