@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertCircle,
   ArrowLeft,
@@ -24,11 +24,50 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type SubScreen = "main" | "medicalPost" | "familyStatus" | "mealSchedule";
+type LatLng = { lat: number; lng: number };
+
+//User location
+const toNum = (v: any) => {
+  if (v === undefined || v === null || v === "") return null;
+  const str = String(v).trim();
+  const normalized =
+    str.includes(",") && !str.includes(".")
+      ? str.replace(",", ".")
+      : str.replace(/,/g, "");
+  const n = Number(normalized);
+  return Number.isFinite(n) ? n : null;
+};
+
+const haversineKm = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const lat1 = (a.lat * Math.PI) / 180;
+  const lat2 = (b.lat * Math.PI) / 180;
+
+  const x =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+  return R * (2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)));
+};
+
+type PpsLite = {
+  id: string;
+  name: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  victims: number;
+  capacity?: number | null;
+  occupancyPercentage: number;
+};
 
 interface SOSArrivalConfirmedProps {
   onReturnHome?: () => void;
   onNavigate?: (screen: string) => void;
-  shelterName?: string;
+  userLoc?: LatLng | null;
+  shelterName?: string; // fallback
   checkinTime?: string;
 }
 
@@ -126,16 +165,39 @@ function MedicalPostScreen({
   const [need, setNeed] = useState("");
 
   const services = [
-    { icon: <Heart size={16} className="text-red-500" />, bg: "bg-red-50", label: "First Aid & Wound Care", detail: "Bay 1 — open now" },
-    { icon: <AlertCircle size={16} className="text-orange-500" />, bg: "bg-orange-50", label: "Medication Dispensary", detail: "Bay 2 — open now" },
-    { icon: <UserCheck size={16} className="text-blue-500" />, bg: "bg-blue-50", label: "Triage Assessment", detail: "Queue: 3 ahead" },
-    { icon: <Phone size={16} className="text-purple-500" />, bg: "bg-purple-50", label: "Mental Health Support", detail: "Bay 3 — available" },
+    {
+      icon: <Heart size={16} className="text-red-500" />,
+      bg: "bg-red-50",
+      label: "First Aid & Wound Care",
+      detail: "Bay 1 — open now",
+    },
+    {
+      icon: <AlertCircle size={16} className="text-orange-500" />,
+      bg: "bg-orange-50",
+      label: "Medication Dispensary",
+      detail: "Bay 2 — open now",
+    },
+    {
+      icon: <UserCheck size={16} className="text-blue-500" />,
+      bg: "bg-blue-50",
+      label: "Triage Assessment",
+      detail: "Queue: 3 ahead",
+    },
+    {
+      icon: <Phone size={16} className="text-purple-500" />,
+      bg: "bg-purple-50",
+      label: "Mental Health Support",
+      detail: "Bay 3 — available",
+    },
   ];
 
   return (
     <>
       <header className="flex-none px-6 pt-12 pb-5 relative z-10">
-        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors mb-5">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors mb-5"
+        >
           <ArrowLeft size={18} />
           <span className="text-sm font-semibold">Back</span>
         </button>
@@ -144,7 +206,9 @@ function MedicalPostScreen({
             <Stethoscope size={26} className="text-red-500" />
           </div>
           <div>
-            <h1 className="text-xl font-black tracking-tight text-slate-900 leading-tight">Medical Post</h1>
+            <h1 className="text-xl font-black tracking-tight text-slate-900 leading-tight">
+              Medical Post
+            </h1>
             <p className="text-xs text-slate-500 mt-0.5">{shelterName}</p>
           </div>
         </div>
@@ -161,7 +225,9 @@ function MedicalPostScreen({
 
         <section className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="px-5 pt-5 pb-3">
-            <h3 className="text-sm font-bold text-slate-800 tracking-tight">Available Services</h3>
+            <h3 className="text-sm font-bold text-slate-800 tracking-tight">
+              Available Services
+            </h3>
           </div>
           <div className="divide-y divide-slate-100">
             {services.map((s) => (
@@ -180,11 +246,15 @@ function MedicalPostScreen({
         </section>
 
         <section className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-800 mb-3 tracking-tight">Request Assistance</h3>
+          <h3 className="text-sm font-bold text-slate-800 mb-3 tracking-tight">
+            Request Assistance
+          </h3>
           {submitted ? (
             <div className="flex items-center gap-3 py-2">
               <CheckCircle2 size={20} className="text-green-500 flex-none" />
-              <p className="text-sm font-semibold text-green-700">Request sent — medical staff notified.</p>
+              <p className="text-sm font-semibold text-green-700">
+                Request sent — medical staff notified.
+              </p>
             </div>
           ) : (
             <>
@@ -197,7 +267,9 @@ function MedicalPostScreen({
               />
               <button
                 type="button"
-                onClick={() => { if (need.trim()) setSubmitted(true); }}
+                onClick={() => {
+                  if (need.trim()) setSubmitted(true);
+                }}
                 className="w-full bg-red-500 text-white text-sm font-bold py-3 rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-40"
                 disabled={!need.trim()}
               >
@@ -209,7 +281,9 @@ function MedicalPostScreen({
         </section>
 
         <section className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-800 mb-3 tracking-tight">Emergency Contacts</h3>
+          <h3 className="text-sm font-bold text-slate-800 mb-3 tracking-tight">
+            Emergency Contacts
+          </h3>
           <div className="space-y-3">
             {[
               { label: "Medical Post Hotline", number: "03-8888 0000" },
@@ -407,9 +481,15 @@ function MealScheduleScreen({
             {meals.map((m, i) => (
               <div key={m.label} className="flex gap-4">
                 <div className="flex flex-col items-center">
-                  <div className={`w-3 h-3 rounded-full flex-none mt-1 ring-2 ${
-                    m.done ? "bg-green-400 ring-green-100" : m.next ? "bg-orange-400 ring-orange-100 animate-pulse" : "bg-slate-200 ring-slate-100"
-                  }`} />
+                  <div
+                    className={`w-3 h-3 rounded-full flex-none mt-1 ring-2 ${
+                      m.done
+                        ? "bg-green-400 ring-green-100"
+                        : m.next
+                        ? "bg-orange-400 ring-orange-100 animate-pulse"
+                        : "bg-slate-200 ring-slate-100"
+                    }`}
+                  />
                   {i < meals.length - 1 && <div className="w-0.5 flex-1 bg-slate-100 mt-1 mb-1 min-h-[20px]" />}
                 </div>
                 <div className={`pb-4 flex-1 ${m.next ? "opacity-100" : m.done ? "opacity-60" : "opacity-80"}`}>
@@ -417,9 +497,15 @@ function MealScheduleScreen({
                     <p className={`text-sm font-bold ${m.next ? "text-orange-600" : m.done ? "text-slate-500 line-through" : "text-slate-800"}`}>
                       {m.label}
                     </p>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      m.done ? "bg-green-50 text-green-600" : m.next ? "bg-orange-50 text-orange-600" : "bg-slate-100 text-slate-400"
-                    }`}>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        m.done
+                          ? "bg-green-50 text-green-600"
+                          : m.next
+                          ? "bg-orange-50 text-orange-600"
+                          : "bg-slate-100 text-slate-400"
+                      }`}
+                    >
                       {m.done ? "Done" : m.next ? "Next" : m.time}
                     </span>
                   </div>
@@ -478,7 +564,9 @@ function MealScheduleScreen({
                 />
                 <button
                   type="button"
-                  onClick={() => { if (dietaryNote.trim()) setDietSubmitted(true); }}
+                  onClick={() => {
+                    if (dietaryNote.trim()) setDietSubmitted(true);
+                  }}
                   disabled={!dietaryNote.trim()}
                   className="w-full bg-orange-500 text-white text-sm font-bold py-3 rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-40"
                 >
@@ -503,6 +591,7 @@ function MealScheduleScreen({
 export function SOSArrivalConfirmed({
   onReturnHome,
   onNavigate,
+  userLoc,
   shelterName = "Sri Muda Hall (Shelter #14)",
   checkinTime = "12:55 PM",
 }: SOSArrivalConfirmedProps) {
@@ -510,20 +599,103 @@ export function SOSArrivalConfirmed({
   const [alertRating, setAlertRating] = useState(4);
   const [rescueRating, setRescueRating] = useState(5);
   const [hazardNote, setHazardNote] = useState("");
+  const [nearestPps, setNearestPps] = useState<PpsLite | null>(null);
+  const [loadingPps, setLoadingPps] = useState(false);
+
+  // ✅ Fetch PPS list & pick nearest using userLoc
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadNearest = async () => {
+      if (!userLoc) return;
+
+      setLoadingPps(true);
+      try {
+        const base = (import.meta.env.VITE_API_BASE_URL as string) || "";
+        const res = await fetch(`${base}/gov/jkm/pps`);
+        const data = await res.json();
+
+        const rawList = Array.isArray(data) ? data : (data.shelters ?? data.points ?? []);
+        const cleaned: PpsLite[] = (rawList || [])
+          .map((s: any) => {
+            const latitude = toNum(s.latitude ?? s.lat);
+            const longitude = toNum(s.longitude ?? s.lng);
+            if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+
+            const victims = toNum(s.mangsa ?? s.victims) ?? 0;
+            const capacity = toNum(s.kapasiti ?? s.capacity);
+
+            const apiOcc = toNum(s.occupancyPercentage);
+            const computedOcc = capacity && capacity > 0 ? (victims / capacity) * 100 : null;
+            const occupancyPercentage = Math.max(0, Math.min(100, apiOcc ?? (computedOcc ?? 0)));
+
+            return {
+              id: String(s.id ?? `${s.name ?? "pps"}-${latitude}-${longitude}`),
+              name: String(s.nama_pps ?? s.name ?? "PPS"),
+              location: String([s.daerah, s.negeri].filter(Boolean).join(", ") || s.daerah || s.negeri || "Malaysia"),
+              latitude: latitude!,
+              longitude: longitude!,
+              victims,
+              capacity,
+              occupancyPercentage,
+            } as PpsLite;
+          })
+          .filter(Boolean) as PpsLite[];
+
+        if (!cleaned.length) return;
+
+        let best = cleaned[0];
+        let bestD = Infinity;
+        for (const s of cleaned) {
+          const d = haversineKm(userLoc, { lat: s.latitude, lng: s.longitude });
+          if (d < bestD) {
+            bestD = d;
+            best = s;
+          }
+        }
+
+        if (!cancelled) setNearestPps(best);
+      } catch (e) {
+        console.warn("Nearest PPS load failed:", e);
+      } finally {
+        if (!cancelled) setLoadingPps(false);
+      }
+    };
+
+    loadNearest();
+    return () => {
+      cancelled = true;
+    };
+  }, [userLoc]);
+
+  // ✅ single source of truth for displayed shelter name
+  const displayShelterName = nearestPps?.name ?? shelterName;
+  const displayShelterLoc = nearestPps?.location ?? (loadingPps ? "Finding nearest shelter..." : "Malaysia");
+  const displayDistanceKm =
+    userLoc && nearestPps
+      ? haversineKm(userLoc, { lat: nearestPps.latitude, lng: nearestPps.longitude }).toFixed(1)
+      : null;
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-0 md:p-4 font-display">
       <div className="w-full max-w-[400px] h-[824px] bg-[#f8fafc] rounded-none md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative border border-white">
-
         {subScreen === "main" && (
           <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-green-50/70 to-transparent pointer-events-none z-0" />
         )}
 
         {subScreen === "medicalPost" && (
-          <MedicalPostScreen onBack={() => setSubScreen("main")} onNavigate={onNavigate} shelterName={shelterName} />
+          <MedicalPostScreen
+            onBack={() => setSubScreen("main")}
+            onNavigate={onNavigate}
+            shelterName={displayShelterName}
+          />
         )}
         {subScreen === "familyStatus" && (
-          <FamilyStatusScreen onBack={() => setSubScreen("main")} onNavigate={onNavigate} shelterName={shelterName} />
+          <FamilyStatusScreen
+            onBack={() => setSubScreen("main")}
+            onNavigate={onNavigate}
+            shelterName={displayShelterName}
+          />
         )}
         {subScreen === "mealSchedule" && (
           <MealScheduleScreen onBack={() => setSubScreen("main")} onNavigate={onNavigate} />
@@ -540,18 +712,36 @@ export function SOSArrivalConfirmed({
                   <CheckCircle2 size={48} className="text-green-500" strokeWidth={1.8} />
                 </div>
               </div>
+
               <h1 className="text-2xl font-black tracking-tight text-slate-900 leading-tight">
                 Arrival Confirmed.
               </h1>
               <p className="text-green-500 font-bold text-lg mt-0.5">You are Safe.</p>
+
               <div className="mt-5 w-full bg-white rounded-3xl p-4 border border-slate-100 shadow-sm flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-50 rounded-full flex-none flex items-center justify-center">
                   <MapPin size={18} className="text-blue-600" />
                 </div>
+
                 <div className="text-left min-w-0">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Location</p>
-                  <p className="text-sm font-semibold text-slate-800 truncate">{shelterName}</p>
-                  <p className="text-[10px] text-slate-400 font-medium">Checked-in: {checkinTime}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">
+                    Location
+                  </p>
+
+                  {/* ✅ Nearest PPS name */}
+                  <p className="text-sm font-semibold text-slate-800 truncate">
+                    {displayShelterName}
+                  </p>
+
+                  {/* ✅ Show area + distance */}
+                  <p className="text-[10px] text-slate-400 font-medium truncate">
+                    {displayShelterLoc}
+                    {displayDistanceKm ? ` • ${displayDistanceKm} km` : ""}
+                  </p>
+
+                  <p className="text-[10px] text-slate-400 font-medium">
+                    Checked-in: {checkinTime}
+                  </p>
                 </div>
               </div>
             </header>
@@ -561,15 +751,18 @@ export function SOSArrivalConfirmed({
                 <h3 className="text-sm font-bold text-slate-800 mb-4 tracking-tight">
                   Help Us Improve Future Rescues
                 </h3>
+
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-slate-500">Alert Accuracy</span>
                     <StarRating value={alertRating} onChange={setAlertRating} />
                   </div>
+
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-slate-500">Rescue Experience</span>
                     <StarRating value={rescueRating} onChange={setRescueRating} />
                   </div>
+
                   <div>
                     <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-2">
                       Unreported Hazards
@@ -650,7 +843,6 @@ export function SOSArrivalConfirmed({
             <BottomNav onHome={onReturnHome ?? (() => {})} onNavigate={onNavigate} />
           </>
         )}
-
       </div>
     </div>
   );

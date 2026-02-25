@@ -16,7 +16,8 @@ export const SOSActivation = ({
 }: SOSActivationProps) => {
   const [holdProgress, setHoldProgress] = useState(0);
   const [isHolding, setIsHolding] = useState(false);
-  const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+  //const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startTimeRef = useRef<number | null>(null);
   const animationFrameRef = useRef<number | null>(null);
 
@@ -88,7 +89,7 @@ export const SOSActivation = ({
               </svg>
             </div>
             <span className="font-bold text-lg tracking-tight text-white">
-              BanjirSense+
+              BanjirSense
             </span>
           </div>
           <button

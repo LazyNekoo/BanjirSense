@@ -507,6 +507,7 @@ function App() {
 
   const handleOpenSOS = () => {
     setCurrentScreen("sos");
+    setTimeout(loadHomeData, 0);
   };
 
   const handleProfileNavigate = (screen: string) => {
@@ -984,6 +985,7 @@ function App() {
             setCurrentScreen("sosArrival");
           }}
           onNavigate={(screen) => setCurrentScreen(screen as AppScreen)}
+          waterDepth={homeJps?.waterLevelM ?? null}
           dependents={dependents.map(d => ({
             id: d.id,
             fullName: d.fullName,
@@ -994,6 +996,7 @@ function App() {
       )}
       {currentScreen === "sosArrival" && (
         <SOSArrivalConfirmed
+          userLoc={userLoc}
           onReturnHome={() => setCurrentScreen("home")}
           onNavigate={(screen) => setCurrentScreen(screen as AppScreen)}
         />

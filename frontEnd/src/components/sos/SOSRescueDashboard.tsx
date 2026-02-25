@@ -27,7 +27,7 @@ interface SOSRescueDashboardProps {
   teamName?: string;
   etaMins?: number;
   distanceKm?: number;
-  waterDepth?: number;
+  waterDepth?: number | null;
   hazardAlert?: string;
   medicalNeeds?: string | null;
   dependents?: DashboardDependent[];
@@ -109,7 +109,7 @@ export function SOSRescueDashboard({
   teamName = 'B-12',
   etaMins = 6,
   distanceKm = 0.5,
-  waterDepth = 0.8,
+  waterDepth = null,
   hazardAlert = 'Moving current detected near north entrance',
   medicalNeeds = null,
   dependents = [],
@@ -179,7 +179,9 @@ export function SOSRescueDashboard({
                   <span className="text-sm font-bold text-white">Water Depth</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-black text-white">{waterDepth}m</span>
+                  <span className="text-lg font-black text-white">
+                    {typeof waterDepth === "number" ? `${waterDepth.toFixed(2)}m` : "N/A"}
+                  </span>
                   <span className="text-[9px] font-bold text-safe-green bg-safe-green/10 border border-safe-green/20 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
                     Verified
                   </span>
