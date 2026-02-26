@@ -414,6 +414,25 @@ Before development, we conducted a survey (20 respondents) to validate problem r
 - 72% strongly trust real-time location sharing with authorities  
 
 These findings directly influenced our system architecture and feature prioritization.
+  
+---
+
+## 🧪 User Acceptance Testing (UAT) 
+### We conducted structured real-user testing to evaluate:
+- Risk clarity  
+- AI checklist usefulness  
+- Nearby JPS trust impact  
+- Shelter map usability  
+- SOS confidence level  
+- Navigation ease
+
+### 📊 Quantitative Metrics
+
+- **Task completion rate (risk identification):** [XX]%  
+- **Average time to complete flood risk check:** [XX] seconds  
+- **Average time to activate SOS flow:** [XX] seconds  
+- **Clarity rating (1–5 scale):** [X.X] / 5  
+- **Users preferring AI-generated checklist over generic warning:** [X]/[TOTAL_TESTERS]
 
 ---
 
@@ -484,25 +503,6 @@ These findings directly influenced our system architecture and feature prioritiz
    - Integrate Google Cloud Vision API for water-level image validation.
    - Assist rescue prioritization logic.
    - Reduce false-positive emergency submissions.
-  
----
-
-## 🧪 User Acceptance Testing (UAT) 
-### We conducted structured real-user testing to evaluate:
-- Risk clarity  
-- AI checklist usefulness  
-- Nearby JPS trust impact  
-- Shelter map usability  
-- SOS confidence level  
-- Navigation ease
-
-### 📊 Quantitative Metrics
-
-- **Task completion rate (risk identification):** [XX]%  
-- **Average time to complete flood risk check:** [XX] seconds  
-- **Average time to activate SOS flow:** [XX] seconds  
-- **Clarity rating (1–5 scale):** [X.X] / 5  
-- **Users preferring AI-generated checklist over generic warning:** [X]/[TOTAL_TESTERS]  
 
 ---
   
