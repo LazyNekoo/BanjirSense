@@ -277,7 +277,7 @@ Live Map + Rescue Coordination <br>
   - `users/{uid}/dependents`
 
 ---
-## 🛠️ Technical Challenges & Engineering Decisions
+## 🛠️ Coding Challenge Faced During Development
 
 ### 🔹 Challenge 1: Incomplete Government Data (Null Coordinates)
 
@@ -416,34 +416,52 @@ Before development, we conducted a survey (20 respondents) to validate problem r
 These findings directly influenced our system architecture and feature prioritization.
   
 ---
+## 🧪 User Acceptance Testing 
 
-### 🔁 Iterative Improvements During Development
+###  Testing Process : 
 
-1. **Improved Government Station Status Clarity**  
-   Replaced ambiguous “ERROR” station labels with clearer messaging such as “Data Unavailable” to prevent confusion and increase trust.
+- Recruited [X] external participants (non-team members).
+- Asked users to perform specific tasks:
+  - Identify flood risk level
+  - Interpret JPS station data
+  - Navigate to nearest PPS
+  - Activate SOS flow
+- Observed completion behavior and usability friction points.
+- Collected structured feedback through a post-test survey form.
 
-2. **Enhanced Trust Through Official Data Visibility**  
-   Added visible nearest JPS station distance indicator to reinforce credibility and reduce reliance on AI-only risk assumptions.
+### 🔁 Specific implementations based on user input during UAT
 
-3. **Improved Map Reliability & Marker Rendering**
-   Users reported that the red user-location marker sometimes disappeared when navigating back to the Home screen.  
-   We identified that the legacy `<Marker>` component was unstable during remounting and replaced it with `<MarkerF>`, ensuring consistent rendering across navigation transitions.
+1. **Enhanced Trust Through Official Data Visibility**  
+   User wanted stronger transparency in risk calculation.
 
-4. **Optimized Shelter Capacity Visualization**
-   Users found raw victim numbers harder to interpret quickly.  
-   We introduced:
+    ✅ Iteration:
+    - Added visible nearest JPS station distance
+    - Displayed official rainfall & water level alongside AI risk
+
+2. **Improved Map Reliability & Marker Rendering**
+   User location marker disappeared during navigation transitions.
+
+   ✅ Iteration:
+    - Replaced unstable <Marker> with <MarkerF>
+    - Ensured consistent rendering on component remount
+
+3. **Optimized Shelter Capacity Visualization**
+   Found raw victim numbers harder to interpret quickly.
+   
+    ✅ Iteration:
    - Color-coded occupancy indicators (🟢 Available, 🟡 Almost Full, 🔴 Full)
    - Automatic occupancy percentage calculation
    - Capacity clamping (0–100%) to prevent invalid display states
 
-5. **Enhanced Shelter Navigation Flow**
+4. **Enhanced Shelter Navigation Flow**
    Initially, the “Get Directions” button and shelter information card appeared side-by-side, reducing clarity.  
-   Based on usability testing, we:
+
+   ✅ Iteration:
    - Stacked the action button above the route detail card
    - Auto-focused map to the nearest PPS
    - Displayed structured PPS details (name, location, distance, occupancy)
   
-6. **Converted Static Checklist into AI-Generated Checklist**
+5. **Converted Static Checklist into AI-Generated Checklist**
 
    Initial prototype used static safety instructions.
    Users indicated that generic instructions felt less trustworthy.
@@ -453,7 +471,7 @@ These findings directly influenced our system architecture and feature prioritiz
    - Checklist now adapts to real-time flood risk level.
    - Tasks are concise, actionable, and context-aware.
   
-7. **Improved AI Output Structure for Clarity Under Stress**
+6. **Improved AI Output Structure for Clarity Under Stress**
 
    Early Gemini outputs were longer and included explanatory text.
    Test users reported that lengthy instructions reduce clarity in emergency situations.
@@ -465,7 +483,7 @@ These findings directly influenced our system architecture and feature prioritiz
 
    Result: Faster comprehension under high-stress scenarios.
    
-8. **Strengthened Trust Through Government + AI Hybrid Model**
+7. **Strengthened Trust Through Government + AI Hybrid Model**
 
    Some users expressed concern about relying purely on AI prediction.
 
@@ -476,7 +494,7 @@ These findings directly influenced our system architecture and feature prioritiz
 
    This increased perceived reliability and system credibility.
 
-9. **Future AI Severity Validation (Vision API Roadmap)**
+8. **Future AI Severity Validation (Vision API Roadmap)**
 
    Users were concerned about fake emergency reports.
 
@@ -487,16 +505,7 @@ These findings directly influenced our system architecture and feature prioritiz
 
 ---
 
-## 🧪 User Acceptance Testing (Post-Development)
-### We conducted structured real-user testing to evaluate:
-- Risk clarity  
-- AI checklist usefulness  
-- Nearby JPS trust impact  
-- Shelter map usability  
-- SOS confidence level  
-- Navigation ease
-
-### 📊 Quantitative Metrics
+## 📊 Quantitative Metrics (Post development survey to the user who participated in UAT)
 
 - **Task completion rate (risk identification):** [XX]%  
 - **Average time to complete flood risk check:** [XX] seconds  
