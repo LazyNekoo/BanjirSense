@@ -508,23 +508,9 @@ These findings directly influenced our system architecture and feature prioritiz
    - Integrate Google Cloud Vision API for water-level image validation.
    - Assist rescue prioritization logic.
    - Reduce false-positive emergency submissions.
-
+  
 ---
-
-## 🚀 Scalability Potential
-
-- Vertex AI model upgrade ready  
-- Vision API integration ready  
-- Authority dashboard expansion  
-- Multi-state rollout capability  
-- Real-time coordination with:
-  - NADMA  
-  - BOMBA  
-  - NGOs  
-  - Local councils  
-
----
-
+  
 ## 🏆 Why BanjirSense Is Different
 
 | Traditional Flood Apps | BanjirSense |
@@ -536,6 +522,72 @@ These findings directly influenced our system architecture and feature prioritiz
 | Reactive | Predictive + Responsive |
 
 ---
+
+## 🚀 Scalability & Deployment Roadmap
+
+BanjirSense is designed with long-term scalability, government integration readiness, and multi-disaster expansion in mind.
+
+---
+
+### 📍 Phase 1 — Pilot Deployment
+
+- University / small district testing  
+- 100–500 user simulation  
+- Firebase Spark plan (initial scaling)  
+- Collect usability & emergency response metrics  
+
+**Goal:** Validate performance, usability, and real-world responsiveness under controlled pilot conditions.
+
+---
+
+### 🏙️ Phase 2 — District-Level Integration
+
+- Integrate official JPS river API endpoints  
+- Collaboration with local council authorities  
+- Authority dashboard (beta release)  
+- Stress testing during heavy rainfall events  
+
+**Goal:** Enable structured coordination between citizens and district-level emergency responders.
+
+---
+
+### 🇲🇾 Phase 3 — National Scaling
+
+- Multi-state deployment  
+- Auto-scaling cloud backend  
+- Government SaaS licensing model  
+- Expansion to multi-disaster coverage (landslides, storms)  
+
+**Goal:** Transform BanjirSense into a nationally deployable disaster management platform.
+
+---
+
+## ☁️ Cloud Scalability Architecture
+
+BanjirSense is built using a serverless, auto-scaling cloud model:
+
+- Built on Google Cloud infrastructure  
+- Firebase auto-scales under high user load  
+- Modular AI components (Vertex AI, Gemini, Vision API)  
+- API-ready for government system integration  
+
+This ensures resilience during high-traffic flood emergencies.
+
+---
+
+## 🌱 Sustainability Model
+
+To ensure long-term viability and national adoption:
+
+- Free public access for citizens  
+- Government SaaS dashboard subscription  
+- Insurance & disaster-risk analytics partnerships  
+- Corporate Social Responsibility (CSR) sponsorship programs  
+
+This hybrid sustainability approach balances public benefit with operational continuity.
+
+---
+
 
 ## 📌 Development Status
 
