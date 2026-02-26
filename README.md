@@ -378,9 +378,6 @@ Users can view:
 - Nearest active evacuation centre (Pusat Pemindahan Sementara – PPS)  
 - Distance from current location  
 - Shelter capacity percentage (% full)  
-- Number of evacuees (`mangsa`)  
-- Number of families (`keluarga`)  
-- Active disaster type (Banjir / Kebakaran / etc.)
 
 This integration ensures users are directed to **official, government-verified shelters** with real operational capacity data, enabling smarter evacuation decisions and better rescue coordination.
 
