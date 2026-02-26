@@ -417,30 +417,6 @@ These findings directly influenced our system architecture and feature prioritiz
 
 ---
 
-## 🧪 User Acceptance Testing (UAT) 
-### We conducted structured real-user testing to evaluate:
-- Risk clarity  
-- AI checklist usefulness  
-- Nearby JPS trust impact  
-- Shelter map usability  
-- SOS confidence level  
-- Navigation ease
-
-### 📊 Quantitative Metrics
-
-- **Task completion rate (risk identification):** [XX]%  
-- **Average time to complete flood risk check:** [XX] seconds  
-- **Average time to activate SOS flow:** [XX] seconds  
-- **Clarity rating (1–5 scale):** [X.X] / 5  
-- **Users preferring AI-generated checklist over generic warning:** [X]/[TOTAL_TESTERS]  
-
-### Feedback was used to:
-- Improve UI clarity  
-- Simplify station status labels  
-- Enhance emergency flow readability  
-
----
-
 ### 🔁 Key Iterations Implemented Based on Feedback
 
 1. **Improved Government Station Status Clarity**  
@@ -509,6 +485,25 @@ These findings directly influenced our system architecture and feature prioritiz
    - Assist rescue prioritization logic.
    - Reduce false-positive emergency submissions.
   
+---
+
+## 🧪 User Acceptance Testing (UAT) 
+### We conducted structured real-user testing to evaluate:
+- Risk clarity  
+- AI checklist usefulness  
+- Nearby JPS trust impact  
+- Shelter map usability  
+- SOS confidence level  
+- Navigation ease
+
+### 📊 Quantitative Metrics
+
+- **Task completion rate (risk identification):** [XX]%  
+- **Average time to complete flood risk check:** [XX] seconds  
+- **Average time to activate SOS flow:** [XX] seconds  
+- **Clarity rating (1–5 scale):** [X.X] / 5  
+- **Users preferring AI-generated checklist over generic warning:** [X]/[TOTAL_TESTERS]  
+
 ---
   
 ## 🏆 Why BanjirSense Is Different
