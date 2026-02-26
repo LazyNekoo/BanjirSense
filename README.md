@@ -546,8 +546,7 @@ BanjirSense is designed with long-term scalability, government integration readi
 ---
 
 ### 🏙️ Phase 2 — District-Level Integration
-
-- Integrate official JPS river API endpoints  
+ 
 - Collaboration with local council authorities  
 - Authority dashboard (beta release)  
 - Stress testing during heavy rainfall events  
