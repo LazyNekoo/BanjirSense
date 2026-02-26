@@ -34,8 +34,8 @@ export const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
   };
 
   return (
-    <div className="bg-slate-100 min-h-screen flex items-center justify-center p-0 md:p-6 font-display text-dark-navy">
-      <div className="w-full max-w-[390px] bg-white h-screen md:h-[844px] rounded-none md:rounded-[2.5rem] shadow-none md:shadow-2xl overflow-hidden flex flex-col relative border-0 md:border md:border-slate-200">
+    <div className="bg-slate-100 min-h-screen flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
+      <div className="w-full max-w-[400px] bg-white h-screen md:h-[824px] rounded-none md:rounded-[3rem] shadow-none md:shadow-2xl overflow-hidden flex flex-col relative border-0 md:border md:border-slate-200">
         {/* Header */}
         <header className="flex-none px-8 pt-8 pb-5 bg-white sticky top-0 z-30 border-b border-slate-100">
           <div className="flex items-center justify-between mb-5">

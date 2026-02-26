@@ -26,8 +26,8 @@ export const PasswordResetSuccessScreen: React.FC<PasswordResetSuccessScreenProp
   };
 
   return (
-    <div className="bg-slate-100 min-h-screen flex items-center justify-center p-0 md:p-6 font-display text-dark-navy">
-      <div className="w-full max-w-[390px] bg-white h-screen md:h-[844px] rounded-none md:rounded-[2.5rem] shadow-none md:shadow-2xl overflow-hidden flex flex-col relative border-0 md:border md:border-slate-200">
+    <div className="bg-slate-100 min-h-screen flex items-center justify-center p-0 md:p-4 font-display text-dark-navy">
+      <div className="w-full max-w-[400px] bg-white h-screen md:h-[824px] rounded-none md:rounded-[3rem] shadow-none md:shadow-2xl overflow-hidden flex flex-col relative border-0 md:border md:border-slate-200">
         {/* Header */}
         <header className="flex-none px-8 pt-12 pb-4 text-center">
           <div className="flex flex-col items-center gap-4">
