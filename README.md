@@ -551,7 +551,7 @@ BanjirSense is designed with long-term scalability, government integration readi
 
 ---
 
-### 🇲🇾 Phase 3 — National Scaling
+### 🌐 Phase 3 — National Scaling
 
 - Multi-state deployment  
 - Auto-scaling cloud backend  
@@ -596,7 +596,7 @@ This hybrid sustainability approach balances public benefit with operational con
 - AI risk scoring  
 - Gemini integration  
 - JPS & JKM (Nearby PPS) integration  
-- SOS flow UI  
+- SOS flow UI 
 - Profile + dependents  
 - Real-time Firestore sync  
 
@@ -606,6 +606,7 @@ This hybrid sustainability approach balances public benefit with operational con
 - Push notifications  
 - Advanced analytics  
 - ML-based risk model deployment (Vertex)
+- Offline SOS Capability
 
 ---
 
