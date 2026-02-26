@@ -327,7 +327,7 @@ This improved system robustness against unpredictable external APIs.
 
 ---
 
-### 🔹 Challenge 14: Balancing AI Automation with Ethical Responsibility
+### 🔹 Challenge 4: Balancing AI Automation with Ethical Responsibility
 
 Using AI for emergency prioritization raises ethical concerns:
 - Over-prioritization risk
