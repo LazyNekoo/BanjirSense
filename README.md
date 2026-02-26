@@ -121,7 +121,7 @@ BanjirSense is an AI-powered disaster management system that supports users acro
 
 ### 1️⃣ Before Flood — Predict & Prepare
 - Location-aware flood risk scoring  
-- Official JPS (Public InfoBanjir) integration  
+- Official JPS (Public InfoBanjir) & JKM integration  
 - AI-generated personalized preparation checklist  
 
 ### 2️⃣ During Flood — Stranded Mode (SOS)
@@ -627,7 +627,7 @@ This hybrid sustainability approach balances public benefit with operational con
 ## 👥 Team
 
 ### 👨‍💻 Luqman Naqiuddin bin Zulhaimi
-**Role:** Team Leader & Frontend Developer 
+**Role:** Team Leader & Frontend Developer <br>
 📧 Email: luqmannaqiuddin17@gmail.com
 
 ### 👩‍💻 Siti Fatimah Binti Saniy Wong  
