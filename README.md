@@ -277,13 +277,13 @@ Make sure you have installed:
 
 ---
 
-#### 📂 1) Clone the Repository
+### 📂 1) Clone the Repository
 
 ```bash
 git clone https://github.com/your-username/BanjirSense.git
 cd BanjirSense
 ```
-#### ⚙️ 2) Setup Environment Variables
+### ⚙️ 2) Setup Environment Variables
 
 🔹 Backend (/backend)
 Create a .env file inside /backend:
@@ -308,14 +308,14 @@ VITE_FIREBASE_APP_ID=
 VITE_GOOGLE_MAPS_API_KEY=
 ```
 
-#### 🔐 3) Firebase Service Account Setup (Backend)
+### 🔐 3) Firebase Service Account Setup (Backend)
 
 Inside the `backend` folder, create a directory called:
 backend/keys/
 Place your Firebase Admin SDK service account file inside: <br>
 backend/keys/serviceAccount.json
 
-#### 🖥️ 4) Install Dependencies
+### 🖥️ 4) Install Dependencies
 🔹 Backend
 ```bash
 cd backend
@@ -328,7 +328,7 @@ cd ../frontend
 npm install
 ```
 
-#### ▶️ 5) Run the System
+### ▶️ 5) Run the System
 
 🔹 Start Backend Server
 ```bash
@@ -342,7 +342,7 @@ cd frontend
 npm run dev
 ```
 
-#### 🧠 6) Development Notes
+### 🧠 6) Development Notes
 - Backend must run before frontend.
 - Ensure Firebase credentials are valid.
 - Ensure Gemini API key is active.
