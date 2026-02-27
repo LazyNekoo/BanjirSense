@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BanjirSense Token Generator</title>
+    <style>
+      body { font-family: Arial; padding: 20px; max-width: 900px; margin: auto; }
+      button { padding: 10px 14px; margin-right: 10px; cursor: pointer; }
+      pre { white-space: pre-wrap; word-break: break-all; background: #111; color: #0f0; padding: 12px; border-radius: 8px; }
+      input { width: 100%; padding: 10px; }
+    </style>
+  </head>
+  <body>
+    <h2>Firebase ID Token Generator (Google Sign-In)</h2>
+
+    <p>1) Click <b>Login with Google</b></p>
+    <p>2) Copy the <b>ID Token</b> below</p>
+    <p>3) Use Thunder Client → Header: <code>Authorization: Bearer &lt;token&gt;</code></p>
+
+    <button id="loginBtn">Login with Google</button>
+    <button id="getTokenBtn">Get ID Token</button>
+    <button id="logoutBtn">Logout</button>
+
+    <h3>ID Token</h3>
+    <pre id="tokenOut">Not logged in yet.</pre>
+
+    <h3>Email/Password</h3>
+    <input id="email" placeholder="Email" />
+    <br/><br/>
+    <input id="pass" placeholder="Password" type="password" />
+    <br/><br/>
+    <button id="signupEmailBtn">Sign up (Email)</button>
+    <button id="loginEmailBtn">Login (Email)</button>
+    <hr/>
+
+    <h3>Phone Login</h3>
+    <input id="phone" placeholder="+60123456789" />
+    <br/><br/>
+    <div id="recaptcha-container"></div>
+    <br/>
+    <button id="sendOtpBtn">Send OTP</button>
+    <br/><br/>
+    <input id="otp" placeholder="Enter OTP" />
+    <br/><br/>
+    <button id="verifyOtpBtn">Verify OTP</button>
+    <hr/>
+
+
+
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+        getAuth,
+        GoogleAuthProvider,
+        signInWithPopup,
+        signOut,
+        onAuthStateChanged,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        RecaptchaVerifier,
+        signInWithPhoneNumber
+        
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    // ✅ Your Firebase config (OK to keep here)
+    const firebaseConfig = {
+        apiKey: "AIzaSyA9QVWtYtCUSdGcgh9JVXXjcUZXHu4zGyQ",
+        authDomain: "sage-sight-485514-a5.firebaseapp.com",
+        projectId: "sage-sight-485514-a5",
+        appId: "1:729024107107:web:43217abc0465aecf3ade56",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    const tokenOut = document.getElementById("tokenOut");
+    const emailEl = document.getElementById("email");
+    const passEl = document.getElementById("pass");
+
+    // ---------------- Google ----------------
+    document.getElementById("loginBtn").onclick = async () => {
+        try {
+        await signInWithPopup(auth, provider);
+        } catch (e) {
+        tokenOut.textContent = "Google login failed: " + e.message;
+        }
+    };
+
+    // ---------------- Email/Password ----------------
+    document.getElementById("signupEmailBtn").onclick = async () => {
+        try {
+        const email = emailEl.value.trim();
+        const pass = passEl.value;
+
+        if (!email || !pass) {
+            tokenOut.textContent = "Please enter email + password.";
+            return;
+        }
+
+        await createUserWithEmailAndPassword(auth, email, pass);
+        tokenOut.textContent = "✅ Signed up. Click Get ID Token.";
+        } catch (e) {
+        tokenOut.textContent = "Signup failed: " + e.message;
+        }
+    };
+
+    document.getElementById("loginEmailBtn").onclick = async () => {
+        try {
+        const email = emailEl.value.trim();
+        const pass = passEl.value;
+
+        if (!email || !pass) {
+            tokenOut.textContent = "Please enter email + password.";
+            return;
+        }
+
+        await signInWithEmailAndPassword(auth, email, pass);
+        tokenOut.textContent = "✅ Logged in. Click Get ID Token.";
+        } catch (e) {
+        tokenOut.textContent = "Login failed: " + e.message;
+        }
+    };
+
+    // ---------------- Phone Number ----------------
+    
+    // Setup invisible reCAPTCHA
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+        });
+
+        // Send OTP
+        document.getElementById("sendOtpBtn").onclick = async () => {
+        try {
+            const phoneNumber = document.getElementById("phone").value.trim();
+            const appVerifier = window.recaptchaVerifier;
+
+            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+            window.confirmationResult = confirmationResult;
+
+            tokenOut.textContent = "OTP sent. Enter code below.";
+        } catch (e) {
+            tokenOut.textContent = "Send OTP failed: " + e.message;
+        }
+        };
+
+        // Verify OTP
+        document.getElementById("verifyOtpBtn").onclick = async () => {
+        try {
+            const code = document.getElementById("otp").value.trim();
+            const result = await window.confirmationResult.confirm(code);
+
+            tokenOut.textContent = "Phone login success. Click Get ID Token.";
+        } catch (e) {
+            tokenOut.textContent = "OTP verification failed: " + e.message;
+        }
+        };
+
+
+    // ---------------- Token + logout ----------------
+    document.getElementById("getTokenBtn").onclick = async () => {
+        try {
+        const user = auth.currentUser;
+        if (!user) {
+            tokenOut.textContent = "Not logged in.";
+            return;
+        }
+        const token = await user.getIdToken(true);
+        tokenOut.textContent = token;
+        } catch (e) {
+        tokenOut.textContent = "Get token failed: " + e.message;
+        }
+    };
+
+    document.getElementById("logoutBtn").onclick = async () => {
+        await signOut(auth);
+        tokenOut.textContent = "Logged out.";
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+        tokenOut.textContent =
+            "Logged in as: " + (user.email || user.uid) + "\nClick 'Get ID Token'.";
+        } else {
+        tokenOut.textContent = "Not logged in yet.";
+        }
+    });
+    </script>
+
+  </body>
+</html>
