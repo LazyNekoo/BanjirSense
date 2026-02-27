@@ -296,8 +296,8 @@ GEMINI_MODEL=
 GOOGLE_MAP_API_KEY=
 ```
 
-🔹 Frontend (/frontend)
-Create a .env file inside /frontend:
+🔹 Frontend (/frontEnd)
+Create a .env file inside /frontEnd:
 ```bash
 VITE_PORT=5173
 VITE_API_BASE_URL=
@@ -324,7 +324,7 @@ npm install
 
 🔹 Frontend
 ```bash
-cd ../frontend
+cd ../frontEnd
 npm install
 ```
 
@@ -338,7 +338,7 @@ node server.js
 
 🔹 Start Frontend
 ```bash
-cd frontend
+cd frontEnd
 npm run dev
 ```
 
