@@ -265,6 +265,91 @@ Live Map + Rescue Coordination <br>
 
 
 ---
+## 🚀 How to Run BanjirSense Locally
+
+### 📦 Prerequisites
+
+Make sure you have installed:
+
+- Node.js (v18+ recommended)
+- npm
+- Git
+
+---
+
+#### 📂 1) Clone the Repository
+
+```bash
+git clone https://github.com/your-username/BanjirSense.git
+cd BanjirSense
+```
+#### ⚙️ 2) Setup Environment Variables
+
+🔹 Backend (/backend)
+Create a .env file inside /backend:
+```bash
+PROJECT_ID=
+FIREBASE_PROJECT_ID=
+REGION=
+GEMINI_API_KEY=
+GEMINI_MODEL=
+GOOGLE_MAP_API_KEY=
+```
+
+🔹 Frontend (/frontend)
+Create a .env file inside /frontend:
+```bash
+VITE_PORT=5173
+VITE_API_BASE_URL=
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_APP_ID=
+VITE_GOOGLE_MAPS_API_KEY=
+```
+
+#### 🔐 3) Firebase Service Account Setup (Backend)
+
+Inside the `backend` folder, create a directory called:
+backend/keys/
+Place your Firebase Admin SDK service account file inside: <br>
+backend/keys/serviceAccount.json
+
+#### 🖥️ 4) Install Dependencies
+🔹 Backend
+```bash
+cd backend
+npm install
+```
+
+🔹 Frontend
+```bash
+cd ../frontend
+npm install
+```
+
+#### ▶️ 5) Run the System
+
+🔹 Start Backend Server
+```bash
+cd backend
+node server.js
+```
+
+🔹 Start Frontend
+```bash
+cd frontend
+npm run dev
+```
+
+#### 🧠 6) Development Notes
+- Backend must run before frontend.
+- Ensure Firebase credentials are valid.
+- Ensure Gemini API key is active.
+- Government API endpoints (JPS / JKM) require internet access.
+
+
+---
 
 ## 🔐 Security Architecture
 
@@ -399,7 +484,11 @@ The SOS flow includes:
 
 ---
 
-## 📊 Market Validation (Pre-Development Survey)
+## 📊 Market Validation 
+
+---
+
+## 📊 Market Validation 
 
 Before development, we conducted a survey (20 respondents) to validate problem relevance and feature priorities.
 
@@ -417,7 +506,7 @@ These findings directly influenced our system architecture and feature prioritiz
 
 ###  Testing Process : 
 
-- Recruited [X] external participants (non-team members).
+- Recruited 4 external participants (non-team members).
 - Asked users to perform specific tasks:
   - Identify flood risk level
   - Interpret JPS station data
@@ -458,57 +547,47 @@ These findings directly influenced our system architecture and feature prioritiz
    - Auto-focused map to the nearest PPS
    - Displayed structured PPS details (name, location, distance, occupancy)
   
-5. **Converted Static Checklist into AI-Generated Checklist**
+---
 
-   Initial prototype used static safety instructions.
-   Users indicated that generic instructions felt less trustworthy.
+## 📊 Impact & Success Metrics (Post-Development)
 
-   ✅ Iteration:
-   - Replaced static checklist with Gemini-generated dynamic checklist.
-   - Checklist now adapts to real-time flood risk level.
-   - Tasks are concise, actionable, and context-aware.
-  
-6. **Improved AI Output Structure for Clarity Under Stress**
-
-   Early Gemini outputs were longer and included explanatory text.
-   Test users reported that lengthy instructions reduce clarity in emergency situations.
-
-   ✅ Iteration:
-   - Enforced strict output rules (3–8 words, verb-based, no narrative).
-   - Limited output to 3–4 concise action steps.
-   - Removed unnecessary explanatory text.
-
-   Result: Faster comprehension under high-stress scenarios.
-   
-7. **Strengthened Trust Through Government + AI Hybrid Model**
-
-   Some users expressed concern about relying purely on AI prediction.
-
-   ✅ Iteration:
-   - Combined JPS official station data with AI risk scoring.
-   - Displayed nearest JPS station alongside AI risk result.
-   - Ensured transparency between data source and AI output.
-
-   This increased perceived reliability and system credibility.
-
-8. **Future AI Severity Validation (Vision API Roadmap)**
-
-   Users were concerned about fake emergency reports.
-
-   ✅ Planned Iteration:
-   - Integrate Google Cloud Vision API for water-level image validation.
-   - Assist rescue prioritization logic.
-   - Reduce false-positive emergency submissions.
+Based on structured UAT with **4 external participants**:
 
 ---
 
-## 📊 Quantitative Metrics (Post development survey to the user who participated in UAT)
+### ⏱ Speed & Efficiency
 
-- **Task completion rate (risk identification):** [XX]%  
-- **Average time to complete flood risk check:** [XX] seconds  
-- **Average time to activate SOS flow:** [XX] seconds  
-- **Clarity rating (1–5 scale):** [X.X] / 5  
-- **Users preferring AI-generated checklist over generic warning:** [X]/[TOTAL_TESTERS]
+- **Average Flood Risk Identification Time:** 26.25 seconds  
+- **Average SOS Activation Time:** 32.5 seconds  
+
+These results demonstrate fast decision-making and emergency usability under 1 minute.
+
+---
+
+### 📈 Clarity & Guidance Effectiveness
+
+- **Risk Clarity Rating:** 4.5 / 5 (90%)  
+- **AI Checklist Helpfulness:** 4.75 / 5 (90%)  
+
+Users reported strong understanding of their flood risk and found AI-generated preparation steps highly actionable.
+
+---
+
+### 🤝 Trust & Credibility
+
+- **75% reported increased trust** after viewing the nearest official JPS station  
+- **25% reported slight trust increase**  
+- **0 negative trust impact**
+
+This validates the hybrid **AI + official government data** approach.
+
+---
+
+### 🧭 User Experience Quality
+
+- **Navigation Ease Score:** 5 / 5 (100%)
+
+All users reported smooth and intuitive navigation across the system.
 
 ---
 
