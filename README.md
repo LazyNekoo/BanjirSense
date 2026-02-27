@@ -488,7 +488,7 @@ The SOS flow includes:
 
 ---
 
-## 📊 Market Validation (During development)
+## 📊 Market Validation (Pre-development)
 
 Before development, we conducted a survey (20 respondents) to validate problem relevance and feature priorities.
 
