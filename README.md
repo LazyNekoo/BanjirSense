@@ -484,7 +484,8 @@ The SOS flow includes:
 
 ---
 
-## 📊 Pain Points Identification (Pre-development)
+## 📊 Pain Points Identification (Pre-development)  
+- 4 Core Test Users (External Paerticipant)
 
 ---
 
@@ -506,7 +507,7 @@ These findings directly influenced our system architecture and feature prioritiz
 
 ###  Testing Process : 
 
-- Recruited 4 external participants (non-team members).
+- Recruited 4 core test users (non-team members).
 - Asked users to perform specific tasks:
   - Identify flood risk level
   - Interpret JPS station data
@@ -515,7 +516,7 @@ These findings directly influenced our system architecture and feature prioritiz
 - Observed completion behavior and usability friction points.
 - Collected structured feedback through a post-test survey form.
 
-### 🔁 Specific implementations based on user input during UAT
+### 🔁 Specific implementations based on user input during UAT 
 
 1. **Enhanced Trust Through Official Data Visibility**  
    User wanted stronger transparency in risk calculation.
