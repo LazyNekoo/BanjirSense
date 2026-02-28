@@ -485,13 +485,21 @@ The SOS flow includes:
 ---
 
 ## 📊 Pain Points Identification (Pre-development)  
-- 4 Core Test Users (External Paerticipant)
+- 4 Core Test Users (External Participant)
+The pre-development study of 4 core test users reveals a critical breakdown in the earliest stages of flood management:
+
+- Ineffective Warning Infrastructure: 0% of participants receive alerts through official warning sirens or announcements.
+- Widespread Disorganization: 50% of users identify the Initial Warning phase as the most disorganized part of the current flood management process.
+- Manual Detection Reliance: 75% of residents must physically watch water levels in nearby drains or rivers to detect imminent danger.
+- Information Bottlenecks: 50% of users depend on informal WhatsApp groups or neighbors for updates due to a lack of verified, real-time data.
+- Delayed Action: 75% of victims fail to evacuate in time because they underestimate the threat, proving that current alerts lack location-specific risk clarity.
+- Logistical Blind Spots: 50% of evacuees do not know where the nearest open shelter is, causing dangerous delays during rising waters.
 
 ---
 
 ## 📊 Market Validation (Pre-development)
 
-Before development, we conducted a survey (20 respondents) to validate problem relevance and feature priorities.
+We conducted a survey (20 respondents) to validate problem relevance and feature priorities.
 
 ### Key Findings:
 - 95% prioritized personal safety  
