@@ -694,7 +694,7 @@ This hybrid sustainability approach balances public benefit with operational con
 ## 🎥 Live Demo & Presentation
 
 🎬 **Demo Video:**  
-https://studio.youtube.com/channel/UCbKjQpJYj_8ONNcJDmJb57A
+https://www.youtube.com/watch?v=42437e5UhNU
 
 📊 **Pitch Deck (Canva):**  
 https://drive.google.com/file/d/1N70eOHAxB6BLV0jEK5KAw90jhfMWvbQt/view?usp=sharing
