@@ -485,9 +485,10 @@ The SOS flow includes:
 ---
 
 ## 📊 Pain Points Identification (Pre-development)  
-- 4 Core Test Users (External Participant)
+4 Core Test Users (External Participant)
 The pre-development study of 4 core test users reveals a critical breakdown in the earliest stages of flood management:
 
+### Key Findings:
 - Ineffective Warning Infrastructure: 0% of participants receive alerts through official warning sirens or announcements.
 - Widespread Disorganization: 50% of users identify the Initial Warning phase as the most disorganized part of the current flood management process.
 - Manual Detection Reliance: 75% of residents must physically watch water levels in nearby drains or rivers to detect imminent danger.
