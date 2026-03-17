@@ -14,6 +14,19 @@ import {
   Users,
 } from 'lucide-react';
 
+// Vision Result
+type VisionResult = {
+  verified: boolean;
+  topLabel?: string;     
+  labels?: string[];        
+  objects?: string[];       
+  text?: string;             
+  summary?: string;
+  hazards?: string[];
+  waterDepthEstimateM?: number | null;
+  confidence?: number | null;
+};
+
 interface DashboardDependent {
   id: string;
   fullName: string;
@@ -31,6 +44,60 @@ interface SOSRescueDashboardProps {
   hazardAlert?: string;
   medicalNeeds?: string | null;
   dependents?: DashboardDependent[];
+  vision?: VisionResult | null;
+}
+
+function deriveVisionSOS(vision?: VisionResult | null) {
+  const joined = [
+  vision?.topLabel,
+  ...(vision?.labels || []),
+  ...(vision?.objects || []),
+  vision?.text,
+  vision?.summary,
+]
+  .filter(Boolean)
+  .join(" ");
+
+  const labelLower = joined.toLowerCase();
+
+  const hazards: string[] = [];
+
+  // Rule A: flood/water-related
+  if (/(water|flood|river|puddle|rain|storm|drain|overflow|mud)/i.test(labelLower)) {
+    hazards.push("Flood water detected");
+  }
+
+  // Rule B: obstacle/access-related
+  if (/(stairs|road|bridge|car|vehicle|tree|debris|blocked|collapse|pole)/i.test(labelLower)) {
+    hazards.push("Obstacle / access blocked");
+  }
+
+  // Rule C: danger signals
+  if (/(current|wave|fast|deep|swirl)/i.test(labelLower)) {
+    hazards.push("Fast current risk");
+  }
+
+  // If backend already provided hazards, merge them in
+  if (vision?.hazards?.length) {
+    vision.hazards.forEach((h) => {
+      if (!hazards.includes(h)) hazards.push(h);
+    });
+  }
+
+  // Build a nicer “Detected:” line
+  let detectedLine = "";
+  if (hazards.length > 0) {
+    detectedLine = `Detected: ${hazards.join(" • ")}`;
+  } else if (joined) {
+    detectedLine = `Scene recognized: ${joined}`;
+  } else {
+    detectedLine = "No vision insight available.";
+  }
+
+  return {
+    detectedLine,
+    hazardChips: hazards,
+  };
 }
 
 // triage tag → colour
@@ -47,11 +114,32 @@ function triageStyle(tag: string) {
 }
 
 // ── Live Updates data ─────────────────────────────────────────────────────────
-const UPDATES = [
-  { id: 1, time: 'Now',       text: 'Rescue team dispatched and en route',  icon: <Radio        className="w-3.5 h-3.5" />, accent: 'text-hazard-red'  },
-  { id: 2, time: '2 min ago', text: 'Your SOS signal received by command',  icon: <CheckCircle2 className="w-3.5 h-3.5" />, accent: 'text-trust-green' },
-  { id: 3, time: '5 min ago', text: 'Photo intel analyzed by Vision AI',    icon: <CheckCircle2 className="w-3.5 h-3.5" />, accent: 'text-slate-400'  },
-];
+function getUpdates(isVisionVerified: boolean) {
+  const base = [
+    { id: 1, time: 'Now', text: 'Rescue team dispatched and en route', icon: <Radio className="w-3.5 h-3.5" />, accent: 'text-hazard-red' },
+    { id: 2, time: '2 min ago', text: 'Your SOS signal received by command', icon: <CheckCircle2 className="w-3.5 h-3.5" />, accent: 'text-trust-green' },
+  ];
+
+  if (isVisionVerified) {
+    base.push({
+      id: 3,
+      time: '5 min ago',
+      text: 'Photo intel analyzed by Vision AI',
+      icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+      accent: 'text-slate-400',
+    });
+  } else {
+    base.push({
+      id: 3,
+      time: '5 min ago',
+      text: 'No photo submitted (Vision skipped)',
+      icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+      accent: 'text-slate-400',
+    });
+  }
+
+  return base;
+}
 
 // ── Tactical Map ─────────────────────────────────────────────────────────────
 function TacticalMap({ etaMins, distanceKm }: { etaMins: number; distanceKm: number }) {
@@ -113,10 +201,13 @@ export function SOSRescueDashboard({
   hazardAlert = 'Moving current detected near north entrance',
   medicalNeeds = null,
   dependents = [],
+  vision = null,
 }: SOSRescueDashboardProps) {
   // total people = user + dependents
   const totalOccupants = 1 + dependents.length;
   const [eta, setEta] = useState(etaMins);
+  const isVisionVerified = Boolean(vision?.verified);
+  const derived = deriveVisionSOS(vision);
 
   useEffect(() => {
     if (eta <= 0) return;
@@ -176,7 +267,7 @@ export function SOSRescueDashboard({
                   <div className="w-8 h-8 rounded-lg bg-zinc-700 flex items-center justify-center text-hazard-red border border-zinc-600">
                     <Droplets size={16} />
                   </div>
-                  <span className="text-sm font-bold text-white">Water Depth</span>
+                  <span className="text-sm font-bold text-white">Station Water Level (JPS)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-black text-white">
@@ -204,6 +295,73 @@ export function SOSRescueDashboard({
               </div>
             </div>
           </section>
+
+          {/* Vision */}
+          <section className="px-5 mt-4">
+            <p className="text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-3">
+              Vision Layer
+            </p>
+
+            <div className="bg-zinc-800 rounded-3xl border border-zinc-700 overflow-hidden">
+              {/* Status row */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-700">
+                <span className="text-sm font-bold text-white">Photo Validation</span>
+
+                {vision?.verified ? (
+                  <span className="text-[9px] font-bold text-trust-green bg-trust-green/10 border border-trust-green/20 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    Vision Verified
+                  </span>
+                ) : (
+                  <span className="text-[9px] font-bold text-zinc-300 bg-zinc-700 border border-zinc-600 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    Not Provided
+                  </span>
+                )}
+              </div>
+
+              {/* Summary */}
+              <div className="px-5 py-4">
+                <p className="text-sm text-zinc-200 font-medium leading-snug">
+                  {isVisionVerified
+                    ? (vision?.summary || derived.detectedLine)
+                    : "No photo submitted. Vision validation unavailable."}
+                </p>
+
+                {/* Hazards chips (use derived) */}
+                {isVisionVerified && derived.hazardChips.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {derived.hazardChips.map((h, idx) => (
+                      <span
+                        key={idx}
+                        className="text-[10px] font-bold px-2 py-1 rounded-full bg-hazard-red/10 border border-hazard-red/30 text-zinc-200 uppercase tracking-wider"
+                      >
+                        {h}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Estimated depth (Vision) */}
+                {isVisionVerified && typeof vision?.waterDepthEstimateM === "number" && (
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                      Estimated Local Depth (Vision)
+                    </span>
+                    <span className="text-sm font-black text-white">
+                      ~{vision.waterDepthEstimateM.toFixed(2)}m
+                    </span>
+                  </div>
+                )}
+
+                {/* Confidence */}
+                {isVisionVerified && typeof vision?.confidence === "number" && (
+                  <p className="mt-2 text-[11px] text-zinc-400 font-semibold">
+                    Confidence: {(vision.confidence * 100).toFixed(0)}%
+                  </p>
+                )}
+              </div>
+            </div>
+          </section>
+          
 
           {/* Dependents at same location */}
           {dependents.length > 0 && (
@@ -269,7 +427,7 @@ export function SOSRescueDashboard({
               Live Responder Updates
             </p>
             <div className="bg-zinc-800 rounded-3xl border border-zinc-700 divide-y divide-zinc-700 overflow-hidden">
-              {UPDATES.map((u) => (
+              {getUpdates(isVisionVerified).map((u) => (
                 <div key={u.id} className="flex items-start gap-3 px-5 py-3.5">
                   <div className={`flex-none mt-0.5 ${u.accent}`}>{u.icon}</div>
                   <p className="flex-1 text-sm font-semibold text-zinc-200 leading-snug">{u.text}</p>

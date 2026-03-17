@@ -48,6 +48,18 @@ import type { ReportDetailsData } from "./components/update/ReportDetails";
 import { ReportSuccess } from "./components/update/ReportSuccess";
 import type { AiRisk, JpsNearbyStation } from "./types/banjirsense";
 import ShelterMap from "./components/maps/ShelterMap";
+import { activateSOS } from "./lib/sos";
+
+type VisionStatus = "ANALYZED" | "SKIPPED" | "NOT_AVAILABLE";
+
+type VisionResult = {
+  status: VisionStatus;
+  verified?: boolean;
+  summary?: string;
+  hazards?: string[];
+  waterDepthEstimateM?: number | null;
+  confidence?: number | null;
+};
 
 type AppScreen =
   | "splash"
@@ -164,6 +176,7 @@ interface CurrentDependentData {
 
 function App() {
 
+  const [sosResult, setSosResult] = useState<{ vision?: VisionResult | null } | any | null>(null);
   const [prepScorePct, setPrepScorePct] = useState<number>(100);
   const [homeAi, setHomeAi] = useState<AiRisk | null>(null);
   const [homeJps, setHomeJps] = useState<JpsNearbyStation | null>(null);
@@ -982,13 +995,56 @@ function App() {
       )}
       {currentScreen === "sosCamera" && (
         <SOSCameraCapture
-          onSkipAndSend={() => {
-            console.log("SOS sent without photo");
-            setCurrentScreen("sosDashboard");
+          occupantCount={dependents?.length ? dependents.length + 1 : 1}
+          onSkipAndSend={async () => {
+            const lat = userLoc?.lat ?? 3.1390;
+            const lng = userLoc?.lng ?? 101.6869;
+
+            try {
+              const resp = await activateSOS({
+                lat,
+                lng,
+                peopleCount: 1,
+                specialNeeds: [],
+                note: "",
+                photoDataUrl: null,
+              });
+
+              setSosResult({
+                ...resp,
+                vision: { status: "SKIPPED", summary: "User skipped photo capture." },
+              });           
+              setCurrentScreen("sosDashboard");
+            } catch (e: any) {
+              console.error("SOS failed:", e?.message || e);
+              alert(e?.message || "SOS failed");
+            }
           }}
-          onSendPhoto={(photoDataUrl) => {
-            console.log("SOS sent with photo", photoDataUrl.substring(0, 50));
-            setCurrentScreen("sosDashboard");
+          onSendPhoto={async (photoDataUrl) => {
+            const lat = userLoc?.lat ?? 3.1390;
+            const lng = userLoc?.lng ?? 101.6869;
+
+            try {
+              const resp = await activateSOS({
+                lat,
+                lng,
+                peopleCount: 1,
+                specialNeeds: [],
+                note: "",
+                photoDataUrl,
+              });
+
+              setSosResult({
+                ...resp,
+                vision: resp?.vision
+                  ? { status: "ANALYZED", ...resp.vision }
+                  : { status: "ANALYZED", verified: false, summary: "Vision processed (no results returned)." },
+              });
+              setCurrentScreen("sosDashboard");
+            } catch (e: any) {
+              console.error("SOS failed:", e?.message || e);
+              alert(e?.message || "SOS failed");
+            }
           }}
         />
       )}
@@ -1000,6 +1056,7 @@ function App() {
           }}
           onNavigate={(screen) => setCurrentScreen(screen as AppScreen)}
           waterDepth={homeJps?.waterLevelM ?? null}
+          vision={sosResult?.vision ?? null}
           dependents={dependents.map(d => ({
             id: d.id,
             fullName: d.fullName,

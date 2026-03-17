@@ -1,3 +1,4 @@
+// src/lib/navigation.tsx
 import { createContext, useContext } from "react";
 
 type NavigationContextValue = {

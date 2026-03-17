@@ -15,7 +15,6 @@ interface AddDependentIdentityScreenProps {
 }
 
 const RELATIONSHIPS = [
-  { value: 'spouse', label: 'Spouse' },
   { value: 'child', label: 'Child' },
   { value: 'parent', label: 'Parent' },
   { value: 'sibling', label: 'Sibling' },
